@@ -1,0 +1,8 @@
+﻿*	Finish adding Bat Reference File Editor
+*	Add [MERGE] section heading in the middle of the header file
+so that each line is inserted after the file names - one line per file.
+Allows the user to generate a log file, then edit the header file to add
+a brief description of the start location for each .wav file based on the GPS
+co-ordinates.  The merge notes then get added into the final log file whenever
+the program is run.  Possibly subsequently allow a <tag> section at the start of the
+line to explicitly specify the file that the one-line descriptor applies to.

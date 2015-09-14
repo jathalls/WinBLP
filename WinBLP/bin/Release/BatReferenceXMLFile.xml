@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<BatLibrary>
+  <Bat Name="CommonPip">
+    <BatGenus>Pipistrellus</BatGenus>
+    <BatSpecies>pipistrellus</BatSpecies>
+    <BatCommonName>Common Pipistrelle</BatCommonName>
+    <BatTag>Common Pip</BatTag>
+    <BatTag>P45</BatTag>
+    <BatTag>Common pipistrelle</BatTag>
+  </Bat>
+  <Bat Name="SopranoPip">
+    <BatGenus>Pipistrellus</BatGenus>
+    <BatSpecies>pygmaeus</BatSpecies>
+    <BatCommonName>Soprano Pipistrelle</BatCommonName>
+    <BatTag>Soprano Pip</BatTag>
+    <BatTag>P55</BatTag>
+    <BatTag>Soprano pipistrelle</BatTag>
+    <BatTag>Soprano</BatTag>
+  </Bat>
+  <Bat Name="Noctule">
+    <BatGenus>Nyctalus</BatGenus>
+    <BatSpecies>noctula</BatSpecies>
+    <BatCommonName>Noctule</BatCommonName>
+    <BatTag>Noctule</BatTag>
+  </Bat>
+  <Bat Name="Leislers">
+    <BatGenus>Nyctalus</BatGenus>
+    <BatSpecies>leisleri</BatSpecies>
+    <BatCommonName>Leisler's</BatCommonName>
+    <BatTag>Leislers</BatTag>
+    <BatTag>Leisler's</BatTag>
+    
+  </Bat>
+  <Bat Name="Daubentons">
+    <BatGenus>Myotis</BatGenus>
+    <BatSpecies>daubentonii</BatSpecies>
+    <BatCommonName>Daubenton's</BatCommonName>
+    <BatTag>Daubentons</BatTag>
+    <BatTag>Daubenton</BatTag>
+    <BatTag>Daub</BatTag>
+  </Bat>
+  <Bat Name="Natterers">
+    <BatGenus>Myotis</BatGenus>
+    <BatSpecies>nattereri</BatSpecies>
+    <BatCommonName>Natterer's</BatCommonName>
+    <BatTag>Natterers</BatTag>
+    <BatTag>Natterer's</BatTag>
+    <BatTag>Natt</BatTag>
+  </Bat>
+<Bat Name="Serotine">
+    <BatGenus>Eptesicus</BatGenus>
+    <BatSpecies>serotinus</BatSpecies>
+    <BatCommonName>Serotine</BatCommonName>
+    <BatTag>Serotine</BatTag>
+    
+  </Bat>
+<Bat Name="BLE">
+    <BatGenus>Plecotus</BatGenus>
+    <BatSpecies>auritus</BatSpecies>
+    <BatCommonName>Brown Longeared Bat</BatCommonName>
+    <BatTag>BLE</BatTag>
+    <BatTag>Brown Longear</BatTag>
+    
+  </Bat>
+  <Bat Name="GLE">
+    <BatGenus>Plecotus</BatGenus>
+    <BatSpecies>austriacus</BatSpecies>
+    <BatCommonName>Grey Longeared Bat</BatCommonName>
+    <BatTag>GLE</BatTag>
+    <BatTag>Grey Longear</BatTag>
+    
+  </Bat>
+  <Bat Name="Barbastelle">
+    <BatGenus>Barbastelle</BatGenus>
+    <BatSpecies>barbastellus</BatSpecies>
+    <BatCommonName>Barbastelle</BatCommonName>
+    <BatTab>Barbastelle</BatTab>
+    <BatTag>Barb</BatTag>
+  </Bat>
+<Bat Name="MyotisSp">
+    <BatGenus>Myotis</BatGenus>
+    <BatSpecies>sp.</BatSpecies>
+    <BatCommonName>unknown Myotis</BatCommonName>
+    <BatTag>Myotis</BatTag>
+    <BatTag>Myotis sp.</BatTag>
+  <BatTag>Myotis sp</BatTag>
+    <BatTag>Myotis ?</BatTag>
+  </Bat>
+<Bat Name="P50">
+    <BatGenus>Pipistrellus</BatGenus>
+    <BatSpecies>sp.</BatSpecies>
+    <BatCommonName>P50</BatCommonName>
+    <BatTag>P50</BatTag>
+    <BatTag>Pip?</BatTag>
+    <BatTag>Pip ?</BatTag>
+  
+  </Bat>
+<Bat Name="Nathusius">
+    <BatGenus>Pipistrellus</BatGenus>
+    <BatSpecies>nathusii</BatSpecies>
+    <BatCommonName>Nathusius' Pipistrelle</BatCommonName>
+    <BatTag>Nathusius</BatTag>
+    <BatTag>Nathusius'</BatTag>
+    <BatTag>Nath</BatTag>
+    <BatTag>Naths</BatTag>
+  </Bat>
+<Bat Name="Savis">
+  <BatGenus>Hypsugo</BatGenus>
+  <BatSpecies>savii</BatSpecies>
+  <BatCommonName>Savi's</BatCommonName>
+  <BatTag>Savis</BatTag>
+</Bat>
+  <Bat Name="GHE">
+    <BatGenus>Rhinolophu</BatGenus>
+    <BatSpecies>ferrumequinum</BatSpecies>
+    <BatCommonName>Greater Horseshoe Bat</BatCommonName>
+    <BatTag>GHB</BatTag>
+    <BatTag>GHS</BatTag>
+    <BatTag>Greater HS</BatTag>
+    <BatTag>Greater Horseshoe</BatTag>
+    <BatTag>Rh Fe</BatTag>
+    <BatTag>rhfe</BatTag>
+  </Bat>
+  <Bat Name="LHB">
+    <BatGenus>Rhinolophus</BatGenus>
+    <BatSpecies>hipposideros</BatSpecies>
+    <BatCommonName>Lesser Horseshoe Bat</BatCommonName>
+    <BatTag>LHB</BatTag>
+    <BatTag>LHS</BatTag>
+    <BatTag>Lesser HS</BatTag>
+    <BatTag>Lesser Horseshoe</BatTag>
+    <BatTag>Rh hippo</BatTag>
+  </Bat>
+  <Bat Name="Brandts">
+    <BatGenus>Myotis</BatGenus>
+    <BatSpecies>brandtii</BatSpecies>
+    <BatCommonName>Brandt's Bat</BatCommonName>
+    <BatTag>Brandts</BatTag>
+    <BatTag>Brandts</BatTag>
+  </Bat>
+  <Bat Name="Whiskered">
+    <BatGenus>Myotis</BatGenus>
+    <BatSpecies>mystacinus</BatSpecies>
+    <BatCommonName>Whiskered Bat</BatCommonName>
+    <BatTag>Whiskered</BatTag>
+    <BatTag>mystacinus</BatTag>
+    <BatTag>myst</BatTag>
+  </Bat>
+  <Bat Name="Alcathoe">
+    <BatGenus>Myotis</BatGenus>
+    <BatSpecies>alcathoe</BatSpecies>
+    <BatCommonName>Alcathoe Bat</BatCommonName>
+    <BatTag>alcathoe</BatTag>
+  </Bat>
+  <Bat Name="Bechsteins">
+    <BatGenus>Myotis</BatGenus>
+    <BatSpecies>bechsteinii</BatSpecies>
+    <BatCommonName>Bechstein's Bat</BatCommonName>
+    <BatTag>Bechsteins</BatTag>
+    <BatTag>Bechstein's</BatTag>
+  </Bat>
+  <Bat Name="GME">
+    <BatGenus>Myotis</BatGenus>
+    <BatSpecies>myotis</BatSpecies>
+    <BatCommonName>Greater Mouse-eared bat</BatCommonName>
+    <BatTag>Myotis myotis</BatTag>
+    <BatTag>GME</BatTag>
+  </Bat>
+  
+</BatLibrary>

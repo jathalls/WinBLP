@@ -1,0 +1,153 @@
+﻿using System;
+
+namespace WinBLP
+{
+    /// <summary>
+    ///
+    /// </summary>
+    internal class BatStats
+    {
+        /// <summary>
+        /// Gets or sets the maximum.
+        /// </summary>
+        /// <value>
+        /// The maximum.
+        /// </value>
+        public TimeSpan maxDuration { get; set; }
+
+        /// <summary>
+        /// Gets or sets the mean.
+        /// </summary>
+        /// <value>
+        /// The mean.
+        /// </value>
+        public TimeSpan meanDuration { get; set; }
+
+        /// <summary>
+        /// Gets or sets the minimum.
+        /// </summary>
+        /// <value>
+        /// The minimum.
+        /// </value>
+        public TimeSpan minDuration { get; set; }
+
+        /// <summary>
+        /// Gets or sets the total.
+        /// </summary>
+        /// <value>
+        /// The total.
+        /// </value>
+        public TimeSpan totalDuration { get; set; }
+
+        /// <summary>
+        /// Gets or sets the count.
+        /// </summary>
+        /// <value>
+        /// The count.
+        /// </value>
+        public int count { get; set; }
+
+        /// <summary>
+        /// Gets or sets the passes.
+        /// </summary>
+        /// <value>
+        /// The passes.
+        /// </value>
+        public int segments { get; set; }
+
+        public int passes { get; set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BatStats" /> class.
+        /// </summary>
+        public BatStats()
+        {
+            maxDuration = TimeSpan.MinValue;
+            minDuration = TimeSpan.MaxValue;
+            meanDuration = new TimeSpan();
+            totalDuration = new TimeSpan();
+            count = 0;
+            segments = 0;
+            passes = 0;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BatStats" /> class.
+        /// </summary>
+        /// <param name="duration">The duration.</param>
+        public BatStats(TimeSpan duration)
+        {
+            maxDuration = TimeSpan.MinValue;
+            minDuration = TimeSpan.MaxValue;
+            meanDuration = new TimeSpan();
+            totalDuration = new TimeSpan();
+            count = 0;
+            segments = 0;
+            passes = 0;
+
+            Add(duration);
+        }
+
+        /// <summary>
+        /// Adds the specified duration.
+        /// </summary>
+        /// <param name="duration">The duration.</param>
+        public void Add(TimeSpan duration)
+        {
+            if (duration.Ticks > 0)
+            {
+                segments++;
+                if (duration.TotalSeconds <= 7.5d)
+                {
+                    passes++;
+                }
+                else
+                {
+                    /*long wholePart;
+                    long remainder;
+                    wholePart = Math.DivRem(duration.TotalSeconds, 5, out remainder);
+                    if (remainder > 3)
+                    {
+                        wholePart++;
+                    }
+                    passes += (int)wholePart;*/
+                    double realPasses = duration.TotalSeconds / 5.0d;
+                    passes += (int)Math.Round(realPasses);
+                }
+
+                count++;
+                totalDuration += duration;
+                if (duration > maxDuration) maxDuration = duration;
+                if (duration < minDuration) minDuration = duration;
+                meanDuration = new TimeSpan(totalDuration.Ticks / count);
+            }
+        }
+
+        /// <summary>
+        /// Adds the specified new data.
+        /// </summary>
+        /// <param name="newData">The new data.</param>
+        public void Add(BatStats newData)
+        {
+            if (newData != null && newData.count > 0)
+            {
+                if (newData.maxDuration > maxDuration) maxDuration = newData.maxDuration;
+                if (newData.minDuration < minDuration) minDuration = newData.minDuration;
+                count += newData.count;
+                segments += newData.segments;
+                passes += newData.passes;
+                totalDuration += newData.totalDuration;
+                meanDuration = new TimeSpan(totalDuration.Ticks / count);
+            }
+        }
+
+        /// <summary>
+        /// Passeses this instance.
+        /// </summary>
+        /// <returns></returns>
+        internal int Passes()
+        {
+            return (passes);
+        }
+    }
+}

@@ -1,0 +1,83 @@
+﻿<Window x:Class="WinBLP.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="{Binding Path=windowTitle}"  Height="768" Width="1026" Closing="Window_Closing">
+    <DockPanel>
+        <StackPanel 
+            Orientation="Horizontal"
+            Height="25"
+            DockPanel.Dock="Top"
+            >
+            <Menu 
+            x:Name="MainMenu" 
+                Width="150"
+                
+            >
+                <MenuItem x:Name="MainMenuItem" Header="File" >
+                    <MenuItem x:Name="miOpen" Header="Open Files" Click="miOpen_Click"/>
+                    <MenuItem x:Name="miOpenFolder" Header="Open Folder" Click="miOpenFolder_Click"/>
+                    <MenuItem x:Name="miEditBatList" Header="Edit Bat List" Click="miEditBatList_Click" />
+                    <MenuItem x:Name="miSortOrder" Header="Modify File Order" IsEnabled="False" Click="miSortOrder_Click"/>
+                    <MenuItem x:Name="miProcess" Header="Process" IsEnabled="False" Click="miProcess_Click"/>
+                    <MenuItem x:Name="miSave" Header="Save" IsEnabled="False" Click="miSave_Click"/>
+                    <MenuItem x:Name="miExit" Header="Exit" Click="miExit_Click"/>
+                </MenuItem>
+                <MenuItem x:Name="MainMenuHelp" Header="Help">
+                    <MenuItem x:Name="miHelp" Header="Help" Click="miHelp_Click"/>
+                    <MenuItem x:Name="miAbout" Header="About" Click="miAbout_Click"/>
+                </MenuItem>
+
+            </Menu>
+            <Label x:Name="OutputLocationLabel" HorizontalContentAlignment="Stretch"></Label>
+            
+        </StackPanel>
+        <Grid x:Name="TextBoxGrid" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100*"/>
+                <ColumnDefinition Width="100*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer 
+                x:Name="stackPanelScroller"
+                Grid.Column="0" 
+                HorizontalContentAlignment="Stretch" 
+                CanContentScroll="True" 
+                HorizontalScrollBarVisibility="Auto" 
+                VerticalScrollBarVisibility="Auto" 
+                VerticalContentAlignment="Stretch" PanningRatio="0.1"
+                >
+                <StackPanel 
+                    
+                    x:Name="dpMMultiWindowPanel"  
+                    Orientation="Vertical" 
+                    ScrollViewer.HorizontalScrollBarVisibility="Auto" 
+                    ScrollViewer.VerticalScrollBarVisibility="Auto"
+                    >
+                
+            
+            
+                </StackPanel>
+            </ScrollViewer>
+            <ScrollViewer
+                x:Name="OutputWindowScrollViewer" 
+                HorizontalContentAlignment="Stretch" 
+                CanContentScroll="True" 
+                VerticalContentAlignment="Stretch"
+                Grid.Column="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                >
+                <TextBox 
+                    x:Name="tbkOutputText" 
+                    ScrollViewer.CanContentScroll="True" 
+                    ScrollViewer.HorizontalScrollBarVisibility="Auto" 
+                    ScrollViewer.VerticalScrollBarVisibility="Auto" 
+                    IsManipulationEnabled="True" 
+                    Focusable="True" 
+                     AcceptsReturn="True" 
+                     AcceptsTab="True" 
+                     AutoWordSelection="True"
+                
+                />
+            </ScrollViewer>
+        </Grid>
+
+    </DockPanel>
+</Window>

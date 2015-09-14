@@ -1,0 +1,939 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WinBLP</name>
+    </assembly>
+    <members>
+        <member name="T:WinBLP.AboutScreen">
+            <summary>
+            Interaction logic for AboutScreen.xaml
+            </summary>
+            <summary>
+            AboutScreen
+            </summary>
+        </member>
+        <member name="M:WinBLP.AboutScreen.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WinBLP.AboutScreen"/> class.
+            </summary>
+        </member>
+        <member name="M:WinBLP.AboutScreen.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:WinBLP.BatEditor">
+            <summary>
+            Interaction logic for BatEditor.xaml
+            </summary>
+            <summary>
+            BatEditor
+            </summary>
+        </member>
+        <member name="M:WinBLP.BatEditor.OKButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the Click event of the OKButton control.
+            Checks the validity of the currently selected bat - if not OK
+            displays a message box and does nothing else.
+            If OK, returns with a true result - the caller has the
+            responsibility for retrieving the modified BatList and
+            using it.  This function saves the modified list to the 
+            specified file name and location if present.  It does not
+            query a file overwrite but will create a .bak version of
+            the old data.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.BatEditor.SelectedBat(System.Xml.XmlElement)">
+            <summary>
+            Selecteds the bat. Returns the XElement from BatList for the bat
+            corresponding to the XmlElement supplied as a parameter.
+            </summary>
+            <param name="selectedBat">The selected bat.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.BatEditor.SelectedBat">
+            <summary>
+            Selecteds the bat. Returns the XElement from the master BatList
+            corresponding to the bat selected in the BatNameListBox.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.BatEditor.CommonNameUpButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the Click event of the CommonNameUpButton control.
+            Moves the selected item up in the list if it is not already
+            at the top.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.BatEditor.BatNameListBox_SelectionChanged(System.Object,System.Windows.Controls.SelectionChangedEventArgs)">
+            <summary>
+            Handles the SelectionChanged event of the BatNameListBox control.
+            Ensures that the old bat was properly filled out - if not it
+            sets a flag to prevent recursion and resets the selected index
+            to the old value.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.Controls.SelectionChangedEventArgs" /> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.BatEditor.ValidateBat(System.Xml.XmlElement)">
+            <summary>
+            Validates the bat.  Checks that CommonName, Genus, Species and Tag
+            are all present.  If not throws up a message box, and returns FALSE
+            </summary>
+            <param name="unselected">The unselected.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.BatEditor.DisplayInvalidErrorMessage(System.String)">
+            <summary>
+            Invalids the bat.  Throws a message box warning of an invalid bat
+            descriptor using the provided string.
+            </summary>
+            <param name="v">The v.</param>
+        </member>
+        <member name="M:WinBLP.BatEditor.CommonNameDownButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the Click event of the CommonNameDownButton control.
+            Moves the selected item down in the common names list if it
+            is not already at the bottom
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.BatEditor.TagDelButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the Click event of the TagDelButton control.
+            Deletes the selected tag ID
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.BatEditor.TagAddButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the Click event of the TagAddButton control.
+            Adds the text in the edit box as a new TagID
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.BatEditor.TagDownButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the Click event of the TagDownButton control.
+            Moves the selected tag ID down one place in the list if
+            it is not already at the bottom
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.BatEditor.TagUpButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the Click event of the TagUpButton control.
+            Moves the selected item up one place in the list if it 
+            not already at the top
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.BatEditor.BatTagsListView_SelectionChanged(System.Object,System.Windows.Controls.SelectionChangedEventArgs)">
+            <summary>
+            Handles the SelectionChanged event of the BatTagsListView control.
+            Copies the selected tag text to the edit box.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.Controls.SelectionChangedEventArgs" /> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.BatEditor.MoveUpRecordButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the Click event of the MoveUpRecordButton control.
+            Moves the selected bat name up one place inthe list unless
+            it is already at the top.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.BatEditor.MoveDownRecordButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the Click event of the MoveDownRecordButton control.
+            Moves the selected bat name down in the list, unless it is already
+            at the bottom
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.BatEditor.DelRecordButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the Click event of the DelRecordButton control.
+            Deletes the selected bat from the list of bats.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.BatEditor.SpeciesTextBlock_LostFocus(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the LostFocus event of the SpeciesTextBlock control.
+            Forces the bat list to be updated with the contents of the text
+            box just in case it has been changed.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.BatEditor.CommonNameEditBox_LostFocus(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the LostFocus event of the CommonNameEditBox control.
+            If the box is not empty, and the text in the box is not already
+            in the list of Common Names, then the text is added as a new common name
+            by calling the 'ADD' button handler automatically.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.BatEditor.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:WinBLP.BatStats">
+             <summary>
+            
+             </summary>
+        </member>
+        <member name="P:WinBLP.BatStats.maxDuration">
+            <summary>
+            Gets or sets the maximum.
+            </summary>
+            <value>
+            The maximum.
+            </value>
+        </member>
+        <member name="P:WinBLP.BatStats.meanDuration">
+            <summary>
+            Gets or sets the mean.
+            </summary>
+            <value>
+            The mean.
+            </value>
+        </member>
+        <member name="P:WinBLP.BatStats.minDuration">
+            <summary>
+            Gets or sets the minimum.
+            </summary>
+            <value>
+            The minimum.
+            </value>
+        </member>
+        <member name="P:WinBLP.BatStats.totalDuration">
+            <summary>
+            Gets or sets the total.
+            </summary>
+            <value>
+            The total.
+            </value>
+        </member>
+        <member name="P:WinBLP.BatStats.count">
+            <summary>
+            Gets or sets the count.
+            </summary>
+            <value>
+            The count.
+            </value>
+        </member>
+        <member name="P:WinBLP.BatStats.segments">
+            <summary>
+            Gets or sets the passes.
+            </summary>
+            <value>
+            The passes.
+            </value>
+        </member>
+        <member name="M:WinBLP.BatStats.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WinBLP.BatStats" /> class.
+            </summary>
+        </member>
+        <member name="M:WinBLP.BatStats.#ctor(System.TimeSpan)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WinBLP.BatStats" /> class.
+            </summary>
+            <param name="duration">The duration.</param>
+        </member>
+        <member name="M:WinBLP.BatStats.Add(System.TimeSpan)">
+            <summary>
+            Adds the specified duration.
+            </summary>
+            <param name="duration">The duration.</param>
+        </member>
+        <member name="M:WinBLP.BatStats.Add(WinBLP.BatStats)">
+            <summary>
+            Adds the specified new data.
+            </summary>
+            <param name="newData">The new data.</param>
+        </member>
+        <member name="M:WinBLP.BatStats.Passes">
+            <summary>
+            Passeses this instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:WinBLP.BatSummary">
+            <summary>
+            BatSummary represents a single bat species and accumulates
+            data about passes that included that species.
+            It is initialised with appropriate names and tags from
+            an external 'BatData' file which is associated with the
+            program and can be edited in atext editor.
+            </summary>
+        </member>
+        <member name="F:WinBLP.BatSummary.xeBatLibrary">
+            <summary>
+            The xe bat library
+            </summary>
+        </member>
+        <member name="M:WinBLP.BatSummary.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WinBLP.BatSummary"/> class.
+            </summary>
+        </member>
+        <member name="M:WinBLP.BatSummary.MergeXML(System.Xml.Linq.XElement,System.Xml.Linq.XElement)">
+            <summary>
+            merges two BatLibrary XML files.  All data in the editable version is to be
+            retained, but new data from the nex version is added.  Existing data in the
+            editable version may be overwritten by equivalent data in the new version.
+            </summary>
+            <param name="editableXMLData">The editable XML data.</param>
+            <param name="newXMLData">The new XML data.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.BatSummary.MergeBats(System.Xml.Linq.XElement,System.Xml.Linq.XElement)">
+            <summary>
+            Given two XElements of type "Bat", creates a new XElement witht he same
+            Name, genus, Species, Common Name and all unique BatTags.
+            If Names are taken from the second supplied parameter
+            </summary>
+            <param name="bat">The bat.</param>
+            <param name="newBat">The new bat.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.BatSummary.getBatElement(System.String)">
+            <summary>
+            Given the comment portion relating to a bat pass, searches the
+            string for a recognizable BatTag and returns the details of
+            the corresponding Bat as an XElement extracted from the BatLibrary
+            </summary>
+            <param name="description">The description.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.BatSummary.TagMatch(System.Xml.Linq.XElement,System.String)">
+            <summary>
+            given a "Bat" XElement and a description string, checks to see
+            if any of the BatTags in Bat are contained in the string.
+            </summary>
+            <param name="bat">The bat.</param>
+            <param name="description">The description.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.BatSummary.RefreshBatList">
+            <summary>
+            Refreshes the bat list.
+            Reloads the XML bat reference data from the known file location
+            </summary>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="T:WinBLP.FileOrderDialog">
+            <summary>
+            Interaction logic for FileOrderDialog.xaml
+            </summary>
+            <summary>
+            FileOrderDialog
+            </summary>
+        </member>
+        <member name="F:WinBLP.FileOrderDialog.fileListProperty">
+            <summary>
+            fileList Dependency Property
+            </summary>
+        </member>
+        <member name="P:WinBLP.FileOrderDialog.fileList">
+            <summary>
+            Gets or sets the fileList property.  This dependency property 
+            indicates ....
+            </summary>
+        </member>
+        <member name="M:WinBLP.FileOrderDialog.#ctor">
+            <summary>
+            Default Constructor
+            </summary>
+        </member>
+        <member name="M:WinBLP.FileOrderDialog.Populate(System.Collections.Generic.List{System.String})">
+            <summary>
+            Populates the list box with the supplied list of strings
+            </summary>
+            <param name="list"></param>
+        </member>
+        <member name="M:WinBLP.FileOrderDialog.GetFileList">
+            <summary>
+            Returns the list of strings displayed in the dialog
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.FileOrderDialog.OKButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Responds to the OK button by closing the dialog and returning true
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:WinBLP.FileOrderDialog.DELButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Causes the selected file name to be deleted from the file list
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:WinBLP.FileOrderDialog.UPButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Moves the selected item one place up in the list
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:WinBLP.FileOrderDialog.DOWNButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Moves the selected item down one place in the list
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:WinBLP.FileOrderDialog.ADDButton_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Allows the user to select additional files to add to the existing
+            file list
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:WinBLP.FileOrderDialog.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:WinBLP.GpxHandler">
+            <summary>
+            GpxHandler opens and processes a GPX location file if there is one
+            inn the working directory.  It will either open the first .gpx file in
+            the working directory or it will open a .gpx file  specified name.
+            The contents are read into an XML structure and.
+            A function is provided to allow an external process to pass a DateTime
+            and the class returns a latitude and longitude for the time closest
+            to the spcified time.
+            </summary>
+        </member>
+        <member name="F:WinBLP.GpxHandler.GPXData">
+            <summary>
+            The GPX data
+            </summary>
+        </member>
+        <member name="F:WinBLP.GpxHandler.gpxNamespace">
+            <summary>
+            The GPX namespace
+            </summary>
+        </member>
+        <member name="F:WinBLP.GpxHandler.GPXFileExists">
+            <summary>
+            The GPX file exists
+            </summary>
+        </member>
+        <member name="M:WinBLP.GpxHandler.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:WinBLP.GpxHandler"/> class.
+            </summary>
+            <param name="Location">The location.</param>
+        </member>
+        <member name="M:WinBLP.GpxHandler.GetGpxNameSpace">
+            <summary>
+            Load the namespace for a standard GPX document
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.GpxHandler.GetLocation(System.DateTime)">
+            <summary>
+            Gets the location.
+            </summary>
+            <param name="time">The time.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.GpxHandler.GetOffset(System.Xml.Linq.XElement,System.DateTime)">
+            <summary>
+            Gets the offset.
+            </summary>
+            <param name="TrackPoint">The track point.</param>
+            <param name="UTCTime">The UTC time.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.GpxHandler.GetTrackPointTime(System.Xml.Linq.XElement)">
+            <summary>
+            Gets the track point time.
+            </summary>
+            <param name="TrackPoint">The track point.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.GpxHandler.GetGPSCoordinates(System.Xml.Linq.XElement)">
+            <summary>
+            Gets the GPS coordinates.
+            </summary>
+            <param name="trkpt">The TRKPT.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.GpxHandler.TrackPointIsEarlier(System.DateTime,System.Xml.Linq.XElement)">
+            <summary>
+            Tracks the point is earlier.
+            </summary>
+            <param name="UTCTime">The UTC time.</param>
+            <param name="trkpt">The TRKPT.</param>
+            <returns></returns>
+        </member>
+        <member name="T:WinBLP.HelpScreen">
+            <summary>
+            Interaction logic for HelpScreen.xaml
+            </summary>
+            <summary>
+            HelpScreen
+            </summary>
+        </member>
+        <member name="M:WinBLP.HelpScreen.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WinBLP.HelpScreen"/> class.
+            </summary>
+        </member>
+        <member name="M:WinBLP.HelpScreen.FillHelpScreen">
+            <summary>
+            Fills the help screen.
+            </summary>
+        </member>
+        <member name="M:WinBLP.HelpScreen.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:WinBLP.Summarizer">
+            <summary>
+            Summarizer collects and collates the information from the various
+            log files organized by type of bat and pass duration.
+            It 'knows' the names or tags for different bat species and is passed
+            the descriptive comment for each pass along with the pass duration.
+            The comments are parsed to identify the bat type or types and the
+            information is collated for an external caller to be able to retrieve
+            and display.
+            </summary>
+        </member>
+        <member name="T:WinBLP.App">
+            <summary>
+            Interaction logic for App.xaml
+            </summary>
+            <summary>
+            App
+            </summary>
+        </member>
+        <member name="M:WinBLP.App.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="M:WinBLP.App.Main">
+            <summary>
+            Application Entry Point.
+            </summary>
+        </member>
+        <member name="T:WinBLP.FileBrowser">
+            <summary>
+            Class to handle selection of input, and by derivation
+            or selection, and output file, the names of which are
+            made available publicly
+            Public functions:-
+            Select folder
+            Select Manual Log File
+            Create Output File
+            </summary>
+        </member>
+        <member name="F:WinBLP.FileBrowser.workingFolder">
+            <summary>
+            The working folder
+            </summary>
+        </member>
+        <member name="P:WinBLP.FileBrowser.WorkingFolder">
+            <summary>
+            Gets or sets the working folder.
+            </summary>
+            <value>
+            The working folder.
+            </value>
+        </member>
+        <member name="F:WinBLP.FileBrowser.existingLogFileName">
+            <summary>
+            The existing log file name
+            </summary>
+        </member>
+        <member name="P:WinBLP.FileBrowser.ExistingLogFileName">
+            <summary>
+            Accessor for existingLogFileName.
+            existingLogFileName contains the fully qualified file name
+            of a pre-existing log file.
+            </summary>
+            <value>
+            The name of the existing log file.
+            </value>
+        </member>
+        <member name="F:WinBLP.FileBrowser.outputLogFileName">
+            <summary>
+            The output log file name
+            </summary>
+        </member>
+        <member name="P:WinBLP.FileBrowser.OutputLogFileName">
+            <summary>
+            Accessor for outputLogFileName.
+            outputLogFileName contains the manufactured, fully qualified
+            path and file name to which the concatenation of log files will
+            be written.
+            </summary>
+            <value>
+            The name of the output log file.
+            </value>
+        </member>
+        <member name="F:WinBLP.FileBrowser.textFileNames">
+            <summary>
+            The text file names
+            </summary>
+        </member>
+        <member name="P:WinBLP.FileBrowser.TextFileNames">
+            <summary>
+            public accessor for textFileNames.
+            textFileNames lists all the files to be processed and concatenated into
+            a single log file.
+            </summary>
+            <value>
+            The text file names.
+            </value>
+        </member>
+        <member name="M:WinBLP.FileBrowser.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WinBLP.FileBrowser"/> class.
+            </summary>
+        </member>
+        <member name="M:WinBLP.FileBrowser.SelectFolder">
+            <summary>
+            Selects the folder.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.FileBrowser.SelectLogFiles">
+            <summary>
+            Selects the log files.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:WinBLP.FileProcessor">
+            <summary>
+            This class handles the data processing for a single file,
+            whether a manually generated composite file or a label file
+            created by Audacity.
+            </summary>
+        </member>
+        <member name="F:WinBLP.FileProcessor.OutputString">
+            <summary>
+            The output string
+            </summary>
+        </member>
+        <member name="F:WinBLP.FileProcessor.mBatSummary">
+            <summary>
+            The m bat summary
+            </summary>
+        </member>
+        <member name="F:WinBLP.FileProcessor.BatsFound">
+            <summary>
+            The bats found
+            </summary>
+        </member>
+        <member name="M:WinBLP.FileProcessor.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WinBLP.FileProcessor"/> class.
+            </summary>
+        </member>
+        <member name="M:WinBLP.FileProcessor.ProcessFile(WinBLP.BatSummary,System.String,WinBLP.GpxHandler)">
+            <summary>
+            Processes the file.
+            </summary>
+            <param name="batSummary">The bat summary.</param>
+            <param name="fileName">Name of the file.</param>
+            <param name="gpxHandler">The GPX handler.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.FileProcessor.ProcessLabelOrManualFile(System.String,WinBLP.GpxHandler)">
+            <summary>
+            Processes a text file with a simple .txt extension that has been
+            generated as an Audacity LabelTrack.  The fileName will be added to the
+            output at the start of the OutputString.
+            </summary>
+            <param name="fileName">Name of the file.</param>
+            <param name="gpxHandler">The GPX handler.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.FileProcessor.ProcessManualFileLine(System.Text.RegularExpressions.Match)">
+            <summary>
+            Processes the manual file line.
+            </summary>
+            <param name="match">The match.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.FileProcessor.IsManualFileLine(System.String)">
+            <summary>
+            Determines whether [is manual file line] [the specified line].
+            </summary>
+            <param name="line">The line.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.FileProcessor.IsLabelFileLine(System.String)">
+            <summary>
+            Determines whether [is label file line] [the specified line].
+            </summary>
+            <param name="line">The line.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.FileProcessor.ProcessLabelFileLine(System.String)">
+            <summary>
+            Processes the label file line.
+            </summary>
+            <param name="line">The line.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.FileProcessor.AddToBatSummary(System.String,System.TimeSpan)">
+            <summary>
+            Adds to bat summary.
+            </summary>
+            <param name="line">The line.</param>
+            <param name="NewDuration">The new duration.</param>
+        </member>
+        <member name="M:WinBLP.FileProcessor.FormattedBatStats(System.Collections.Generic.KeyValuePair{System.String,WinBLP.BatStats})">
+            <summary>
+            Formatteds the bat stats.
+            </summary>
+            <param name="bat">The bat.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.FileProcessor.FormattedTimeSpan(System.TimeSpan)">
+            <summary>
+            Formatteds the time span.
+            </summary>
+            <param name="time">The time.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.FileProcessor.ProcessLabelLine(System.String,System.TimeSpan@)">
+            <summary>
+            Processes the label line.
+            </summary>
+            <param name="line">The line.</param>
+            <param name="NewDuration">The new duration.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.FileProcessor.GetFileDuration(System.String,System.String@,System.DateTime@,System.DateTime@)">
+            <summary>
+            Gets the duration of the file.
+            </summary>
+            <param name="fileName">Name of the file.</param>
+            <param name="wavfile">The wavfile.</param>
+            <param name="fileStart">The file start.</param>
+            <param name="fileEnd">The file end.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.FileProcessor.ProcessManualFile(System.String)">
+            <summary>
+            Processes the manual file.
+            </summary>
+            <param name="fileName">Name of the file.</param>
+        </member>
+        <member name="M:WinBLP.FileProcessor.GetTimeOffset(System.Text.RegularExpressions.Match)">
+            <summary>
+            using a string that matches the regex @"[0-9]+\.[0-9]+"
+            or a string that matches the regex @"[0-9]+'?[0-9]*\.?[0-9]+"
+            extracts one to three numeric portions and converts them to
+            a timespan.  3 number represent minute,seconds,fraction
+            2 numbers represent seconds,fraction or minutes,seconds
+            1 number represents minutes or seconds
+            </summary>
+            <param name="match">The match.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.FileProcessor.GetTimeOffset(System.String)">
+            <summary>
+            Gets the time offset.
+            </summary>
+            <param name="strTime">The string time.</param>
+            <returns></returns>
+        </member>
+        <member name="T:WinBLP.MainWindow">
+            <summary>
+            Interaction logic for MainWindow.xaml
+            </summary>
+            <summary>
+            MainWindow
+            </summary>
+        </member>
+        <member name="F:WinBLP.MainWindow.fileBrowser">
+            <summary>
+            The file browser
+            </summary>
+        </member>
+        <member name="F:WinBLP.MainWindow.fileProcessor">
+            <summary>
+            The file processor
+            </summary>
+        </member>
+        <member name="F:WinBLP.MainWindow.gpxHandler">
+            <summary>
+            The GPX handler
+            </summary>
+        </member>
+        <member name="F:WinBLP.MainWindow.batSummary">
+            <summary>
+            The bat summary
+            </summary>
+        </member>
+        <member name="F:WinBLP.MainWindow.isSaved">
+            <summary>
+            The is saved
+            </summary>
+        </member>
+        <member name="F:WinBLP.MainWindow.Build">
+            <summary>
+            The build
+            </summary>
+        </member>
+        <member name="F:WinBLP.MainWindow.windowTitle">
+            <summary>
+            The window title
+            </summary>
+        </member>
+        <member name="M:WinBLP.MainWindow.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:WinBLP.MainWindow"/> class.
+            </summary>
+        </member>
+        <member name="M:WinBLP.MainWindow.miOpen_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Responds to selection File/OpenFiles
+            Produces a file selection dialog and reads
+            all the selected files.  Uses the FileBrowser
+            class to select and store the selected file names.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.MainWindow.ReadSelectedFiles">
+            <summary>
+            Reads all  the files selected through a File Open Dialog.
+            File names are contained a fileBrowser instance which was
+            used to select the files.
+            Adds all the file names to a combobox and also loads the
+            contents into a stack of Text Boxes in the left pane of the
+            screen.
+            </summary>
+        </member>
+        <member name="M:WinBLP.MainWindow.miProcess_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the Click event of the miProcess control.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.MainWindow.BatsConcatenate(System.Collections.Generic.Dictionary{System.String,WinBLP.BatStats},System.Collections.Generic.Dictionary{System.String,WinBLP.BatStats})">
+            <summary>
+            Batses the concatenate.
+            </summary>
+            <param name="TotalBatsFound">The total bats found.</param>
+            <param name="NewBatsFound">The new bats found.</param>
+            <returns></returns>
+        </member>
+        <member name="M:WinBLP.MainWindow.Window_Closing(System.Object,System.ComponentModel.CancelEventArgs)">
+            <summary>
+            Handles the Closing event of the Window control.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.ComponentModel.CancelEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.MainWindow.miSave_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the Click event of the miSave control.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.MainWindow.SaveOutputFile">
+            <summary>
+            Saves the output file.
+            </summary>
+        </member>
+        <member name="M:WinBLP.MainWindow.miOpenFolder_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Allows the user to select all the text files within a single folder
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.MainWindow.miSortOrder_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Allows the user to change the order in which the selected files will be processed
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.MainWindow.miExit_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Quits the program
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.MainWindow.miAbout_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Display the About box
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.MainWindow.miHelp_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the Click event of the miHelp control.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.MainWindow.miEditBatList_Click(System.Object,System.Windows.RoutedEventArgs)">
+            <summary>
+            Handles the Click event of the miEditBatList control.
+            </summary>
+            <param name="sender">The source of the event.</param>
+            <param name="e">The <see cref="T:System.Windows.RoutedEventArgs"/> instance containing the event data.</param>
+        </member>
+        <member name="M:WinBLP.MainWindow.InitializeComponent">
+            <summary>
+            InitializeComponent
+            </summary>
+        </member>
+        <member name="T:WinBLP.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:WinBLP.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:WinBLP.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+    </members>
+</doc>
