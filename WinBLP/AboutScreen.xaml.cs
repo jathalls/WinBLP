@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace WinBLP
+namespace WinBLPdB
 {
     /// <summary>
     /// Interaction logic for AboutScreen.xaml

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
 
-namespace WinBLP
+namespace WinBLPdB
 {
     /// <summary>
     /// Class to handle selection of input, and by derivation

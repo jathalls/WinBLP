@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace WinBLP
+namespace WinBLPdB
 {
     /// <summary>
     /// GpxHandler opens and processes a GPX location file if there is one

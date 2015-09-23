@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="BatReferenceDB" Class="BatReferenceDBLinqDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="AppSettings" ConnectionString="Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=|DataDirectory|\BatReferenceDB.mdf;Integrated Security=True;Connect Timeout=30" SettingsObjectName="WinBLPdB.Properties.Settings" SettingsPropertyName="BatReferenceDBConnectionString" Provider="System.Data.SqlClient" />
+  <Table Name="dbo.Bat" Member="Bats">
+    <Type Name="Bat">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="Name" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="Batgenus" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="BatSpecies" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="SortIndex" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Association Name="Bat_BatCommonName" Member="BatCommonNames" ThisKey="Id" OtherKey="BatID" Type="BatCommonName" />
+      <Association Name="Bat_BatTag" Member="BatTags" ThisKey="Id" OtherKey="BatID" Type="BatTag" />
+    </Type>
+  </Table>
+  <Table Name="dbo.BatCommonNames" Member="BatCommonNames">
+    <Type Name="BatCommonName">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="BatCommonName" Member="BatCommonName1" Type="System.String" DbType="VarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="BatID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="SortIndex" Type="System.Int16" DbType="SmallInt NOT NULL" CanBeNull="false" />
+      <Association Name="Bat_BatCommonName" Member="Bat" ThisKey="BatID" OtherKey="Id" Type="Bat" IsForeignKey="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.BatTag" Member="BatTags">
+    <Type Name="BatTag">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="BatTag" Member="BatTag1" Type="System.String" DbType="NVarChar(50) NOT NULL" CanBeNull="false" />
+      <Column Name="BatID" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="SortIndex" Type="System.Int16" DbType="SmallInt" CanBeNull="true" />
+      <Association Name="Bat_BatTag" Member="Bat" ThisKey="BatID" OtherKey="Id" Type="Bat" IsForeignKey="true" />
+    </Type>
+  </Table>
+</Database>

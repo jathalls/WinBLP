@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 11, 8.5" name="BatReferenceDBLinq">
+  <DataContextMoniker Name="/BatReferenceDBLinqDataContext" />
+  <nestedChildShapes>
+    <classShape Id="e4b5db43-b8d1-41cb-98aa-dab0b26dffc5" absoluteBounds="4.25, 1.125, 2, 1.7708968098958331">
+      <DataClassMoniker Name="/BatReferenceDBLinqDataContext/Bat" />
+      <nestedChildShapes>
+        <elementListCompartment Id="7f63d2cc-9eae-4683-b1bf-dd2b017f7234" absoluteBounds="4.265, 1.585, 1.9700000000000002, 1.2108968098958333" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="6feaf01d-2087-4e4f-a0b8-a8524980f934" absoluteBounds="6.75, 3.875, 2, 1.5785953776041666">
+      <DataClassMoniker Name="/BatReferenceDBLinqDataContext/BatCommonName" />
+      <nestedChildShapes>
+        <elementListCompartment Id="3cccfaea-f9f7-4981-a414-865dc842e825" absoluteBounds="6.765, 4.335, 1.9700000000000002, 1.0185953776041665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(5.84375 : 2.89589680989583); (5.84375 : 4.03125); (6.75 : 4.03125)]" fixedFrom="NotFixed" fixedTo="NotFixed">
+      <AssociationMoniker Name="/BatReferenceDBLinqDataContext/Bat/Bat_BatCommonName" />
+      <nodes>
+        <classShapeMoniker Id="e4b5db43-b8d1-41cb-98aa-dab0b26dffc5" />
+        <classShapeMoniker Id="6feaf01d-2087-4e4f-a0b8-a8524980f934" />
+      </nodes>
+    </associationConnector>
+    <classShape Id="9949cc73-11bd-4d54-bb68-cec4c3855d35" absoluteBounds="3.375, 4.25, 2, 1.5785953776041666">
+      <DataClassMoniker Name="/BatReferenceDBLinqDataContext/BatTag" />
+      <nestedChildShapes>
+        <elementListCompartment Id="52944b2a-fe9c-46d8-98ac-c3ebe3117d7d" absoluteBounds="3.39, 4.71, 1.9700000000000002, 1.0185953776041665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(4.8125 : 2.89589680989583); (4.8125 : 4.25)]" fixedFrom="NotFixed" fixedTo="NotFixed">
+      <AssociationMoniker Name="/BatReferenceDBLinqDataContext/Bat/Bat_BatTag" />
+      <nodes>
+        <classShapeMoniker Id="e4b5db43-b8d1-41cb-98aa-dab0b26dffc5" />
+        <classShapeMoniker Id="9949cc73-11bd-4d54-bb68-cec4c3855d35" />
+      </nodes>
+    </associationConnector>
+  </nestedChildShapes>
+</ordesignerObjectsDiagram>

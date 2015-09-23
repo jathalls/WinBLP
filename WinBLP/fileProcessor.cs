@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
-namespace WinBLP
+namespace WinBLPdB
 {
     
     /// <summary>
@@ -190,13 +190,7 @@ namespace WinBLP
             return (OutputString);
         }
 
-        private void nullfunc()
-        {
-            int i;
-
-            i = 1;
-
-        }
+        
 
         /// <summary>
         /// Processes the manual file line.
@@ -288,12 +282,12 @@ namespace WinBLP
         /// <param name="NewDuration">The new duration.</param>
         private void AddToBatSummary(string line, TimeSpan NewDuration)
         {
-            List<XElement> bats = mBatSummary.getBatElement(line);
+            List<Bat> bats = mBatSummary.getBatElement(line);
             if (bats != null && bats.Count() > 0)
             {
                 foreach (var bat in bats)
                 {
-                    string batname = bat.Descendants("BatCommonName").FirstOrDefault().Value;
+                    string batname = bat.BatCommonNames.FirstOrDefault().BatCommonName1;
                     if (!string.IsNullOrWhiteSpace(batname))
                     {
                         if (BatsFound.ContainsKey(batname))
@@ -476,15 +470,9 @@ namespace WinBLP
             return (duration);
         }
 
-        /// <summary>
-        /// Processes the manual file.
-        /// </summary>
-        /// <param name="fileName">Name of the file.</param>
-        private void ProcessManualFile(string fileName)
-        {
-        }
+        
 
-        /// <summary>
+ /*       /// <summary>
         /// using a string that matches the regex @"[0-9]+\.[0-9]+"
         /// or a string that matches the regex @"[0-9]+'?[0-9]*\.?[0-9]+"
         /// extracts one to three numeric portions and converts them to
@@ -497,7 +485,7 @@ namespace WinBLP
         private static TimeSpan GetTimeOffset(Match match)
         {
             return (FileProcessor.GetTimeOffset(match.Value));
-        }
+        }*/
 
         /// <summary>
         /// Gets the time offset.

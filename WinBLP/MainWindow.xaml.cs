@@ -6,7 +6,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 
-namespace WinBLP
+namespace WinBLPdB
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -366,11 +366,11 @@ namespace WinBLP
         {
             if(batSummary!= null)
             {
-                BatEditor batEditor = new BatEditor(batSummary.getBatList(),batSummary.getFileLocation());
+                BatEditor batEditor = new BatEditor(batSummary.batReferenceDataContext);
                 var result=batEditor.ShowDialog();
                 if(result!=null && result.Value)
                 {
-                    batSummary.RefreshBatList();
+                    //batSummary.RefreshBatList();
                 }
             }
         }

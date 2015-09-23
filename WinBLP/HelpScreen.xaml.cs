@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 
-namespace WinBLP
+namespace WinBLPdB
 {
     /// <summary>
     /// Interaction logic for HelpScreen.xaml

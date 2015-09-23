@@ -1,4 +1,4 @@
-﻿<Window x:Class="WinBLP.MainWindow"
+﻿<Window x:Class="WinBLPdB.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="{Binding Path=windowTitle}"  Height="768" Width="1026" Closing="Window_Closing">

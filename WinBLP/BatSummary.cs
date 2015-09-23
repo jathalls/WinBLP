@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 
-namespace WinBLP
+namespace WinBLPdB
 {
     /// <summary>
     /// BatSummary represents a single bat species and accumulates
@@ -19,7 +19,8 @@ namespace WinBLP
         /// <summary>
         /// The xe bat library
         /// </summary>
-        private XElement xeBatLibrary = null;
+        //private XElement xeBatLibrary = null;
+        public BatReferenceDBLinqDataContext batReferenceDataContext = null;
         private String FileLocation = null;
 
         /// <summary>
@@ -29,86 +30,42 @@ namespace WinBLP
         {
             try
             {
-                XElement newXMLData = null;
-                XElement editableXMLData = null;
-
-                string newReferenceFileLocation = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    @"Echolocation\WinBLP\BatReferenceXMLFile.xml");
-
-                string editableReferenceFileLocation = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    @"Echolocation\WinBLP\EditableBatReferenceXMLFile.xml");
-
-                string targetFolder = Path.Combine(
+                
+                string DBFileName = "BatReferenceDB.mdf";
+                string workingDatabaseLocation= Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                     @"Echolocation\WinBLP\");
-                if (!Directory.Exists(targetFolder))
+                if (!Directory.Exists(workingDatabaseLocation))
                 {
-                    Directory.CreateDirectory(targetFolder);
+                    Directory.CreateDirectory(workingDatabaseLocation);
                 }
 
-                if (!File.Exists(editableReferenceFileLocation) && !File.Exists(editableReferenceFileLocation))
-                {
-                    // virgin system so copy the source XML file if possible
+                //One off routine for transition from XML to DB
 
-                    if (File.Exists(@".\BatReferenceXMLFile.xml"))
+                batReferenceDataContext = new BatReferenceDBLinqDataContext(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + workingDatabaseLocation + DBFileName + @";Integrated Security=False;Connect Timeout=30");
+                if (batReferenceDataContext == null) return;
+
+                if (!batReferenceDataContext.DatabaseExists())
+                {
+                    batReferenceDataContext.CreateDatabase();
+                }
+
+ 
+
+                if (File.Exists(workingDatabaseLocation+"EditableBatReferenceXMLFile.xml"))
+                {
+                    copyXMLDataToDatabase(workingDatabaseLocation + "EditableBatReferenceXMLFile.xml", batReferenceDataContext);
+                    if(File.Exists(workingDatabaseLocation + "EditableBatReferenceXMLFile.xml.bak"))
                     {
-                        File.Copy(@".\BatReferenceXMLFile.xml", newReferenceFileLocation);
+                        File.Delete(workingDatabaseLocation + "EditableBatReferenceXMLFile.xml.bak");
                     }
+                    File.Move(workingDatabaseLocation + "EditableBatReferenceXMLFile.xml", workingDatabaseLocation + "EditableBatReferenceXMLFile.xml.bak");
                 }
 
-                if (File.Exists(newReferenceFileLocation))
-                {
-                    newXMLData = XElement.Load(newReferenceFileLocation);
-                }
+                
 
-                string backupFile = editableReferenceFileLocation + ".bak";
-                if (File.Exists(editableReferenceFileLocation) && File.Exists(backupFile))
-                {
-                    File.Delete(backupFile);
-                    File.Copy(editableReferenceFileLocation, backupFile);
-                }
 
-                if (File.Exists(editableReferenceFileLocation))
-                {// we have an existing, possibly edited version of the XML file
-                    editableXMLData = XElement.Load(editableReferenceFileLocation);
-                    xeBatLibrary = editableXMLData;
-                    if (newXMLData != null)
-                    {
-                        xeBatLibrary = MergeXML(editableXMLData, newXMLData);
-                        xeBatLibrary.Save(editableReferenceFileLocation);
-                    }
-                }
-                else
-                {// no editableXML file exists, so use the new data and save as
-                    //   as new editableXML file
-                    xeBatLibrary = newXMLData;
-                    if (xeBatLibrary != null)
-                    {
-                        xeBatLibrary.Save(editableReferenceFileLocation);
-                    }
-                }
 
-                // finally get rid of the update file if it is there
-                if (File.Exists(newReferenceFileLocation))
-                {
-                    File.Delete(newReferenceFileLocation);
-                }
-
-                FileLocation = editableReferenceFileLocation;
-
-                if (xeBatLibrary != null)
-                {
-                    var tags =
-                        from bat in xeBatLibrary.Descendants("BatTag")
-                        select (bat.Value);
-                    Console.WriteLine(editableReferenceFileLocation + " Linqed ");
-                    foreach (var tag in tags)
-                    {
-                        Console.WriteLine(tag.ToString());
-                    }
-                }
             }
             catch (Exception ex)
             {
@@ -117,8 +74,188 @@ namespace WinBLP
         }
 
         /// <summary>
+        /// Copies the XML data to database.
+        /// </summary>
+        /// <param name="xmlFile">The the XML data source file</param>
+        /// <param name="batReferenceDataContext">The bat reference data context.</param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void copyXMLDataToDatabase(string xmlFile, BatReferenceDBLinqDataContext batReferenceDataContext)
+        {
+            var xmlBats = XElement.Load(xmlFile).Descendants("Bat");
+            short i = 0;
+            foreach(XElement bat in xmlBats)
+            {
+                MergeBatToDB(bat, batReferenceDataContext,i++);
+            }
+        }
+
+        /// <summary>
+        /// Merges the bat to database.
+        /// </summary>
+        /// <param name="bat">The bat.</param>
+        /// <param name="batReferenceDataContext">The bat reference data context.</param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void MergeBatToDB(XElement bat, BatReferenceDBLinqDataContext batReferenceDataContext,short i)
+        {
+            try
+            {
+                Bat newBat = null;
+                if (batReferenceDataContext == null) return;
+                if (bat == null) return;
+                bool isNew = false;
+                if (batReferenceDataContext.Bats.Count() <= 0)
+                {
+                    isNew = true;
+                    newBat = new Bat();
+                    newBat.Id = -1;
+                }
+                else
+                {
+                    var newBats = (from dBbat in batReferenceDataContext.Bats
+                                   where dBbat.Name == bat.Attribute("Name").Value
+                                   select dBbat);
+                    if (newBats != null && newBats.Count() > 0)
+                    {
+                        newBat = newBats.FirstOrDefault();
+                    }
+                }
+                if (newBat == null || newBat.Id < 0)
+                {
+                    newBat = new Bat();
+                    newBat.Id = -1;
+                    isNew = true;
+                }
+                newBat.Name = bat.Attribute("Name").Value;
+                newBat.Batgenus = bat.Descendants("BatGenus").FirstOrDefault().Value;
+                newBat.BatSpecies = bat.Descendants("BatSpecies").FirstOrDefault().Value;
+                newBat.SortIndex = i;
+                if (isNew)
+                {
+                    batReferenceDataContext.Bats.InsertOnSubmit(newBat);
+                }
+                batReferenceDataContext.SubmitChanges();
+                var newCommonNames = bat.Descendants("BatCommonName");
+                if (newCommonNames != null && newCommonNames.Count() > 0)
+                {
+                    short index = 0;
+                    foreach (var name in newCommonNames)
+                    {
+                        BatCommonName bcn = new BatCommonName();
+                        bcn.BatCommonName1 = name.Value;
+                        bcn.BatID = newBat.Id;
+                        bcn.SortIndex = index++;
+                        newBat.BatCommonNames.Add(bcn);
+                    }
+                }
+
+                var newTags = bat.Descendants("BatTag");
+                if (newTags != null && newTags.Count() > 0)
+                {
+                    short index = 0;
+                    foreach (var tag in newTags)
+                    {
+                        BatTag bt = new BatTag();
+                        bt.BatTag1 = tag.Value;
+                        bt.BatID = newBat.Id;
+                        bt.SortIndex = index++;
+                        newBat.BatTags.Add(bt);
+                    }
+                }
+
+           /*     if (isNew)
+                {
+                    batReferenceDataContext.Bats.InsertOnSubmit(newBat);
+                }*/
+                batReferenceDataContext.SubmitChanges();
+                //int thisBatID = newBat.Id;
+
+                //MergeCommonNames(bat, thisBatID, batReferenceDataContext);
+
+
+                //MergeTags(bat, thisBatID, batReferenceDataContext);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex);
+            }
+
+            
+
+
+        }
+
+        /// <summary>
+        /// Merges the common names contained in the XElement Bat into the database
+        /// whose DataContext is provided linked to the bat entry ID
+        /// </summary>
+        /// <param name="bat">The bat.</param>
+        /// <param name="thisBatID">The this bat identifier.</param>
+        /// <param name="batReferenceDataContext">The bat reference data context.</param>
+        private void MergeCommonNames(XElement bat, int thisBatID, BatReferenceDBLinqDataContext batReferenceDataContext)
+        {
+            var newCommonNames = bat.Descendants("BatCommonName");
+            var oldCommonNames = from name in batReferenceDataContext.BatCommonNames
+                                 where name.BatID == thisBatID
+                                 select name.BatCommonName1;
+            var oldCommonNamesAsList = oldCommonNames.ToList();
+            foreach (string newname in newCommonNames)
+            {
+                if (!oldCommonNamesAsList.Contains(newname))
+                {
+                    BatCommonName bcn = new BatCommonName();
+                    bcn.BatCommonName1 = newname;
+                    bcn.BatID = thisBatID;
+                    batReferenceDataContext.BatCommonNames.InsertOnSubmit(bcn);
+                    batReferenceDataContext.SubmitChanges();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Merges the tags contained in the XElement Bat into the database
+        /// whose DataContext is provided linked to the bat entry ID
+        /// </summary>
+        /// <param name="bat">The bat.</param>
+        /// <param name="thisBatID">The this bat identifier.</param>
+        /// <param name="batReferenceDataContext">The bat reference data context.</param>
+        private void MergeTags(XElement bat,int thisBatID, BatReferenceDBLinqDataContext batReferenceDataContext)
+        {
+            var newTags = bat.Descendants("BatTag");
+            var oldTags = from tag in batReferenceDataContext.BatTags
+                          where tag.BatID == thisBatID
+                          select tag.BatTag1;
+            var oldTagsAsList = oldTags.ToList();
+            foreach (string tag in newTags)
+            {
+                if (!oldTagsAsList.Contains(tag))
+                {
+                    BatTag bt = new BatTag();
+                    bt.BatTag1 = tag;
+                    bt.BatID = thisBatID;
+                    batReferenceDataContext.BatTags.InsertOnSubmit(bt);
+                    batReferenceDataContext.SubmitChanges();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Merges the databases.  Adds newly defined bats and BatTags and BatCommonNames
+        /// but allows the existing database to retain existing additional Bats, Battags
+        /// and BatCommonNames.  In the event of a clash the existing data is retained.
+        /// Bats with e new Name are considered to be new bats.
+        /// </summary>
+        /// <param name="v1">The workingDBFile.</param>
+        /// <param name="v2">The newDBFile.</param>
+        /// <exception cref="NotImplementedException"></exception>
+        private void MergeDatabases(string workingDBFile, string newDBFile)
+        {
+            Console.WriteLine("Database " + newDBFile + " not merged into " + workingDBFile);
+        }
+
+  /*      /// <summary>
         /// merges two BatLibrary XML files.  All data in the editable version is to be
-        /// retained, but new data from the nex version is added.  Existing data in the
+        /// retained, but new data from the new version is added.  Existing data in the
         /// editable version may be overwritten by equivalent data in the new version.
         /// </summary>
         /// <param name="editableXMLData">The editable XML data.</param>
@@ -154,6 +291,7 @@ namespace WinBLP
             }
             return (XResult);
         }
+        */
 
         /// <summary>
         /// Given two XElements of type "Bat", creates a new XElement witht he same
@@ -202,12 +340,35 @@ namespace WinBLP
         /// </summary>
         /// <param name="description">The description.</param>
         /// <returns></returns>
-        public List<XElement> getBatElement(String description)
+        public List<Bat> getBatElement(String description)
         {
-            List<XElement> matchingBats = new List<XElement>();
+
+            
+            List<Bat> matchingBats = new List<Bat>();
 
             if (String.IsNullOrWhiteSpace(description)) return (null);
-            if (xeBatLibrary == null) return (null);
+
+            if (batReferenceDataContext == null) return (null);
+
+            foreach(var tag in batReferenceDataContext.BatTags)
+            {
+                if (!tag.BatTag1.ToUpper().StartsWith(tag.BatTag1))
+                {
+                    if (description.ToUpper().Contains(tag.BatTag1.ToUpper()))
+                    {
+                        matchingBats.Add(tag.Bat);
+                    }
+                    else
+                    {
+                        if (description.Contains(tag.BatTag1))
+                        {
+                            matchingBats.Add(tag.Bat);
+                        }
+                    }
+                }
+            }
+
+            /*if (xeBatLibrary == null) return (null);
 
             foreach (XElement bat in xeBatLibrary.Descendants("Bat"))
             {
@@ -215,8 +376,40 @@ namespace WinBLP
                 {
                     matchingBats.Add(bat);
                 }
-            }
+            }*/
             return (matchingBats);
+        }
+
+        /// <summary>
+        /// Converts the bat to xelement.  Takes a Bat reference from the database and
+        /// formats the database information related to that bat into a single
+        /// XElelement
+        /// </summary>
+        /// <param name="bat">The bat.</param>
+        /// <returns></returns>
+        public XElement ConvertBatToXelement(Bat bat)
+        {
+            XElement result = new XElement("Bat");
+            result.Add(new XAttribute("Name", bat.Name));
+            result.Add(new XElement("BatGenus", bat.Batgenus));
+            result.Add(new XElement("BatSpecies", bat.BatSpecies));
+            var commonNames = from cn in batReferenceDataContext.BatCommonNames
+                              where cn.BatID == bat.Id
+                              select cn.BatCommonName1;
+            foreach(var name in commonNames)
+            {
+                result.Add(new XElement("BatCommonName", name));
+            }
+            var tags = from tag in batReferenceDataContext.BatTags
+                       where tag.BatID == bat.Id
+                       select tag.BatTag1;
+            foreach(var tag in tags)
+            {
+                result.Add(new XElement("BatTag", tag));
+            }
+
+            return (result);
+
         }
 
         /// <summary>
@@ -253,7 +446,14 @@ namespace WinBLP
 
         public XElement getBatList()
         {
+
+            XElement xeBatLibrary = new XElement("BatLibrary");
+            foreach(var bat in batReferenceDataContext.Bats)
+            {
+                xeBatLibrary.Add(ConvertBatToXelement(bat));
+            }
             return (xeBatLibrary);
+
         }
 
         internal string getFileLocation()
@@ -261,21 +461,7 @@ namespace WinBLP
             return (FileLocation);
         }
 
-        /// <summary>
-        /// Refreshes the bat list.
-        /// Reloads the XML bat reference data from the known file location
-        /// </summary>
-        /// <exception cref="NotImplementedException"></exception>
-        internal void RefreshBatList()
-        {
-            if (!String.IsNullOrWhiteSpace(FileLocation))
-            {
-                if (File.Exists(FileLocation))
-                {
-                    xeBatLibrary = XElement.Load(FileLocation);
-                }
-            }
-        }
+        
     }
 
     

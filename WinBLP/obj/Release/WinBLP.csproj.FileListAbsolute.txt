@@ -55,3 +55,7 @@ D:\Documents\Visual Studio 2015\Projects\WinBLP\WinBLP\obj\Release\BatEditor.bam
 D:\Documents\Visual Studio 2015\Projects\WinBLP\WinBLP\bin\Release\WinBLP.exe.CodeAnalysisLog.xml
 D:\Documents\Visual Studio 2015\Projects\WinBLP\WinBLP\bin\Release\WinBLP.exe.lastcodeanalysissucceeded
 D:\Documents\Visual Studio 2015\Projects\WinBLP\WinBLP\obj\Release\WinBLP.csprojResolveAssemblyReference.cache
+D:\Documents\GitHub\WinBLP\WinBLP\bin\Release\WinBLP.exe.config
+D:\Documents\GitHub\WinBLP\WinBLP\bin\Release\WinBLP.XML
+D:\Documents\GitHub\WinBLP\WinBLP\obj\Release\WinBLP.exe
+D:\Documents\GitHub\WinBLP\WinBLP\obj\Release\WinBLP.pdb

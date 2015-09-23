@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
-  <asmv1:assemblyIdentity name="WinBLP.exe" version="1.0.0.9" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
+  <asmv1:assemblyIdentity name="WinBLPdB.exe" version="1.0.0.9" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
   <application />
   <entryPoint>
-    <assemblyIdentity name="WinBLP" version="3.0.5704.20251" language="neutral" processorArchitecture="msil" />
-    <commandLine file="WinBLP.exe" parameters="" />
+    <assemblyIdentity name="WinBLPdB" version="3.0.5735.31314" language="neutral" processorArchitecture="msil" />
+    <commandLine file="WinBLPdB.exe" parameters="" />
   </entryPoint>
   <trustInfo>
     <security>
@@ -42,24 +42,42 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="WinBLP.exe" size="106424">
-      <assemblyIdentity name="WinBLP" version="3.0.5704.20251" language="neutral" processorArchitecture="msil" />
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="WinBLPdB.exe" size="107960">
+      <assemblyIdentity name="WinBLPdB" version="3.0.5735.31314" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>3gKtRNE7ABuc9afBMwi112ZmYKw=</dsig:DigestValue>
+        <dsig:DigestValue>Pegvr/2SHJEFphZ0KLjcu8Mjp2c=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
-  <file name="WinBLP.exe.config" size="77">
+  <file name="BatReferenceDB.mdf" size="3342336" writeableType="applicationData">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-      <dsig:DigestValue>w7WNgu5MxCvL4DAgISBxgwmhDzU=</dsig:DigestValue>
+      <dsig:DigestValue>ojepuLj/6CZHhnF3YhF25XdFFhs=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="BatReferenceDB_log.ldf" size="835584" writeableType="applicationData">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+      <dsig:DigestValue>Naw5SlA1e+xEntJBzr7RZXjnBwU=</dsig:DigestValue>
+    </hash>
+  </file>
+  <file name="WinBLPdB.exe.config" size="470">
+    <hash>
+      <dsig:Transforms>
+        <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
+      </dsig:Transforms>
+      <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
+      <dsig:DigestValue>Fube7hRSYKVwDJ8NYQCs8Eq0Emc=</dsig:DigestValue>
     </hash>
   </file>
   <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
