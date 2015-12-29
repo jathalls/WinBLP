@@ -7,8 +7,17 @@ using System.Xml.Linq;
 
 namespace BatRecordingManager
 {
+    /// <summary>
+    /// Class to add functionality to the String class
+    /// </summary>
     public static class StringExtensions
     {
+        /// <summary>
+        /// Truncates to the specified maximum length.
+        /// </summary>
+        /// <param name="s">The s.</param>
+        /// <param name="maxLength">The maximum length.</param>
+        /// <returns></returns>
         public static string Truncate(this string s, int maxLength)
         {
             if (s.Length > maxLength)
@@ -19,6 +28,9 @@ namespace BatRecordingManager
         }
     }
 
+    /// <summary>
+    /// Static class of Database interface functions
+    /// </summary>
     public static class DBAccess
     {
         /// <summary>
@@ -56,7 +68,7 @@ namespace BatRecordingManager
             }
             else
             {
-                MergeCommonNames(existingBat, bat, dataContext);
+                
                 MergeTags(existingBat, bat, dataContext);
                 existingBat.Notes = bat.Notes;
                 existingBat.Name = bat.Name;
@@ -66,10 +78,69 @@ namespace BatRecordingManager
             return (result);
         }
 
+        internal static Bat GetBlankBat()
+        {
+            BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
+            var batlist = from bat in dc.Bats
+                          where bat.Name == "No Bats"
+                          select bat;
+            if (batlist == null || batlist.Count() <= 0)
+            {
+                Bat noBat = new Bat();
+                noBat.Name = "No Bats";
+                
+                BatTag tag = new BatTag();
+                tag.BatTag1 = "No Bats";
+                tag.SortIndex = 1;
+                noBat.BatTags.Add(tag);
+                noBat.BatSpecies = "sp.";
+                noBat.Batgenus = "Unknown";
+                noBat.SortIndex = int.MaxValue;
+                dc.Bats.InsertOnSubmit(noBat);
+                dc.SubmitChanges();
+                return (noBat);
+            }
+
+            return (batlist.First());
+        }
+
+        
+
+        internal static Bat GetUnknownBat()
+        {
+            BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
+            var batlist = from bat in dc.Bats
+                          where bat.Name == "Unknown"
+                          select bat;
+            if (batlist == null || batlist.Count() <= 0)
+            {
+                Bat noBat = new Bat();
+                noBat.Name = "Unknown";
+                
+                BatTag tag = new BatTag();
+                tag.BatTag1 = "Unknown";
+                tag.SortIndex = 1;
+                noBat.BatTags.Add(tag);
+                noBat.BatSpecies = "sp.";
+                noBat.Batgenus = "Unknown";
+                noBat.SortIndex = int.MaxValue;
+                dc.Bats.InsertOnSubmit(noBat);
+                dc.SubmitChanges();
+                return (noBat);
+            }
+
+            return (batlist.First());
+        }
+
         internal static List<Bat> GetDescribedBats(string description)
         {
             List<Bat> matchingBats = new List<Bat>();
-            if (String.IsNullOrWhiteSpace(description)) return (null);
+            if (String.IsNullOrWhiteSpace(description))
+            {
+                Bat nobat = DBAccess.GetBlankBat();
+                matchingBats.Add(nobat);
+                return (matchingBats);
+            }
             BatReferenceDBLinqDataContext batReferenceDataContext = DBAccess.GetDataContext();
 
             if (batReferenceDataContext == null) return (null);
@@ -91,44 +162,221 @@ namespace BatRecordingManager
                     }
                 }
             }
-            return (matchingBats);
+            if (matchingBats.Count() <= 0)
+            {
+                matchingBats.Add(DBAccess.GetUnknownBat());
+            }
+            return (matchingBats.Distinct().ToList());
         }
+
+        /// <summary>
+        /// For a given recording session produce List of BatStats each of which gives the
+        /// number of passes and segments for a single recording for a single bat.
+        /// </summary>
+        /// <param name="recordingSession">The recording session.</param>
+        /// <returns></returns>
+        internal static List<BatStats> GetStatsForSession(RecordingSession recordingSession)
+        {
+            List<BatStats> result = new List<BatStats>();
+            if (recordingSession != null)
+            {
+                
+                BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
+
+                var recordingsInSession = from rec in dc.Recordings
+                                          where rec.RecordingSessionId == recordingSession.Id
+                                          select rec;
+                if (recordingsInSession != null && recordingsInSession.Count() > 0)
+                {
+                    var labelledSegmentsinSession = dc.LabelledSegments.Where(
+                        ls => recordingsInSession.Any(rec => rec.Id == ls.RecordingID));
+
+                    if (labelledSegmentsinSession != null && labelledSegmentsinSession.Count() > 0)
+                    {
+                        foreach (var seg in labelledSegmentsinSession)
+                        {
+                            foreach (var pass in seg.BatSegmentLinks)
+                            {
+                                BatStats stat = new BatStats();
+                                stat.batCommonName = pass.Bat.Name;
+                                stat.Add(seg.EndOffset - seg.StartOffset);
+                                result.Add(stat);
+                            }
+                        }
+
+
+                    }
+                }
+            }
+            return (result);
+        }
+
+        /// <summary>
+        /// Deletes the session provided as a parameter and identified by
+        /// the Id.  All related recordings are also deleted.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        internal static void DeleteSession(RecordingSession session)
+        {
+            if (session!=null && session.Id > 0)
+            {
+                /*
+                if(session.Recordings!=null && session.Recordings.Count()>0)
+                foreach(var recording in session.Recordings)
+                {
+                    DBAccess.DeleteRecording(recording);
+                    
+                }*/
+                BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
+                DBAccess.DeleteAllRecordingsInSession(session, dc);
+                var sessionsToDelete = (from rec in dc.RecordingSessions
+                                        where rec.Id == session.Id
+                                        select rec).Single();
+                dc.RecordingSessions.DeleteOnSubmit(sessionsToDelete);
+                dc.SubmitChanges();
+            }
+            
+        }
+
+        /// <summary>
+        /// Deletes all recordings in session and all Segments in all
+        /// those recordings.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="dc">The dc.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        private static void DeleteAllRecordingsInSession(RecordingSession session, BatReferenceDBLinqDataContext dc)
+        {
+            DBAccess.DeleteAllSegmentsInSession(session, dc);
+            var recordingsToDelete = from rec in dc.Recordings
+                                     where rec.RecordingSessionId == session.Id
+                                     select rec;
+            dc.Recordings.DeleteAllOnSubmit(recordingsToDelete);
+            dc.SubmitChanges();
+        }
+
+        /// <summary>
+        /// Deletes all segments in session.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="dc">The dc.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        private static void DeleteAllSegmentsInSession(RecordingSession session, BatReferenceDBLinqDataContext dc)
+        {
+            var segmentsToDelete = from seg in dc.LabelledSegments
+                                   where seg.Recording.RecordingSessionId == session.Id
+                                   select seg;
+            dc.LabelledSegments.DeleteAllOnSubmit(segmentsToDelete);
+            dc.SubmitChanges();
+        }
+
+        /// <summary>
+        /// Deletes the recording supplied as a parameter and all
+        /// LabelledSegments related to that recording.
+        /// </summary>
+        /// <param name="recording">The recording.</param>
+        public static String DeleteRecording(Recording recording)
+        {
+            String result=null;
+            if(recording!= null && recording.Id>0)
+            {
+                /*
+                if(recording.LabelledSegments!=null && recording.LabelledSegments.Count() > 0)
+                {
+                    foreach(var segment in recording.LabelledSegments)
+                    {
+                        DBAccess.DeleteSegment(segment);
+                    }
+                }*/
+                try {
+                    BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
+                    DBAccess.DeleteAllSegmentsInRecording(recording, dc);
+                    var recordingToDelete = (from rec in dc.Recordings
+                                             where rec.Id == recording.Id
+                                             select rec).Single();
+                    dc.Recordings.DeleteOnSubmit(recordingToDelete);
+                    dc.SubmitChanges();
+                }catch(Exception ex)
+                {
+                    result = "Error deleting recording:- " + ex.Message;
+                }
+            }
+            return (result);
+        }
+
+        /// <summary>
+        /// Deletes all segments in recording passes as a parameter, using the
+        /// supplied DataContext.
+        /// </summary>
+        /// <param name="recording">The recording.</param>
+        /// <param name="dc">The dc.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        private static void DeleteAllSegmentsInRecording(Recording recording, BatReferenceDBLinqDataContext dc)
+        {
+            if (recording != null)
+            {
+                var segmentsToDelete = from seg in dc.LabelledSegments
+                                       where seg.RecordingID == recording.Id
+                                       select seg;
+                dc.LabelledSegments.DeleteAllOnSubmit(segmentsToDelete);
+                dc.SubmitChanges();
+            }
+        }
+
+        /// <summary>
+        /// Deletes the segment provided as a parameter and identified
+        /// by it's Id.
+        /// </summary>
+        /// <exception cref="System.NotImplementedException"></exception>
+        private static void DeleteSegment(LabelledSegment segment)
+        {
+            if (segment!=null && segment.Id > 0)
+            {
+                BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
+                var segmentToDelete=(from seg in dc.LabelledSegments
+                                    where seg.Id==segment.Id
+                                    select seg).Single();
+                dc.LabelledSegments.DeleteOnSubmit(segmentToDelete);
+                dc.SubmitChanges();
+            }
+        }
+
+        /// <summary>
+        /// Inserts the recording session provided into the database.
+        /// An existing 'identical' record has either the same Id, or
+        /// the same date and location, or same date and GPS co-ords.
+        /// If there is a matching session then the existing session is
+        /// updated to the new data, even if the new data is incomplete.
+        /// If there is no existing session then the new session must be
+        /// validated before being entered into the database.
+        /// The function returns an informative error string if the update/
+        /// insertion fails, or a null/empty string if the process is
+        /// successful.
+        /// </summary>
+        /// <param name="newSession">The new session.</param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        internal static string InsertRecordingSession(RecordingSession newSession)
+        {
+            String result = "";
+            try {
+                DBAccess.UpdateRecordingSession(newSession);
+            }catch(Exception ex)
+            {
+                result = ex.Message;
+            }
+            return (result);
+        }
+
+        
 
         internal static void MoveTagDown(BatTag tag)
         {
             DBAccess.MoveTag(tag, 1);
         }
 
-        /// <summary>
-        /// Merges the common names.
-        /// </summary>
-        /// <param name="existingBat">The existing bat.</param>
-        /// <param name="bat">The bat.</param>
-        /// <param name="dataContext">The data context.</param>
-        /// <exception cref="NotImplementedException"></exception>
-        private static void MergeCommonNames(Bat existingBat, Bat bat, BatReferenceDBLinqDataContext dataContext)
-        {
-            var namesToDelete = existingBat.BatCommonNames.Where(
-                p => bat.BatCommonNames.Any(p2 => p2.BatCommonName1 == p.BatCommonName1));
-            dataContext.BatCommonNames.DeleteAllOnSubmit(namesToDelete);
-            var namesToAdd = bat.BatCommonNames.Where(
-                p => existingBat.BatCommonNames.Any(p2 => p2.BatCommonName1 == p.BatCommonName1));
-
-            existingBat.BatCommonNames.AddRange(namesToAdd);
-
-            dataContext.SubmitChanges();
-            var existingNames = from bcn in dataContext.BatCommonNames
-                                where bcn.BatID == existingBat.Id
-                                orderby bcn.SortIndex
-                                select bcn;
-            short i = 0;
-            foreach (var bcn in existingNames)
-            {
-                bcn.SortIndex = i++;
-            }
-            dataContext.SubmitChanges();
-        }
-
+        
         internal static List<string> GetOperators()
         {
             BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
@@ -211,14 +459,15 @@ namespace BatRecordingManager
         /// </summary>
         /// <param name="recording">The recording.</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        internal static string UpdateRecording(Recording recording, CombinedSegmentAnDBatPasses combinedSegmentsAndPasses)
+        internal static string UpdateRecording(Recording recording, List<SegmentAndBatList> listOfSegmentAndBatList)
         {
             //TODO update/insert LabelledSegments and ExtendedBatPasses to go with this recording
             string errmsg = null;
             Recording existingRecording = null;
             BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
             errmsg = DBAccess.ValidateRecording(recording);
-            try {
+            try
+            {
                 if (String.IsNullOrWhiteSpace(errmsg))
                 {
                     RecordingSession session = (from sess in dc.RecordingSessions
@@ -249,13 +498,25 @@ namespace BatRecordingManager
                         existingRecording.RecordingStartTime = recording.RecordingStartTime;
                     }
                     dc.SubmitChanges();
-                    DBAccess.UpdateLabelledSegments(combinedSegmentsAndPasses, existingRecording.Id, dc);
+                    DBAccess.UpdateLabelledSegments(listOfSegmentAndBatList, existingRecording.Id, dc);
                 }
                 return (errmsg);
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Debug.WriteLine("UpdateRecording - " + ex.Message);
                 return (ex.Message);
+            }
+        }
+
+        private static void UpdateLabelledSegments(List<SegmentAndBatList> listOfSegmentAndBatList, int id, BatReferenceDBLinqDataContext dc)
+        {
+            if (listOfSegmentAndBatList != null && listOfSegmentAndBatList.Count() > 0)
+            {
+                foreach (var seg in listOfSegmentAndBatList)
+                {
+                    UpdateLabelledSegment(seg, id, dc);
+                }
             }
         }
 
@@ -264,42 +525,44 @@ namespace BatRecordingManager
         /// and linked to the recording identified by the Id.  Also adds data to the
         /// extendedBatPasses table.
         /// </summary>
-        /// <param name="combinedSegmentsAndPasses">The combined segments and passes.</param>
+        /// <param name="segmentAndBatList">The combined segments and passes.</param>
         /// <param name="recordingId">The identifier.</param>
         /// <param name="dc">The dc.</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        private static void UpdateLabelledSegments(CombinedSegmentAnDBatPasses combinedSegmentsAndPasses, int recordingId, BatReferenceDBLinqDataContext dc)
+        private static void UpdateLabelledSegment(SegmentAndBatList segmentAndBatList, int recordingId, BatReferenceDBLinqDataContext dc)
         {
-            try {
+            try
+            {
                 LabelledSegment existingSegment = null;
                 if (dc == null)
                 {
                     dc = DBAccess.GetDataContext();
                 }
                 var segments = from seg in dc.LabelledSegments
-                               where seg.RecordingID == recordingId && seg.StartOffset == combinedSegmentsAndPasses.segment.StartOffset
+                               where seg.RecordingID == recordingId && seg.StartOffset == segmentAndBatList.segment.StartOffset
                                select seg;
                 if (segments != null && segments.Count() > 0)
                 {
                     existingSegment = segments.First();
-                    existingSegment.EndOffset = combinedSegmentsAndPasses.segment.EndOffset;
-                    existingSegment.Comment = combinedSegmentsAndPasses.segment.Comment;
+                    existingSegment.EndOffset = segmentAndBatList.segment.EndOffset;
+                    existingSegment.Comment = segmentAndBatList.segment.Comment;
                 }
                 if (existingSegment == null)
                 {
-                    existingSegment = combinedSegmentsAndPasses.segment;
+                    existingSegment = segmentAndBatList.segment;
                     existingSegment.RecordingID = recordingId;
                     dc.LabelledSegments.InsertOnSubmit(existingSegment);
                 }
                 dc.SubmitChanges();
-                if (combinedSegmentsAndPasses.batPasses != null && combinedSegmentsAndPasses.batPasses.Count > 0)
+                if (segmentAndBatList.batList != null && segmentAndBatList.batList.Count > 0)
                 {
-                    foreach (var pass in combinedSegmentsAndPasses.batPasses)
+                    foreach (var bat in segmentAndBatList.batList)
                     {
-                        DBAccess.UpdateExtendedBatPass(pass, existingSegment, dc);
+                        DBAccess.UpdateBatSegmentLinks(bat, existingSegment, dc);
                     }
                 }
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Debug.WriteLine("UpdateLabelledSegments - " + ex.Message);
             }
@@ -312,28 +575,32 @@ namespace BatRecordingManager
         /// <param name="segment">the parent LabelledSegment that this pass belongs to</param>
         /// <param name="dc">The dc.</param>
         /// <exception cref="System.NotImplementedException"></exception>
-        private static void UpdateExtendedBatPass(ExtendedBatPass pass,LabelledSegment segment, BatReferenceDBLinqDataContext dc)
+        private static void UpdateBatSegmentLinks(Bat bat, LabelledSegment segment, BatReferenceDBLinqDataContext dc)
         {
-            try {
-                ExtendedBatPass existingBatPass = null;
+            BatSegmentLink batSegmentLink = null;
 
-                var matchingPasses = from p in segment.ExtendedBatPasses
-                                     where p.Bat.Id == pass.Bat.Id
-                                     select p;
-                if(matchingPasses!=null && matchingPasses.Count() > 0) {
-                    existingBatPass = matchingPasses.First();
-                    
-                    existingBatPass.NumberOfPasses = pass.NumberOfPasses;
-                }
-                else
-                {
-                    existingBatPass = pass;
-                    existingBatPass.LabelledSegmentID = segment.Id;
-                    segment.ExtendedBatPasses.Add(existingBatPass);
-                    
-                }
+            var matchingPasses = from p in dc.BatSegmentLinks
+                                 where p.BatID == bat.Id && p.LabelledSegmentID == segment.Id
+                                 select p;
+            if (matchingPasses != null && matchingPasses.Count() > 0)
+            {
+                batSegmentLink = matchingPasses.First();
+
+                batSegmentLink.NumberOfPasses = Tools.GetNumberOfPassesForSegment(segment);
+            }
+            else
+            {
+                batSegmentLink = new BatSegmentLink();
+                batSegmentLink.LabelledSegmentID = segment.Id;
+                batSegmentLink.BatID = bat.Id;
+                batSegmentLink.NumberOfPasses = Tools.GetNumberOfPassesForSegment(segment);
+                dc.BatSegmentLinks.InsertOnSubmit(batSegmentLink);
+            }
+            try
+            {
                 dc.SubmitChanges();
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Debug.WriteLine("UpdatedExtendedBatPAss - " + ex.Message);
             }
@@ -421,16 +688,26 @@ namespace BatRecordingManager
         internal static void DeleteBat(Bat selectedBat)
         {
             BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
-            var tags = from t in dc.BatTags
-                       where t.BatID == selectedBat.Id
-                       select t;
-            dc.BatTags.DeleteAllOnSubmit(tags);
-            var names = from n in dc.BatCommonNames
-                        where n.BatID == selectedBat.Id
-                        select n;
-            dc.BatCommonNames.DeleteAllOnSubmit(names);
-            dc.Bats.DeleteOnSubmit(selectedBat);
-            dc.SubmitChanges();
+            if (selectedBat.Id > 0)
+            {
+                try
+                {
+                    var bat = (from b in dc.Bats
+                               where b.Id == selectedBat.Id
+                               select b).Single();
+                    var tags = from t in dc.BatTags
+                               where t.BatID == selectedBat.Id
+                               select t;
+                    dc.BatTags.DeleteAllOnSubmit(tags);
+
+                    dc.Bats.DeleteOnSubmit(bat);
+                    dc.SubmitChanges();
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Error deleting Bat:- " + ex.Message);
+                }
+            }
 
             DBAccess.ResequenceBats();
         }
@@ -602,17 +879,11 @@ namespace BatRecordingManager
         public static string ValidateBat(Bat newBat)
         {
             String message = "";
-            if (newBat.BatCommonNames == null || newBat.BatCommonNames.Count() <= 0)
+            if (String.IsNullOrWhiteSpace(newBat.Name ))
             {
                 message = message + "Common Name required\n";
             }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(newBat.Name))
-                {
-                    newBat.Name = newBat.Batgenus + "_" + newBat.BatSpecies;
-                }
-            }
+            
 
             if (String.IsNullOrWhiteSpace(newBat.BatSpecies))
             {
@@ -631,6 +902,10 @@ namespace BatRecordingManager
             return (message);
         }
 
+        /// <summary>
+        /// Returns a list of all known bats sorted on SortOrder
+        /// </summary>
+        /// <returns></returns>
         public static List<Bat> GetSortedBatList()
         {
             BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
@@ -768,7 +1043,9 @@ namespace BatRecordingManager
                 var newCommonNames = bat.Descendants("BatCommonName");
                 if (newCommonNames != null && newCommonNames.Count() > 0)
                 {
-                    short index = 0;
+                    bat.Name = newCommonNames.First().Value;
+
+                    /*short index = 0;
                     foreach (var name in newCommonNames)
                     {
                         BatCommonName bcn = new BatCommonName();
@@ -776,7 +1053,7 @@ namespace BatRecordingManager
                         bcn.BatID = newBat.Id;
                         bcn.SortIndex = index++;
                         newBat.BatCommonNames.Add(bcn);
-                    }
+                    }*/
                 }
             }
             catch (Exception)
@@ -834,76 +1111,46 @@ namespace BatRecordingManager
         /// </summary>
         /// <param name="recordingId">The recording identifier.</param>
         /// <returns></returns>
-        internal static Dictionary<Bat, BatStats> GetStatsForRecording(int recordingId)
+        internal static List<BatStats> GetStatsForRecording(int recordingId)
         {
-            if (recordingId < 0) return (null);
-            Recording thisRecording = null;
-
-            Dictionary<Bat, BatStats> result = new Dictionary<Bat, BatStats>();
+            List<BatStats> result = new List<BatStats>();
+            if (recordingId <= 0) return (result);
 
             BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
-            try {
-                thisRecording = (from rec in dc.Recordings
-                                           where rec.Id == recordingId
-                                           select rec).Single();
-            }
-            catch (Exception) { return (null); }
-            if(thisRecording!= null)
+
+            var batSegments = from link in dc.BatSegmentLinks
+                              where link.LabelledSegment.RecordingID == recordingId
+                              select link;
+            if (batSegments != null && batSegments.Count() > 0)
             {
-                if(thisRecording.LabelledSegments!=null && thisRecording.LabelledSegments.Count > 0)
+                // batSegments contains entries for each unique segment/bat combination
+                // in the specified recording
+                var bats = (from link in batSegments
+                            select link.Bat).Distinct<Bat>();
+                if (bats != null && bats.Count() > 0)
                 {
-                    foreach(var segment in thisRecording.LabelledSegments)
+                    foreach (var bat in bats)
+
                     {
-                        BatStats stat = new BatStats(segment.EndOffset - segment.StartOffset);
-                        if (segment.ExtendedBatPasses != null && segment.ExtendedBatPasses.Count > 0)
+                        BatStats stat = new BatStats();
+                        stat.batCommonName = bat.Name;
+                        var segmentsForThisBat = (from link in batSegments
+                                                  where link.BatID == bat.Id
+                                                  select link.LabelledSegment).Distinct();
+                        if (segmentsForThisBat != null && segmentsForThisBat.Count() > 0)
                         {
-                            foreach(var pass in segment.ExtendedBatPasses)
+                            foreach (var segment in segmentsForThisBat)
                             {
-                                if (!result.ContainsKey(pass.Bat))
-                                {
-                                    result.Add(pass.Bat, stat);
-                                }
-                                else
-                                {
-                                    result[pass.Bat].Add(stat);
-                                }
+                                stat.Add(segment.EndOffset - segment.StartOffset);
                             }
                         }
-
-
-
-
-                        
+                        result.Add(stat);
                     }
                 }
-                
-
             }
+
             return (result);
-
-
         }
-
-        /// <summary>
-        /// Returns the prefferred (first) common name for the
-        /// specified bat as defined by the BatCommonNames SortOrder
-        /// </summary>
-        /// <param name="bat">The bat.</param>
-        /// <returns></returns>
-        public static string GetBatCommonName(Bat bat)
-        {
-            
-            var commonNames = from bcn in bat.BatCommonNames
-                              orderby bcn.SortIndex
-                              select bcn.BatCommonName1;
-            if(commonNames!=null && commonNames.Count() > 0)
-            {
-                return (commonNames.First());
-            }
-            return ("");
-        }
-
-        
 
         
     }

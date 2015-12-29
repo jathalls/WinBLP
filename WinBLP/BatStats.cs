@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace WinBLPdB
+namespace BatRecordingManager
 {
     /// <summary>
     ///
     /// </summary>
-    internal class BatStats
+    public class BatStats
     {
         /// <summary>
         /// Gets or sets the maximum.
@@ -57,6 +57,8 @@ namespace WinBLPdB
 
         public int passes { get; set; }
 
+        public String batCommonName { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="BatStats" /> class.
         /// </summary>
@@ -69,6 +71,7 @@ namespace WinBLPdB
             count = 0;
             segments = 0;
             passes = 0;
+            batCommonName = "";
         }
 
         /// <summary>
@@ -84,6 +87,7 @@ namespace WinBLPdB
             count = 0;
             segments = 0;
             passes = 0;
+            batCommonName = "";
 
             Add(duration);
         }
@@ -129,6 +133,25 @@ namespace WinBLPdB
         /// <param name="newData">The new data.</param>
         public void Add(BatStats newData)
         {
+            // if both old and new have the same name, OK
+            // if neither old nor new have name, OK
+            // if the new has name but the old doesnt't, use the new name
+            // if both have names but they are different, don't do the Add
+
+            if (!String.IsNullOrWhiteSpace(newData.batCommonName))
+            {
+                if (String.IsNullOrWhiteSpace(this.batCommonName))
+                {
+                    this.batCommonName = newData.batCommonName;
+                }
+                else
+                {
+                    if (this.batCommonName != newData.batCommonName)
+                    {
+                        return;
+                    }
+                }
+            }
             if (newData != null && newData.count > 0)
             {
                 if (newData.maxDuration > maxDuration) maxDuration = newData.maxDuration;

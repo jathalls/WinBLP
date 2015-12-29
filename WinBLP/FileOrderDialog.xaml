@@ -1,60 +1,58 @@
-﻿<Window x:Class="WinBLPdB.FileOrderDialog"
+﻿<Window x:Class="BatRecordingManager.FileOrderDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="File Order Dialog" Height="500" Width="600">
-    <Grid>
+    <Grid Background="{StaticResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="47*"/>
-            <RowDefinition Height="20"/>
+            <RowDefinition Height="47*" />
+            <RowDefinition Height="20" />
         </Grid.RowDefinitions>
-        <StackPanel 
+        <StackPanel
             Grid.Row="1"
             Orientation="Horizontal"
-            x:Name="ButtonPanel" Margin="10,0,0,0"
-            >
+            Background="{StaticResource BlueGradientBackground}"
+            x:Name="ButtonPanel" Margin="10,0,0,0">
             <Button
                 x:Name="UPButton"
-                Width="30"
+                Width="50"
                 Margin="10,0,0,0"
-                Content="UP" Click="UPButton_Click"
-                />
+                Style="{StaticResource SimpleButton}"
+                Content="UP" Click="UPButton_Click" />
             <Button
                 x:Name="DOWNButton"
-                Width="30"
+                Width="50"
                 Margin="10,0,0,0"
-                Content="DN" Click="DOWNButton_Click"
-                />
+                Style="{StaticResource SimpleButton}"
+                Content="DN" Click="DOWNButton_Click" />
             <Button
                 x:Name="ADDButton"
-                Width="30"
+                Width="50"
                 Margin="10,0,0,0"
-                Content="ADD" Click="ADDButton_Click"
-                />
+                Style="{StaticResource SimpleButton}"
+                Content="ADD" Click="ADDButton_Click" />
             <Button
                 x:Name="DELButton"
-                Width="30"
+                Width="50"
                 Margin="10,0,0,0"
-                Content="DEL" Click="DELButton_Click"
-                />
-            <Button 
+                Style="{StaticResource SimpleButton}"
+                Content="DEL" Click="DELButton_Click" />
+            <Button
                 x:Name="OKButton"
                 Width="50"
-                Content="OK" Margin="30,0,0,0" IsDefault="True" Click="OKButton_Click"
-                />
+                Style="{StaticResource SimpleButton}"
+                Content="OK" Margin="30,0,0,0" IsDefault="True" Click="OKButton_Click" />
             <Button
                 x:Name="CANCELButton"
                 Width="50"
-                Content="CANCEL" Margin="10,0,0,0" IsCancel="True"/>
-            
+                Style="{StaticResource SimpleButton}"
+                Content="CANCEL" Margin="10,0,0,0" IsCancel="True" />
         </StackPanel>
-        <ListBox 
+        <ListBox
             Grid.Row="0"
             x:Name="FileListBox"
-            HorizontalContentAlignment="Stretch" 
+            HorizontalContentAlignment="Stretch"
             VerticalContentAlignment="Stretch"
-            ItemsSource="{Binding Path=fileList, Mode=TwoWay}"
-            />
-
-
+            Style="{StaticResource SimpleListBox}"
+            ItemsSource="{Binding Path=fileList, Mode=TwoWay}" />
     </Grid>
 </Window>

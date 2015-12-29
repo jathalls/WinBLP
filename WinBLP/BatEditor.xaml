@@ -1,94 +1,93 @@
-﻿<Window x:Class="WinBLPdB.BatEditor"
+﻿<Window x:Class="BatRecordingManager.BatEditor"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:debug="clr-namespace:System.Diagnostics;assembly=WindowsBase"
-        xmlns:local="clr-namespace:WinBLPdB"
+        xmlns:local="clr-namespace:BatRecordingManager"
         mc:Ignorable="d"
         Title="BatEditor" Height="600" Width="1000">
-    
+
     <!--  Source="C:\Users\jhalls\AppData\Roaming\Echolocation\WinBLP\EditableBatReferenceXMLFile.Xml"  -->
-    <Grid>
+    <Grid Background="{StaticResource WindowBackgroundBrush}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
+            <ColumnDefinition Width="200" />
             <ColumnDefinition Width="5" />
-            <ColumnDefinition Width="376*"/>
+            <ColumnDefinition Width="376*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="42*"/>
-            <RowDefinition Height="489*"/>
-            <RowDefinition Height="40*"/>
+            <RowDefinition Height="42*" />
+            <RowDefinition Height="489*" />
+            <RowDefinition Height="40*" />
         </Grid.RowDefinitions>
 
-        
         <GridSplitter
             x:Name="gridSplitter"
             Grid.Column="1"
             Grid.RowSpan="3"
             VerticalAlignment="Stretch"
-            HorizontalAlignment="Stretch"
-            />
-
-        
+            HorizontalAlignment="Stretch" />
 
         <StackPanel
             x:Name="ButtonPanel"
             Grid.Row="2"
             Grid.Column="2"
-            Orientation="Horizontal" HorizontalAlignment="Right"
-            >
+            Orientation="Horizontal" HorizontalAlignment="Right">
 
             <Button
                 x:Name="MoveUpRecordButton"
                 Width="70"
                 Height="20"
                 Content="UP"
-                Margin="5,0,10,0" HorizontalAlignment="Left" Click="MoveUpRecordButton_Click"/>
+                Style="{StaticResource SimpleButton}"
+                Margin="5,0,10,0" HorizontalAlignment="Left" Click="MoveUpRecordButton_Click" />
             <Button
                 x:Name="MoveDownRecordButton"
                 Width="70"
                 Height="20"
                 Content="DOWN"
-                Margin="5,0,100,0" HorizontalAlignment="Left" Click="MoveDownRecordButton_Click"/>
+                Style="{StaticResource SimpleButton}"
+                Margin="5,0,100,0" HorizontalAlignment="Left" Click="MoveDownRecordButton_Click" />
 
             <Button
                 x:Name="AddRecordButton"
                 Width="70"
                 Height="20"
                 Content="ADD"
-                Margin="5,0,10,0" HorizontalAlignment="Right" Click="AddRecordButton_Click"/>
+                Style="{StaticResource SimpleButton}"
+                Margin="5,0,10,0" HorizontalAlignment="Right" Click="AddRecordButton_Click" />
             <Button
                 x:Name="DelRecordButton"
                 Width="70"
                 Height="20"
                 Content="DEL"
-                Margin="5,0,100,0" HorizontalAlignment="Right" Click="DelRecordButton_Click"/>
-            
+                Style="{StaticResource SimpleButton}"
+                Margin="5,0,100,0" HorizontalAlignment="Right" Click="DelRecordButton_Click" />
+
             <Button
                 x:Name="OKButton"
                 Width="70"
                 Height="20"
                 Content="OK"
-                Margin="5,0,5,0" HorizontalAlignment="Right" Click="OKButton_Click"
-                />
+                Style="{StaticResource SimpleButton}"
+                Margin="5,0,5,0" HorizontalAlignment="Right" Click="OKButton_Click" />
             <Button
                 x:Name="CancelButton"
                 Width="70"
                 Height="20"
                 Content="CANCEL"
-                Margin="5,0,5,0" HorizontalAlignment="Right" IsCancel="True"
-                />
-            
+                Style="{StaticResource SimpleButton}"
+                Margin="5,0,5,0" HorizontalAlignment="Right" IsCancel="True" />
         </StackPanel>
 
         <DockPanel Grid.Column="0" Grid.Row="1">
-            <TextBox x:Name="BatNameTagListBox" DockPanel.Dock="Top" Text="Bat Names"/>
-            <ListBox x:Name="BatNameListBox" ItemsSource="{Binding Path=BatList}" 
+            <TextBox x:Name="BatNameTagListBox" DockPanel.Dock="Top" Text="Bat Names" Style="{StaticResource SimpleTextBox}"/>
+            <ListBox x:Name="BatNameListBox" ItemsSource="{Binding Path=BatList}"
+                     Style="{StaticResource SimpleListBox}"
                      SelectionChanged="BatNameListBox_SelectionChanged">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <TextBlock Text="{Binding Path=Name}"/>
+                        <TextBlock Text="{Binding Path=Name}" />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
@@ -100,84 +99,34 @@
             Grid.Row="1"
             Header="Bat Details">
             <GroupBox.DataContext>
-                <Binding ElementName="BatNameListBox" Path="SelectedItem"/>
+                <Binding ElementName="BatNameListBox" Path="SelectedItem" />
             </GroupBox.DataContext>
             <StackPanel
                 Orientation="Vertical"
-                x:Name="BatDetailsStackPanel"
-                >
+                x:Name="BatDetailsStackPanel">
                 <WrapPanel
-                    x:Name="BatDetailsWrapPanel"
-                    >
+                    x:Name="BatDetailsWrapPanel">
                     <Label Height="23">Common Name</Label>
-                    <Label Height="23" FontWeight="Bold" MinWidth="20"/>
+                    <Label Height="23" FontWeight="Bold" MinWidth="20" />
                     <Label Height="23" x:Name="PrefferredCommonNameLabel" FontWeight="Bold"
-                           Content="{Binding Path=BatCommonNames}"/>
-
+                           Content="{Binding Path=BatCommonNames}" />
                 </WrapPanel>
-                <StackPanel Orientation="Horizontal" Background="SteelBlue" >
+                <StackPanel Orientation="Horizontal" Background="SteelBlue">
                     <TextBlock
                         FontSize="12"
                         FontWeight="Bold"
                         Background="SteelBlue"
                         Foreground="White"
                         Padding="10,2,2,2">Common Names</TextBlock>
-                    <Button
-                        x:Name="CommonNameUpButton"
-                        Width="40"
-                        Height="20"
-                        Foreground="White"
-                        Background="Blue"
-                        Margin="100,0,0,0"
-                        Content="UP" Click="CommonNameUpButton_Click"/>
-                    <Button
-                        x:Name="CommonNameDownButton"
-                        Width="40"
-                        Height="20"
-                        Foreground="White"
-                        Background="Blue"
-                        Margin="10,0,0,0"
-                        Content="DOWN" Click="CommonNameDownButton_Click"/>
-                    <Button
-                        x:Name="CommonNameAddButton"
-                        Width="40"
-                        Height="20"
-                        Foreground="White"
-                        Background="Blue"
-                        Margin="10,0,0,0"
-                        Content="ADD" Click="CommonNameAddButton_Click"/>
-                    <Button
-                        x:Name="CommonNameDelButton"
-                        Width="40"
-                        Height="20"
-                        Foreground="White"
-                        Background="Blue"
-                        Margin="10,0,0,0"
-                        Content="DEL" Click="CommonNameDelButton_Click"/>
-                    <TextBox
-                        x:Name="CommonNameEditBox"
-                        Height="20"
-                        Width="250"
-                        Text=""
-                        Margin="20,0,0,0" LostFocus="CommonNameEditBox_LostFocus"
-                        />
-                    
+                   
+                   
                 </StackPanel>
-                <ListView
-                    x:Name="CommonNameListView"
+                <TextBox
+                    x:Name="CommonNameTextBlock"
+                    TextWrapping="Wrap"
                     Margin="10,10,10,20"
-                    BorderThickness="0"
-                    ItemsSource="{Binding Path=BatCommonNames, UpdateSourceTrigger=PropertyChanged}" 
-                    SelectionChanged="CommonNameListView_SelectionChanged" >
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <WrapPanel>
-                                <TextBlock MinWidth="50"
-                                           Text="{Binding Path=BatCommonName1}"/>
-                            </WrapPanel>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                    Style="{StaticResource SimpleTextBox}"
+                    Text="{Binding Path=Name,Mode=TwoWay}" />
                 <TextBlock
                     FontSize="12"
                     FontWeight="Bold"
@@ -189,8 +138,8 @@
                     x:Name="GenusTextBlock"
                     TextWrapping="Wrap"
                     Margin="10,10,10,20"
-                    Text="{Binding Path=Batgenus,Mode=TwoWay}" LostFocus="GenusTextBlock_LostFocus"/>
-
+                    Style="{StaticResource SimpleTextBox}"
+                    Text="{Binding Path=Batgenus,Mode=TwoWay}" LostFocus="GenusTextBlock_LostFocus" />
 
                 <TextBlock
                     FontSize="12"
@@ -203,11 +152,12 @@
                     x:Name="SpeciesTextBlock"
                     TextWrapping="Wrap"
                     Margin="10,10,10,20"
+                    Style="{StaticResource SimpleTextBox}"
                     Text="{Binding Path=BatSpecies,Mode=TwoWay}" LostFocus="SpeciesTextBlock_LostFocus" />
 
                 <StackPanel Orientation="Horizontal" Background="SteelBlue">
-                
-                <TextBlock
+
+                    <TextBlock
                     FontSize="12"
                     FontWeight="Bold"
                     Background="SteelBlue"
@@ -218,39 +168,38 @@
                         x:Name="TagUpButton"
                         Width="40"
                         Height="20"
-                        Foreground="White"
-                        Background="Blue"
+                        
                         Margin="100,0,0,0"
-                        Content="UP" Click="TagUpButton_Click"/>
+                        Style="{StaticResource SimpleButton}"
+                        Content="UP" Click="TagUpButton_Click" />
                     <Button
                         x:Name="TagDownButton"
                         Width="40"
                         Height="20"
-                        Foreground="White"
-                        Background="Blue"
+                        
                         Margin="10,0,0,0"
-                        Content="DOWN" Click="TagDownButton_Click"/>
+                        Style="{StaticResource SimpleButton}"
+                        Content="DOWN" Click="TagDownButton_Click" />
                     <Button
                         x:Name="TagAddButton"
                         Width="40"
                         Height="20"
-                        Foreground="White"
-                        Background="Blue"
+                        Style="{StaticResource SimpleButton}"
                         Margin="10,0,0,0"
-                        Content="ADD" Click="TagAddButton_Click"/>
+                        Content="ADD" Click="TagAddButton_Click" />
                     <Button
                         x:Name="TagDelButton"
                         Width="40"
                         Height="20"
-                        Foreground="White"
-                        Background="Blue"
+                        Style="{StaticResource SimpleButton}"
                         Margin="10,0,0,0"
-                        Content="DEL" Click="TagDelButton_Click"/>
+                        Content="DEL" Click="TagDelButton_Click" />
                     <TextBox
                         x:Name="IDTagEditBox"
                         Height="20"
                         Width="250"
                         Margin="20,0,0,0"
+                        Style="{StaticResource SimpleTextBox}"
                         Text="" LostFocus="IDTagEditBox_LostFocus" />
                 </StackPanel>
 
@@ -258,19 +207,18 @@
                     x:Name="BatTagsListView"
                     Margin="10,10,10,20"
                     BorderThickness="0"
+                    Style="{StaticResource SimpleListBox}"
                     ItemsSource="{Binding Path=BatTags}" SelectionChanged="BatTagsListView_SelectionChanged">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <WrapPanel>
                                 <TextBlock MinWidth="50"
-                                           Text="{Binding Path=BatTag1}"/>
+                                           Text="{Binding Path=BatTag1}" />
                             </WrapPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListView>
-
             </StackPanel>
         </GroupBox>
-        
     </Grid>
 </Window>

@@ -4,11 +4,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
-namespace WinBLPdB
+namespace BatRecordingManager
 {
-    
     /// <summary>
     /// This class handles the data processing for a single file,
     /// whether a manually generated composite file or a label file
@@ -16,7 +14,8 @@ namespace WinBLPdB
     /// </summary>
     internal class FileProcessor
     {
-        enum MODE { PROCESS, SKIP, COPY, MERGE };
+        private enum MODE
+        { PROCESS, SKIP, COPY, MERGE };
 
         private List<String> linesToMerge = null;
 
@@ -25,7 +24,8 @@ namespace WinBLPdB
         /// </summary>
         private string OutputString = "";
 
-        MODE mode = MODE.PROCESS;
+        private MODE mode = MODE.PROCESS;
+
         /// <summary>
         /// The m bat summary
         /// </summary>
@@ -50,13 +50,13 @@ namespace WinBLPdB
         /// <param name="fileName">Name of the file.</param>
         /// <param name="gpxHandler">The GPX handler.</param>
         /// <returns></returns>
-        public String ProcessFile(BatSummary batSummary, string fileName, GpxHandler gpxHandler)
+        public String ProcessFile(BatSummary batSummary, string fileName, GpxHandler gpxHandler, int CurrentRecordingSessionId)
         {
             mBatSummary = batSummary;
             OutputString = "";
             if (fileName.ToUpper().EndsWith(".TXT"))
             {
-                OutputString = ProcessLabelOrManualFile(fileName, gpxHandler);
+                OutputString = ProcessLabelOrManualFile(fileName, gpxHandler, CurrentRecordingSessionId);
             }
             return (OutputString);
         }
@@ -69,13 +69,14 @@ namespace WinBLPdB
         /// <param name="fileName">Name of the file.</param>
         /// <param name="gpxHandler">The GPX handler.</param>
         /// <returns></returns>
-        private string ProcessLabelOrManualFile(string fileName, GpxHandler gpxHandler)
+        private string ProcessLabelOrManualFile(string fileName, GpxHandler gpxHandler, int CurrentRecordingSessionId)
         {
+            List<SegmentAndBatList> ListOfsegmentAndBatLists = new List<SegmentAndBatList>();
             TimeSpan duration = new TimeSpan();
             Match match = null;
             mode = MODE.PROCESS;
-            
-        
+            Recording recording = new Recording();
+            recording.RecordingSessionId = CurrentRecordingSessionId;
 
             BatsFound = new Dictionary<string, BatStats>();
             string[] allLines = new string[1];
@@ -86,10 +87,13 @@ namespace WinBLPdB
             {
                 string wavfile = "";
                 duration = GetFileDuration(fileName, out wavfile, out fileStart, out fileEnd);
+                recording.RecordingStartTime = TimeSpan.Parse(fileStart.ToShortTimeString());
+                recording.RecordingEndTime = TimeSpan.Parse(fileEnd.ToShortTimeString());
                 OutputString = fileName;
                 if (!string.IsNullOrWhiteSpace(wavfile))
                 {
-                    OutputString = fileName;
+                    OutputString = wavfile;
+                    recording.RecordingName = wavfile.Substring(wavfile.LastIndexOf('\\'));
                 }
                 if (duration.Ticks > 0L)
                 {
@@ -100,6 +104,8 @@ namespace WinBLPdB
                 if (gpsLocation != null && gpsLocation.Count() == 2)
                 {
                     OutputString = OutputString + gpsLocation[0] + ", " + gpsLocation[1];
+                    recording.RecordingGPSLatitude = gpsLocation[0].ToString();
+                    recording.RecordingGPSLongitude = gpsLocation[1].ToString();
                 }
                 gpsLocation = gpxHandler.GetLocation(fileEnd);
                 if (gpsLocation != null && gpsLocation.Count() == 2)
@@ -132,7 +138,7 @@ namespace WinBLPdB
 
                                 linesToMerge = new List<string>();
                             }
-                            if (!line.Contains("[COPY]")  && !line.Contains("[MERGE]"))
+                            if (!line.Contains("[COPY]") && !line.Contains("[MERGE]"))
                             {
                                 if (mode == MODE.MERGE)
                                 {
@@ -140,7 +146,6 @@ namespace WinBLPdB
                                 }
                                 else
                                 {
-
                                     OutputString = OutputString + line + "\n";
                                 }
                             }
@@ -150,7 +155,7 @@ namespace WinBLPdB
                 }
                 if (allLines != null && allLines.Count() > 0)
                 {
-                    if(linesToMerge!=null && linesToMerge.Count > 0)
+                    if (linesToMerge != null && linesToMerge.Count > 0)
                     {
                         OutputString = OutputString + linesToMerge[0] + "\n";
                         linesToMerge.Remove(linesToMerge[0]);
@@ -160,20 +165,25 @@ namespace WinBLPdB
                         if (!String.IsNullOrWhiteSpace(line))
                         {
                             string modline = Regex.Replace(line, @"[Ss][Tt][Aa][Rr][Tt]", "0.0");
-                            modline = Regex.Replace(modline, @"[Ee][Nn][Dd]", FormattedTimeSpan(duration));
-
-                            if (IsLabelFileLine(modline))
+                            modline = Regex.Replace(modline, @"[Ee][Nn][Dd]", ((decimal)(duration.TotalSeconds)).ToString());
+                            string processedLine = "";
+                            List<Bat> bats = new List<Bat>();
+                            string startStr, endStr, comment;
+                            if (IsLabelFileLine(modline, out startStr, out endStr, out comment))
                             {
-                                OutputString = OutputString + ProcessLabelFileLine(modline);
+                                processedLine = ProcessLabelFileLine(modline, startStr, endStr, comment, out bats);
                             }
                             else if ((match = IsManualFileLine(modline)) != null)
                             {
-                                OutputString = OutputString + ProcessManualFileLine(match);
+                                processedLine = ProcessManualFileLine(match, out bats);
                             }
                             else
                             {
-                                OutputString = OutputString + line + "\n";
+                                processedLine = line + "\n";
                             }
+                            ListOfsegmentAndBatLists.Add(ProcessLabelledSegment(processedLine, bats) ?? new SegmentAndBatList());
+                            // one added for each line that is processed as a segment label
+                            OutputString = OutputString + processedLine;
                         }
                     }
                 }
@@ -183,39 +193,135 @@ namespace WinBLPdB
             {
                 foreach (var bat in BatsFound)
                 {
-                    OutputString = OutputString + "\n" + FormattedBatStats(bat);
+                    bat.Value.batCommonName = bat.Key;
+                    OutputString = OutputString + "\n" + Tools.GetFormattedBatStats(bat.Value,true);
                 }
             }
+
+            DBAccess.UpdateRecording(recording, ListOfsegmentAndBatLists);
 
             return (OutputString);
         }
 
-        
+        /// <summary>
+        /// Processes the labelled segment.  Accepts a processed segment comment line
+        /// consisting of a start offset, end offset, duration and comment string
+        /// and generates a new Labelled segment instance and BatSegmentLink instances
+        /// for each bat represented in the Labelled segment.  The instances are merged into
+        /// a single instance of CombinedSegmentAndBatPasses to be returned.
+        /// If the line to be processed is not in the correct format then an instance containing
+        /// an empty LabelledSegment instance and an empty List of ExtendedBatPasses.
+        /// </summary>
+        /// <param name="processedLine">The processed line.</param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        private SegmentAndBatList ProcessLabelledSegment(string processedLine, List<Bat> bats)
+        {
+            LabelledSegment segment = new LabelledSegment();
+            SegmentAndBatList result = new SegmentAndBatList();
+            var match = Regex.Match(processedLine, "([0-9\\.\\']+)[\\\"]?\\s-\\s([0-9\\.\\']+)[\\\"]?\\s=\\s([0-9\\.\']+)[\\\"]?\\s(.+)");
+            if (match.Success)
+            {
+                //int passes = 1;
+                // The line structure matches a labelled segment
+                if (match.Groups.Count > 3)
+                {
+                    segment.Comment = match.Groups[4].Value;
+                    TimeSpan ts = TimeParse(match.Groups[2].Value);
+                    segment.EndOffset = ts;
+                    ts = TimeParse(match.Groups[1].Value);
+                    segment.StartOffset = ts;
+                    result.segment = segment;
+                    result.batList = bats;
+                    //ts = TimeParse(match.Groups[3].Value);
+                    //passes = new BatStats(ts).passes;
+                }
+                // result.batPasses = IdentifyBatPasses(passes, bats);
+            }
+
+            return (result);
+        }
+
+        /// <summary>
+        /// Parses a line in the format 00'00.00 into a TimeSpan
+        /// the original strting has been matched by a Regex of the
+        /// form [0-9\.\']+
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        private TimeSpan TimeParse(string value)
+        {
+            TimeSpan ts = new TimeSpan();
+            String[] separators = { "\'", ".", "\"" };
+            String[] numbers = value.Split(separators, StringSplitOptions.None);
+            if (numbers.Count() == 3)
+            {
+                int mins = 0;
+                int.TryParse(numbers[0], out mins);
+                int secs = 0;
+                int.TryParse(numbers[1], out secs);
+                int millis = 0;
+                int.TryParse(numbers[2], out millis);
+                ts = new TimeSpan(0, 0, mins, secs, millis);
+            }
+            else if (numbers.Count() == 2)
+            {
+                int secs = 0;
+                int.TryParse(numbers[0], out secs);
+
+                int millis = 0;
+                int.TryParse(numbers[1], out millis);
+                ts = new TimeSpan(0, 0, 0, secs, millis);
+            }
+            else if (numbers.Count() == 1)
+            {
+                int secs = 0;
+                int.TryParse(numbers[0], out secs);
+                ts = new TimeSpan(0, 0, 0, secs, 0);
+            }
+
+            return (ts);
+        }
+
+        private List<BatSegmentLink> IdentifyBatPasses(int passes, List<Bat> bats)
+        {
+            List<BatSegmentLink> passList = new List<BatSegmentLink>();
+            foreach (var bat in bats)
+            {
+                BatSegmentLink pass = new BatSegmentLink();
+                pass.Bat = bat;
+                pass.NumberOfPasses = passes;
+                passList.Add(pass);
+            }
+            return (passList);
+        }
 
         /// <summary>
         /// Processes the manual file line.
         /// </summary>
         /// <param name="match">The match.</param>
         /// <returns></returns>
-        private string ProcessManualFileLine(Match match)
+        private string ProcessManualFileLine(Match match, out List<Bat> bats)
         {
             string comment = "";
+            bats = new List<Bat>();
 
             if (match.Groups.Count >= 5)
             {
                 string strStartOffset = match.Groups[1].Value;
                 TimeSpan startTime = GetTimeOffset(strStartOffset);
-                comment = comment + FormattedTimeSpan(startTime) + " - ";
+                comment = comment + Tools.FormattedTimeSpan(startTime) + " - ";
                 string strEndOffset = match.Groups[3].Value;
                 TimeSpan endTime = GetTimeOffset(strEndOffset);
-                comment = comment + FormattedTimeSpan(endTime) + " = ";
+                comment = comment + Tools.FormattedTimeSpan(endTime) + " = ";
                 TimeSpan thisDuration = endTime - startTime;
-                comment = comment + FormattedTimeSpan(endTime - startTime) + " \t";
+                comment = comment + Tools.FormattedTimeSpan(endTime - startTime) + " \t";
                 for (int i = 4; i < match.Groups.Count; i++)
                 {
                     comment = comment + match.Groups[i];
                 }
-                AddToBatSummary(comment, thisDuration);
+                bats = AddToBatSummary(comment, thisDuration);
             }
             return (comment + "\n");
         }
@@ -244,11 +350,20 @@ namespace WinBLPdB
         /// </summary>
         /// <param name="line">The line.</param>
         /// <returns></returns>
-        private bool IsLabelFileLine(string line)
+        private bool IsLabelFileLine(string line, out string startStr, out string endStr, out string comment)
         {
-            string regexLabelFileLine = @"\A\d*\.?\d*\s+\d*\.?\d*\s*.*";
+            startStr = "";
+            endStr = "";
+            comment = "";
+            string regexLabelFileLine = @"\A\s*(\d*\.?\d*)\s+(\d*\.?\d*)\s*(.*)";
             Match match = Regex.Match(line, regexLabelFileLine);
-            if (match.Success) { return (true); }
+            if (match.Success)
+            {
+                startStr = match.Groups[1].Value;
+                endStr = match.Groups[2].Value;
+                comment = match.Groups[3].Value;
+                return (true);
+            }
             return (false);
         }
 
@@ -257,15 +372,16 @@ namespace WinBLPdB
         /// </summary>
         /// <param name="line">The line.</param>
         /// <returns></returns>
-        private string ProcessLabelFileLine(string line)
+        private string ProcessLabelFileLine(string line, string startStr, string endStr, string comment, out List<Bat> bats)
         {
             string result = "";
             TimeSpan NewDuration;
+            bats = new List<Bat>();
 
             if (!string.IsNullOrWhiteSpace(line) && char.IsDigit(line[0]))
             {
-                result = ProcessLabelLine(line, out NewDuration) + "\n";
-                AddToBatSummary(line, NewDuration);
+                result = ProcessLabelLine(line, startStr, endStr, comment, out NewDuration) + "\n";
+                bats = AddToBatSummary(line, NewDuration);
             }
             else
             {
@@ -280,14 +396,14 @@ namespace WinBLPdB
         /// </summary>
         /// <param name="line">The line.</param>
         /// <param name="NewDuration">The new duration.</param>
-        private void AddToBatSummary(string line, TimeSpan NewDuration)
+        private List<Bat> AddToBatSummary(string line, TimeSpan NewDuration)
         {
             List<Bat> bats = mBatSummary.getBatElement(line);
             if (bats != null && bats.Count() > 0)
             {
                 foreach (var bat in bats)
                 {
-                    string batname = bat.BatCommonNames.FirstOrDefault().BatCommonName1;
+                    string batname = bat.Name;
                     if (!string.IsNullOrWhiteSpace(batname))
                     {
                         if (BatsFound.ContainsKey(batname))
@@ -301,49 +417,7 @@ namespace WinBLPdB
                     }
                 }
             }
-        }
-
-        /// <summary>
-        /// Formatteds the bat stats.
-        /// </summary>
-        /// <param name="bat">The bat.</param>
-        /// <returns></returns>
-        public static string FormattedBatStats(KeyValuePair<string, BatStats> bat)
-        {
-            int passes = bat.Value.Passes();
-            string result = bat.Key + " " + passes + (passes == 1 ? " pass in " : " passes in ") + bat.Value.count + " segment" + (bat.Value.count != 1 ? "s" : "") +
-                        " = ( " +
-                        "Min=" + FormattedTimeSpan(bat.Value.minDuration) +
-                        ", Max=" + FormattedTimeSpan(bat.Value.maxDuration) +
-                        ", Mean=" + FormattedTimeSpan(bat.Value.meanDuration) + " )" +
-                        "Total duration=" + FormattedTimeSpan(bat.Value.totalDuration);
-            return (result);
-        }
-
-        /// <summary>
-        /// Formatteds the time span.
-        /// </summary>
-        /// <param name="time">The time.</param>
-        /// <returns></returns>
-        public static string FormattedTimeSpan(TimeSpan time)
-        {
-            string result = "";
-            if (time != null && time.Ticks > 0)
-            {
-                time = time.Duration();
-                if (time.Hours > 0)
-                {
-                    result = result + time.Hours + "h";
-                }
-                if (time.Hours > 0 || time.Minutes > 0)
-                {
-                    result = result + time.Minutes + "'";
-                }
-                decimal seconds = time.Seconds + ((decimal)time.Milliseconds / 1000.0m);
-                result = result + string.Format("{0:0.0#}\"", seconds);
-            }
-
-            return (result);
+            return (bats);
         }
 
         /// <summary>
@@ -352,7 +426,7 @@ namespace WinBLPdB
         /// <param name="line">The line.</param>
         /// <param name="NewDuration">The new duration.</param>
         /// <returns></returns>
-        private string ProcessLabelLine(string line, out TimeSpan NewDuration)
+        private string ProcessLabelLine(string line, string startStr, string endStr, string comment, out TimeSpan NewDuration)
         {
             NewDuration = new TimeSpan(0L);
             line = line.Trim();
@@ -366,46 +440,47 @@ namespace WinBLPdB
             TimeSpan duration;
             string shortened = line;
 
-            Regex regexSeconds = new Regex(@"[0-9]+\.[0-9]+");
-            MatchCollection allMatches = regexSeconds.Matches(line);
-            if (allMatches.Count == 2)
-            {
-                double startTimeSeconds;
-                double endTimeSeconds;
-                Double.TryParse(allMatches[0].Value, out startTimeSeconds);
-                Double.TryParse(allMatches[1].Value, out endTimeSeconds);
-                int Minutes = (int)Math.Floor(startTimeSeconds / 60);
-                int Seconds = (int)Math.Floor(startTimeSeconds - (Minutes * 60));
-                int Milliseconds = (int)Math.Floor(1000 * (startTimeSeconds - Math.Floor(startTimeSeconds)));
-                StartTime = new TimeSpan(0, 0, Minutes, Seconds, Milliseconds);
-                Minutes = (int)Math.Floor(endTimeSeconds / 60);
-                Seconds = (int)Math.Floor(endTimeSeconds - (Minutes * 60));
-                Milliseconds = (int)Math.Floor(1000 * (endTimeSeconds - Math.Floor(endTimeSeconds)));
-                EndTime = new TimeSpan(0, 0, Minutes, Seconds, Milliseconds);
-                duration = EndTime - StartTime;
-                NewDuration = duration;
-                shortened = line.Trim();
-                while (!String.IsNullOrWhiteSpace(shortened) && !Char.IsWhiteSpace(shortened[0])) shortened = shortened.Substring(1);
-                shortened = shortened.Trim();
-                while (!String.IsNullOrWhiteSpace(shortened) && !Char.IsWhiteSpace(shortened[0])) shortened = shortened.Substring(1);
-                shortened = shortened.Trim();
+            /*Regex regexSeconds = new Regex(@"([0-9]+\.[0-9]+)\s*-*\s*([0-9]+\.[0-9]+)\s*(.*)");
+            Match match = Regex.Match(line, @"([0-9]+\.[0-9]+)\s*-*\s*([0-9]+\.[0-9]+)\s*(.*)");
+            //MatchCollection allMatches = regexSeconds.Matches(line);
+            if (match.Success)
+            {*/
+            double startTimeSeconds;
+            double endTimeSeconds;
+            Double.TryParse(startStr, out startTimeSeconds);
+            Double.TryParse(endStr, out endTimeSeconds);
 
-                outLine = String.Format("{0:00}\'{1:00}.{2:0##} - {3:00}\'{4:00}.{5:0##} = {6:00}\'{7:00}.{8:0##}\t{9}",
-                    StartTime.Minutes, StartTime.Seconds, StartTime.Milliseconds,
-                    EndTime.Minutes, EndTime.Seconds, EndTime.Milliseconds,
-                    duration.Minutes, duration.Seconds, duration.Milliseconds,shortened);
-                /*
-                outLine = StartTime.Minutes + @"'" + StartTime.Seconds + "." + StartTime.Milliseconds +
-                " - " + EndTime.Minutes + @"'" + EndTime.Seconds + "." + EndTime.Milliseconds +
-                " = " + duration.Minutes + @"'" + duration.Seconds + "." + duration.Milliseconds +
-                "\t" + shortened;*/
-            }
-            else
-            {
-                StartTime = new TimeSpan();
-                EndTime = new TimeSpan();
-                outLine = line;
-            }
+            int Minutes = (int)Math.Floor(startTimeSeconds / 60);
+            int Seconds = (int)Math.Floor(startTimeSeconds - (Minutes * 60));
+            int Milliseconds = (int)Math.Floor(1000 * (startTimeSeconds - Math.Floor(startTimeSeconds)));
+            StartTime = new TimeSpan(0, 0, Minutes, Seconds, Milliseconds);
+            Minutes = (int)Math.Floor(endTimeSeconds / 60);
+            Seconds = (int)Math.Floor(endTimeSeconds - (Minutes * 60));
+            Milliseconds = (int)Math.Floor(1000 * (endTimeSeconds - Math.Floor(endTimeSeconds)));
+            EndTime = new TimeSpan(0, 0, Minutes, Seconds, Milliseconds);
+
+            duration = EndTime - StartTime;
+            NewDuration = duration;
+            shortened = comment;
+
+            outLine = Tools.FormattedTimeSpan(StartTime) + " - " + Tools.FormattedTimeSpan(EndTime) + " = " +
+                Tools.FormattedTimeSpan(duration) + "\t" + shortened;
+            //outLine = String.Format("{0:00}\'{1:00}.{2:0##} - {3:00}\'{4:00}.{5:0##} = {6:00}\'{7:00}.{8:0##}\t{9}",
+            //StartTime.Minutes, StartTime.Seconds, StartTime.Milliseconds,
+            //EndTime.Minutes, EndTime.Seconds, EndTime.Milliseconds,
+            //duration.Minutes, duration.Seconds, duration.Milliseconds, shortened);
+            /*
+            outLine = StartTime.Minutes + @"'" + StartTime.Seconds + "." + StartTime.Milliseconds +
+            " - " + EndTime.Minutes + @"'" + EndTime.Seconds + "." + EndTime.Milliseconds +
+            " = " + duration.Minutes + @"'" + duration.Seconds + "." + duration.Milliseconds +
+            "\t" + shortened;*/
+            /* }
+             else
+             {
+                 StartTime = new TimeSpan();
+                 EndTime = new TimeSpan();
+                 outLine = line;
+             }*/
 
             return (outLine);
         }
@@ -470,22 +545,20 @@ namespace WinBLPdB
             return (duration);
         }
 
-        
-
- /*       /// <summary>
-        /// using a string that matches the regex @"[0-9]+\.[0-9]+"
-        /// or a string that matches the regex @"[0-9]+'?[0-9]*\.?[0-9]+"
-        /// extracts one to three numeric portions and converts them to
-        /// a timespan.  3 number represent minute,seconds,fraction
-        /// 2 numbers represent seconds,fraction or minutes,seconds
-        /// 1 number represents minutes or seconds
-        /// </summary>
-        /// <param name="match">The match.</param>
-        /// <returns></returns>
-        private static TimeSpan GetTimeOffset(Match match)
-        {
-            return (FileProcessor.GetTimeOffset(match.Value));
-        }*/
+        /*       /// <summary>
+               /// using a string that matches the regex @"[0-9]+\.[0-9]+"
+               /// or a string that matches the regex @"[0-9]+'?[0-9]*\.?[0-9]+"
+               /// extracts one to three numeric portions and converts them to
+               /// a timespan.  3 number represent minute,seconds,fraction
+               /// 2 numbers represent seconds,fraction or minutes,seconds
+               /// 1 number represents minutes or seconds
+               /// </summary>
+               /// <param name="match">The match.</param>
+               /// <returns></returns>
+               private static TimeSpan GetTimeOffset(Match match)
+               {
+                   return (FileProcessor.GetTimeOffset(match.Value));
+               }*/
 
         /// <summary>
         /// Gets the time offset.
@@ -542,6 +615,29 @@ namespace WinBLPdB
                 result = new TimeSpan(0, 0, Minutes, Seconds, Milliseconds);
             }
             return (result);
+        }
+    }
+
+    /// <summary>
+    /// Class to hold details of a specific LabelledSegment, and a List of
+    /// Bats that were present during this segment.
+    /// </summary>
+    public class SegmentAndBatList
+    {
+        /// <summary>
+        /// The Labelled Segment
+        /// </summary>
+        public LabelledSegment segment = new LabelledSegment();
+
+        /// <summary>
+        /// The List of Bats present during the segment
+        /// </summary>
+        public List<Bat> batList = new List<Bat>();
+
+        public SegmentAndBatList()
+        {
+            segment = new LabelledSegment();
+            batList = new List<Bat>();
         }
     }
 }

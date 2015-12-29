@@ -1,23 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Workflow;
-using System.Xml.Linq;
 using System.Xml;
-using System.IO;
-using System.Collections.ObjectModel;
 
-namespace WinBLPdB
+namespace BatRecordingManager
 {
     /// <summary>
     /// Interaction logic for BatEditor.xaml
@@ -25,9 +13,6 @@ namespace WinBLPdB
     public partial class BatEditor : Window
     {
         public BatReferenceDBLinqDataContext batReferenceDataContext;
-
-
-
 
         public ObservableCollection<Bat> BatList
         {
@@ -39,27 +24,19 @@ namespace WinBLPdB
         public static readonly DependencyProperty BatListProperty =
             DependencyProperty.Register("BatList", typeof(ObservableCollection<Bat>), typeof(BatEditor), new PropertyMetadata(new ObservableCollection<Bat>()));
 
-    
-
         //public ObservableCollection<Bat> BatList;
-        
-
 
         public BatEditor(BatReferenceDBLinqDataContext BatReferenceDataContext)
         {
             batReferenceDataContext = BatReferenceDataContext;
 
             BatList = new ObservableCollection<Bat>();
-            
-            
 
             InitializeComponent();
             this.DataContext = this;
 
             LoadDataToBatList();
             BatNameListBox.ItemsSource = BatList;
-
-
         }
 
         private void LoadDataToBatList()
@@ -85,21 +62,20 @@ namespace WinBLPdB
                 changing = true;
             }
             int lastSelectedIndex = BatNameListBox.SelectedIndex;
-            
+
             var bats = from bat in BatList
                        orderby bat.SortIndex
                        select bat;
             short i = 1;
-            foreach(var bat in bats)
+            foreach (var bat in bats)
             {
                 bat.SortIndex = i++;
             }
-            
 
             BatList = new ObservableCollection<Bat>(bats.ToList<Bat>());
             BatNameListBox.ItemsSource = BatList;
             BatNameListBox.SelectedIndex = lastSelectedIndex;
-            
+
             try
             {
                 if (lastSelectedIndex < BatNameListBox.Items.Count)
@@ -118,10 +94,9 @@ namespace WinBLPdB
                     BatNameListBox.SelectedIndex = BatNameListBox.Items.Count - 1;
                 }
 
-                CommonNameListView.ItemsSource = (BatNameListBox.SelectedItem as Bat).BatCommonNames;
+                
             }
             catch (Exception) { }
-
         }
 
         /// <summary>
@@ -130,7 +105,7 @@ namespace WinBLPdB
         /// displays a message box and does nothing else.
         /// If OK, returns with a true result - the caller has the
         /// responsibility for retrieving the modified BatList and
-        /// using it.  This function saves the modified list to the 
+        /// using it.  This function saves the modified list to the
         /// specified file name and location if present.  It does not
         /// query a file overwrite but will create a .bak version of
         /// the old data.
@@ -141,15 +116,12 @@ namespace WinBLPdB
         {
             if (BatNameListBox.SelectedIndex >= 0)
             {
-                String errstring = ValidateBat((Bat)BatNameListBox.SelectedItem);
+                String errstring = DBAccess.ValidateBat((Bat)BatNameListBox.SelectedItem);
                 if (!String.IsNullOrWhiteSpace(errstring))
                 {
                     DisplayInvalidErrorMessage(errstring);
                     return;
                 }
-
-                
-
             }
 
             // OK, so the bat selected is valid, others are all untouched or checked
@@ -160,32 +132,7 @@ namespace WinBLPdB
             this.Close();
         }
 
-        private void CommonNameAddButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!String.IsNullOrWhiteSpace(CommonNameEditBox.Text))
-            {
-                var bat = BatList[BatNameListBox.SelectedIndex] as Bat;
-                var name = from n in bat.BatCommonNames
-                           where n.BatCommonName1.ToUpper() == CommonNameEditBox.Text.ToUpper()
-                           select n;
-                if(name!=null && name.Count() > 0)
-                {
-                    return;// name in the edit box already exists for this bat
-                }
-                else
-                {
-                    BatCommonName bcn = new BatCommonName();
-                    bcn.BatCommonName1 = CommonNameEditBox.Text;
-                    bcn.BatID = bat.Id;
-                    bat.BatCommonNames.Add(bcn);
-                    
-                    RefreshBatNameListBox(true);
-                }
-
-                
-
-            }
-        }
+  
 
         /// <summary>
         /// Selecteds the bat. Returns the XElement from BatList for the bat
@@ -195,7 +142,6 @@ namespace WinBLPdB
         /// <returns></returns>
         private Bat SelectedBat(Bat selectedBatElement)
         {
-            
             /*string batName = selectedBatElement.GetAttribute("Name");
 
             var selectedBat = (from bat in BatList.Descendants("Bat")
@@ -215,68 +161,10 @@ namespace WinBLPdB
             return (SelectedBat(selectedBatElement));
         }
 
-        private void CommonNameListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (CommonNameListView.SelectedItem != null)
-            {
-                CommonNameEditBox.Text = (CommonNameListView.SelectedItem as BatCommonName).BatCommonName1;
-            }
-        }
+       
 
-        private void CommonNameDelButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!String.IsNullOrWhiteSpace(CommonNameEditBox.Text))
-            {
-                String selectedCommonName = CommonNameEditBox.Text;
-                var selectedBat = BatList[BatNameListBox.SelectedIndex] as Bat;
-                var selectedElement = (from cn in selectedBat.BatCommonNames
-                                      where cn.BatCommonName1 == selectedCommonName
-                                      select cn);
-                if(selectedElement!= null && selectedElement.Count()>0)
-                {
-                    selectedBat.BatCommonNames.Remove(selectedElement.First());
-                    RefreshBatNameListBox(true);
-                }
-
-            }
-        }
-
-        /// <summary>
-        /// Handles the Click event of the CommonNameUpButton control.
-        /// Moves the selected item up in the list if it is not already
-        /// at the top.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
-        private void CommonNameUpButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!String.IsNullOrWhiteSpace(CommonNameEditBox.Text))
-            {
-                String selectedCommonName = CommonNameEditBox.Text;
-                var selectedBat = SelectedBat();
-                
-                var commonNames = (from cn in batReferenceDataContext.BatCommonNames
-                                   where cn.BatID == selectedBat.Id
-                                   orderby cn.SortIndex
-                                   select cn);
-                for (int i = 0; i < commonNames.Count(); i++)
-                {
-                    commonNames.ElementAt(i).SortIndex = (short)i;
-                }
-                for(int i = 1; i < commonNames.Count(); i++)
-                { 
-                    if (commonNames.ElementAt(i).BatCommonName1 == selectedCommonName)
-                    {
-                        commonNames.ElementAt(i).SortIndex = (short)(i - 1);
-                        commonNames.ElementAt(i - 1).SortIndex = (short)i;
-                    }
-                }
-                RefreshBatNameListBox(true);
-            }
-        }
-
-        
         private bool changing = false;
+
         /// <summary>
         /// Handles the SelectionChanged event of the BatNameListBox control.
         /// Ensures that the old bat was properly filled out - if not it
@@ -295,13 +183,11 @@ namespace WinBLPdB
                 var deselected = (Bat)e.RemovedItems[0]; //is the item we are moving away from
                 if (deselected != null)
                 {
-                    int index= BatNameListBox.Items.IndexOf(deselected);
-                    
-                    String errString = ValidateBat(deselected);
+                    int index = BatNameListBox.Items.IndexOf(deselected);
+
+                    String errString = DBAccess.ValidateBat(deselected);
                     if (!String.IsNullOrWhiteSpace(errString))
                     {
-                        
-                        
                         BatNameListBox.SelectedIndex = index;
                         DisplayInvalidErrorMessage(errString);
                         changing = false;
@@ -310,75 +196,14 @@ namespace WinBLPdB
                 }
             }
 
-
-            CommonNameEditBox.Text = "";
+            
             IDTagEditBox.Text = "";
             changing = false;
-            
         }
 
-        /// <summary>
-        /// Validates the bat.  Checks that CommonName, Genus, Species and Tag
-        /// are all present.  If not throws up a message box, and returns FALSE
-        /// </summary>
-        /// <param name="unselected">The unselected.</param>
-        /// <returns></returns>
-        private String ValidateBat(Bat unselected)
-        {
-            
-            Bat previousBat = SelectedBat(unselected);
-            
-            int NumberOfCommonNames = previousBat.BatCommonNames.Count;
-            if (NumberOfCommonNames<=0){
-                return("At least one Common Name required");
-                
-            }
-            RenameBat(previousBat);
-            
-            if (String.IsNullOrWhiteSpace(previousBat.Batgenus)){
-                return("Bat Genus required");
-                
-            }
-            
-            if (String.IsNullOrWhiteSpace(previousBat.BatSpecies)){
-                return("Bat Species required");
-                
-            }
-            
-            if (previousBat.BatTags.Count<=0){
-                return("Bat Tag required");
-                
-            }
+        
 
-            return (null);
-
-        }
-
-        private void RenameBat(Bat bat)
-        {
-            try
-            {
-                string CommonName = (from b in bat.BatCommonNames
-                                     orderby b.SortIndex
-                                     select b).First().BatCommonName1;
-
-                string newName = CommonName.Trim().Replace(" ", "");
-                
-
-                if (String.IsNullOrWhiteSpace(bat.Name))
-                {
-                    bat.Name = newName;
-                }
-                batReferenceDataContext.SubmitChanges();
-               
-                    
-                bool OldChanging = changing;
-                RefreshBatNameListBox(true);
-                changing = OldChanging;
-                   
-            }
-            catch (Exception) { }
-        }
+        
 
         /// <summary>
         /// Invalids the bat.  Throws a message box warning of an invalid bat
@@ -389,60 +214,12 @@ namespace WinBLPdB
         {
             bool OldChanging = changing;
             changing = true;
-            
-            
+
             MessageBox.Show(v, "All fields must be completed", MessageBoxButton.OK);
             changing = OldChanging;
         }
 
-        /// <summary>
-        /// Handles the Click event of the CommonNameDownButton control.
-        /// Moves the selected item down in the common names list if it
-        /// is not already at the bottom
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
-        private void CommonNameDownButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (!String.IsNullOrWhiteSpace(CommonNameEditBox.Text))
-            {
-                String selectedCommonName = CommonNameEditBox.Text;
-                var selectedBat = SelectedBat();
-                var commonNames = from cn in selectedBat.BatCommonNames
-                                  orderby cn.SortIndex
-                                  select cn;
-
-                for(int i = 0; i < commonNames.Count(); i++)
-                {
-                    commonNames.ElementAt(i).SortIndex = (short)i;
-                }
-                for(int i = 0; i < commonNames.Count() - 1; i++)
-                {
-                    if (commonNames.ElementAt(i).BatCommonName1 == selectedCommonName)
-                    {
-                        commonNames.ElementAt(i).SortIndex = (short)(i + 1);
-                        commonNames.ElementAt(i + 1).SortIndex = (short)i;
-                        break;
-                    }
-                }
-                batReferenceDataContext.SubmitChanges();
-                RefreshBatNameListBox(true);
-                /*
-                var commonNames = selectedBat.Descendants("BatCommonName");
-                for (int i = 0; i < commonNames.Count()-1; i++)
-                {
-                    if (commonNames.ElementAt(i).Value == selectedCommonName)
-                    {
-                        var after = commonNames.ElementAt(i).NextNode;
-                        var current = commonNames.ElementAt(i);
-                        commonNames.ElementAt(i).Remove();
-                        after.AddAfterSelf(current);
-                        RefreshBatNameListBox(true);
-                        break;
-                    }
-                }*/
-            }
-        }
+        
 
         /// <summary>
         /// Handles the Click event of the TagDelButton control.
@@ -458,8 +235,8 @@ namespace WinBLPdB
                 var selectedBat = SelectedBat();
 
                 var selTag = (from tg in selectedBat.BatTags
-                             where tg.BatTag1 == selectedTag
-                             select tg).First();
+                              where tg.BatTag1 == selectedTag
+                              select tg).First();
                 batReferenceDataContext.BatTags.DeleteOnSubmit(selTag);
                 batReferenceDataContext.SubmitChanges();
                 RefreshBatNameListBox(true);
@@ -473,7 +250,6 @@ namespace WinBLPdB
                     selectedElement.FirstOrDefault().Remove();
                     RefreshBatNameListBox(true);
                 }*/
-
             }
         }
 
@@ -487,13 +263,11 @@ namespace WinBLPdB
         {
             if (!String.IsNullOrWhiteSpace(IDTagEditBox.Text))
             {
-
                 var selectedBat = SelectedBat(); // returns NULL !!!!!!!!!!!!!!!!!!!!!!!!!
                 var tags = from tg in selectedBat.BatTags
                            orderby tg.SortIndex
                            select tg;
 
-                
                 if (tags != null)
                 {
                     foreach (var tag in tags)
@@ -504,7 +278,7 @@ namespace WinBLPdB
                         }
                     }
 
-                    foreach(var tag in tags)
+                    foreach (var tag in tags)
                     {
                         tag.SortIndex++;
                     }
@@ -515,7 +289,6 @@ namespace WinBLPdB
                     selectedBat.BatTags.Add(newTag);
                     batReferenceDataContext.SubmitChanges();
                 }
-
 
                 /*
                 if(nullTag!= null)
@@ -529,12 +302,10 @@ namespace WinBLPdB
                 }
                 else
                 {
-
                     existingTags.LastOrDefault().AddAfterSelf(new XElement("BatTag", IDTagEditBox.Text));
                 }*/
                 //selectedBat.Add(new XElement("BatCommonName", CommonNameEditBox.Text));
                 RefreshBatNameListBox(true);
-
             }
         }
 
@@ -556,14 +327,14 @@ namespace WinBLPdB
                            orderby tg.SortIndex
                            select tg;
 
-                if(tags!=null && tags.Count() > 1)
+                if (tags != null && tags.Count() > 1)
                 {
-                    for(int i = 0; i < tags.Count(); i++)
+                    for (int i = 0; i < tags.Count(); i++)
                     {
                         tags.ElementAt(i).SortIndex = (short)i;
                     }
 
-                    for(int i = 0; i < tags.Count() - 1; i++)
+                    for (int i = 0; i < tags.Count() - 1; i++)
                     {
                         if (tags.ElementAt(i).BatTag1 == IDTagEditBox.Text)
                         {
@@ -594,7 +365,7 @@ namespace WinBLPdB
 
         /// <summary>
         /// Handles the Click event of the TagUpButton control.
-        /// Moves the selected item up one place in the list if it 
+        /// Moves the selected item up one place in the list if it
         /// not already at the top
         /// </summary>
         /// <param name="sender">The source of the event.</param>
@@ -617,11 +388,11 @@ namespace WinBLPdB
                         tags.ElementAt(i).SortIndex = (short)i;
                     }
 
-                    for (int i = 1; i < tags.Count() ; i++)
+                    for (int i = 1; i < tags.Count(); i++)
                     {
                         if (tags.ElementAt(i).BatTag1 == IDTagEditBox.Text)
                         {
-                            tags.ElementAt(i).SortIndex = (short)(i -1);
+                            tags.ElementAt(i).SortIndex = (short)(i - 1);
                             tags.ElementAt(i - 1).SortIndex = (short)i;
                             break;
                         }
@@ -669,29 +440,21 @@ namespace WinBLPdB
         /// <param name="e">The <see cref="System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
         private void MoveUpRecordButton_Click(object sender, RoutedEventArgs e)
         {
-
             if (BatNameListBox.SelectedIndex > 0)
             {
-
-
-
                 //var selectedBat = SelectedBat();
 
                 int index = BatNameListBox.SelectedIndex;
-                          
-
 
                 BatList.ElementAt(index).SortIndex--;
                 BatList.ElementAt(index - 1).SortIndex++;
-                BatList= new ObservableCollection<Bat>(BatList.OrderBy(bat => bat.SortIndex));
+                BatList = new ObservableCollection<Bat>(BatList.OrderBy(bat => bat.SortIndex));
 
                 BatNameListBox.ItemsSource = BatList;
                 BatNameListBox.SelectedIndex = index;
 
-          /*      BindingExpression be = BindingOperations.GetBindingExpression(this, BatList);
-                if (be != null) be.UpdateSource();*/
-                
-
+                /*      BindingExpression be = BindingOperations.GetBindingExpression(this, BatList);
+                      if (be != null) be.UpdateSource();*/
             }
         }
 
@@ -704,10 +467,8 @@ namespace WinBLPdB
         /// <param name="e">The <see cref="System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
         private void MoveDownRecordButton_Click(object sender, RoutedEventArgs e)
         {
-            if (BatNameListBox.SelectedIndex>=0)
+            if (BatNameListBox.SelectedIndex >= 0)
             {
-
-
                 int index = BatNameListBox.SelectedIndex;
                 BatList.ElementAt(index).SortIndex++;
                 BatList.ElementAt(index + 1).SortIndex--;
@@ -715,7 +476,6 @@ namespace WinBLPdB
                 BatNameListBox.ItemsSource = BatList;
                 BatNameListBox.SelectedIndex = index;
                 return;
-
             }
         }
 
@@ -729,7 +489,7 @@ namespace WinBLPdB
         {
             var selectedBat = SelectedBat();
             int index = BatNameListBox.SelectedIndex;
-            
+
             BatList.Remove(selectedBat);
             BatList = new ObservableCollection<Bat>(BatList.OrderBy(bat => bat.SortIndex));
             BatNameListBox.ItemsSource = BatList;
@@ -738,7 +498,7 @@ namespace WinBLPdB
 
         private void AddRecordButton_Click(object sender, RoutedEventArgs e)
         {
-            String errString = ValidateBat((Bat)BatNameListBox.SelectedItem);
+            String errString = DBAccess.ValidateBat((Bat)BatNameListBox.SelectedItem);
             int index = BatNameListBox.SelectedIndex;
             if (String.IsNullOrWhiteSpace(errString))
             {
@@ -746,30 +506,23 @@ namespace WinBLPdB
                 bat.Name = "bat";
                 bat.Batgenus = "BatGenus";
                 bat.BatSpecies = "BatSpecies";
-                BatCommonName bcn = new BatCommonName();
-                bcn.SortIndex = (short)-1;
-                bcn.BatCommonName1 = "BatCommonName";
                 
+
                 short max = short.MinValue;
-                foreach(var cn in bat.BatCommonNames)
-                {
-                    if (cn.SortIndex > max) max = cn.SortIndex;
-                }
-                bcn.SortIndex = ++max;
-                bat.BatCommonNames.Add(bcn);
+                
                 BatTag bt = new BatTag();
                 bt.BatTag1 = "BatTag";
                 max = short.MinValue;
-                foreach(var tg in bat.BatTags)
+                foreach (var tg in bat.BatTags)
                 {
                     if (tg.SortIndex.Value > max) max = tg.SortIndex.Value;
                 }
                 bt.SortIndex = ++max;
-                
+
                 bat.BatTags.Add(bt);
 
                 int? maxi = int.MaxValue;
-                foreach(var b in BatList)
+                foreach (var b in BatList)
                 {
                     if (b.SortIndex > maxi) maxi = b.SortIndex;
                 }
@@ -778,7 +531,6 @@ namespace WinBLPdB
                 BatList = new ObservableCollection<Bat>(BatList.OrderBy(newbat => newbat.SortIndex));
                 BatNameListBox.ItemsSource = BatList;
                 BatNameListBox.SelectedItem = bat;
-
             }
             else
             {
@@ -797,7 +549,6 @@ namespace WinBLPdB
         {
             if (String.IsNullOrWhiteSpace(SpeciesTextBlock.Text))
             {
-               
                 return;
             }
             var selectedBat = SelectedBat();
@@ -811,7 +562,6 @@ namespace WinBLPdB
         {
             if (String.IsNullOrWhiteSpace(GenusTextBlock.Text))
             {
-
                 return;
             }
             var selectedBat = SelectedBat();
@@ -821,18 +571,7 @@ namespace WinBLPdB
             RefreshBatNameListBox(true);
         }
 
-        /// <summary>
-        /// Handles the LostFocus event of the CommonNameEditBox control.
-        /// If the box is not empty, and the text in the box is not already
-        /// in the list of Common Names, then the text is added as a new common name
-        /// by calling the 'ADD' button handler automatically.
-        /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="System.Windows.RoutedEventArgs" /> instance containing the event data.</param>
-        private void CommonNameEditBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            CommonNameAddButton_Click(this, new RoutedEventArgs());
-        }
+        
 
         private void IDTagEditBox_LostFocus(object sender, RoutedEventArgs e)
         {

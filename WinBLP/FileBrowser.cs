@@ -5,7 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Forms;
 
-namespace WinBLPdB
+namespace BatRecordingManager
 {
     /// <summary>
     /// Class to handle selection of input, and by derivation
@@ -44,6 +44,27 @@ namespace WinBLPdB
         /// The existing log file name
         /// </summary>
         private string existingLogFileName = "";
+
+        /// <summary>
+        /// Gets the header file.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        internal string[] GetHeaderFile()
+        {
+            if (textFileNames != null && textFileNames.Count() > 0)
+            {
+                foreach (var file in textFileNames)
+                {
+                    String[] lines = File.ReadAllLines(file);
+                    if (lines[0].Contains("[COPY]"))
+                    {
+                        return (lines);
+                    }
+                }
+            }
+            return (null);
+        }
 
         /// <summary>
         /// Accessor for existingLogFileName.
@@ -187,7 +208,6 @@ namespace WinBLPdB
                         }
                         textFileNames.Sort();
                     }
-                    
                 }
                 else { return (null); }
             }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 
-namespace WinBLPdB
+namespace BatRecordingManager
 {
     /// <summary>
     /// Interaction logic for HelpScreen.xaml
@@ -92,8 +92,8 @@ not attempt to process the information, but will simply copy this directly into 
 It is suggested that this should be the first file in the file list and the Modify File Order
 process described below can be used to ensure that this is the case.
 After running the program, the log file will (if a GPX file was present) contain co-ordinates
-for the start and end of each recorded segment.  The start co-ordinates can be copied and pasted into map.bing.com 
-in order to identify the location on a map or aerial imagery.  Then a [MERGE] section can be 
+for the start and end of each recorded segment.  The start co-ordinates can be copied and pasted into map.bing.com
+in order to identify the location on a map or aerial imagery.  Then a [MERGE] section can be
 appended to the header text file with a one-line description of the location for each wav file
 segment.  If the program is then re-run the log file will not only contain the GPS co-ordinates
 for each segment but a helpful description.  If a GPX file is not available the descriptions may
@@ -192,7 +192,7 @@ The Bat reference file may be examined and modified using the 'File/Edit Bat ref
 command.  A window will be opened displaying all the bats referenced in the file by
 their 'name' tags, in the left hand column.  The name tag is usually the Common Name
 of the bat with all spaces removed and should be unique in the list.
-Selecting a bat will display the details of that bat in the right hand pane.  The width 
+Selecting a bat will display the details of that bat in the right hand pane.  The width
 of the two panes may be adjusted by dragging the border between them.
 The right hand pane has sections for the bat's common name, latin name, and the tags used to
 identify it in the descriptive labels created in Audacity.

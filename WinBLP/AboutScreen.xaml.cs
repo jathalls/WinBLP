@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace WinBLPdB
+namespace BatRecordingManager
 {
     /// <summary>
     /// Interaction logic for AboutScreen.xaml

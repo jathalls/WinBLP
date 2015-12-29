@@ -9,7 +9,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace WinBLPdB
+namespace BatRecordingManager
 {
 	using System.Data.Linq;
 	using System.Data.Linq.Mapping;
@@ -33,16 +33,25 @@ namespace WinBLPdB
     partial void InsertBat(Bat instance);
     partial void UpdateBat(Bat instance);
     partial void DeleteBat(Bat instance);
-    partial void InsertBatCommonName(BatCommonName instance);
-    partial void UpdateBatCommonName(BatCommonName instance);
-    partial void DeleteBatCommonName(BatCommonName instance);
+    partial void InsertRecordingSession(RecordingSession instance);
+    partial void UpdateRecordingSession(RecordingSession instance);
+    partial void DeleteRecordingSession(RecordingSession instance);
+    partial void InsertBatSegmentLink(BatSegmentLink instance);
+    partial void UpdateBatSegmentLink(BatSegmentLink instance);
+    partial void DeleteBatSegmentLink(BatSegmentLink instance);
     partial void InsertBatTag(BatTag instance);
     partial void UpdateBatTag(BatTag instance);
     partial void DeleteBatTag(BatTag instance);
+    partial void InsertLabelledSegment(LabelledSegment instance);
+    partial void UpdateLabelledSegment(LabelledSegment instance);
+    partial void DeleteLabelledSegment(LabelledSegment instance);
+    partial void InsertRecording(Recording instance);
+    partial void UpdateRecording(Recording instance);
+    partial void DeleteRecording(Recording instance);
     #endregion
 		
 		public BatReferenceDBLinqDataContext() : 
-				base(global::WinBLPdB.Properties.Settings.Default.BatReferenceDBConnectionString, mappingSource)
+				base(global::BatRecordingManager.Properties.Settings.Default.BatReferenceDBConnectionString, mappingSource)
 		{
 			OnCreated();
 		}
@@ -79,11 +88,19 @@ namespace WinBLPdB
 			}
 		}
 		
-		public System.Data.Linq.Table<BatCommonName> BatCommonNames
+		public System.Data.Linq.Table<RecordingSession> RecordingSessions
 		{
 			get
 			{
-				return this.GetTable<BatCommonName>();
+				return this.GetTable<RecordingSession>();
+			}
+		}
+		
+		public System.Data.Linq.Table<BatSegmentLink> BatSegmentLinks
+		{
+			get
+			{
+				return this.GetTable<BatSegmentLink>();
 			}
 		}
 		
@@ -92,6 +109,22 @@ namespace WinBLPdB
 			get
 			{
 				return this.GetTable<BatTag>();
+			}
+		}
+		
+		public System.Data.Linq.Table<LabelledSegment> LabelledSegments
+		{
+			get
+			{
+				return this.GetTable<LabelledSegment>();
+			}
+		}
+		
+		public System.Data.Linq.Table<Recording> Recordings
+		{
+			get
+			{
+				return this.GetTable<Recording>();
 			}
 		}
 	}
@@ -112,7 +145,9 @@ namespace WinBLPdB
 		
 		private System.Nullable<int> _SortIndex;
 		
-		private EntitySet<BatCommonName> _BatCommonNames;
+		private string _Notes;
+		
+		private EntitySet<BatSegmentLink> _BatSegmentLinks;
 		
 		private EntitySet<BatTag> _BatTags;
 		
@@ -130,11 +165,13 @@ namespace WinBLPdB
     partial void OnBatSpeciesChanged();
     partial void OnSortIndexChanging(System.Nullable<int> value);
     partial void OnSortIndexChanged();
+    partial void OnNotesChanging(string value);
+    partial void OnNotesChanged();
     #endregion
 		
 		public Bat()
 		{
-			this._BatCommonNames = new EntitySet<BatCommonName>(new Action<BatCommonName>(this.attach_BatCommonNames), new Action<BatCommonName>(this.detach_BatCommonNames));
+			this._BatSegmentLinks = new EntitySet<BatSegmentLink>(new Action<BatSegmentLink>(this.attach_BatSegmentLinks), new Action<BatSegmentLink>(this.detach_BatSegmentLinks));
 			this._BatTags = new EntitySet<BatTag>(new Action<BatTag>(this.attach_BatTags), new Action<BatTag>(this.detach_BatTags));
 			OnCreated();
 		}
@@ -239,16 +276,36 @@ namespace WinBLPdB
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Bat_BatCommonName", Storage="_BatCommonNames", ThisKey="Id", OtherKey="BatID")]
-		public EntitySet<BatCommonName> BatCommonNames
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Notes", DbType="VarChar(MAX)")]
+		public string Notes
 		{
 			get
 			{
-				return this._BatCommonNames;
+				return this._Notes;
 			}
 			set
 			{
-				this._BatCommonNames.Assign(value);
+				if ((this._Notes != value))
+				{
+					this.OnNotesChanging(value);
+					this.SendPropertyChanging();
+					this._Notes = value;
+					this.SendPropertyChanged("Notes");
+					this.OnNotesChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Bat_BatSegmentLink", Storage="_BatSegmentLinks", ThisKey="Id", OtherKey="BatID")]
+		public EntitySet<BatSegmentLink> BatSegmentLinks
+		{
+			get
+			{
+				return this._BatSegmentLinks;
+			}
+			set
+			{
+				this._BatSegmentLinks.Assign(value);
 			}
 		}
 		
@@ -285,13 +342,13 @@ namespace WinBLPdB
 			}
 		}
 		
-		private void attach_BatCommonNames(BatCommonName entity)
+		private void attach_BatSegmentLinks(BatSegmentLink entity)
 		{
 			this.SendPropertyChanging();
 			entity.Bat = this;
 		}
 		
-		private void detach_BatCommonNames(BatCommonName entity)
+		private void detach_BatSegmentLinks(BatSegmentLink entity)
 		{
 			this.SendPropertyChanging();
 			entity.Bat = null;
@@ -310,21 +367,39 @@ namespace WinBLPdB
 		}
 	}
 	
-	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.BatCommonNames")]
-	public partial class BatCommonName : INotifyPropertyChanging, INotifyPropertyChanged
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.RecordingSession")]
+	public partial class RecordingSession : INotifyPropertyChanging, INotifyPropertyChanged
 	{
 		
 		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
 		
 		private int _Id;
 		
-		private string _BatCommonName1;
+		private string _SessionTag;
 		
-		private int _BatID;
+		private System.DateTime _SessionDate;
 		
-		private short _SortIndex;
+		private System.Nullable<System.TimeSpan> _SessionStartTime;
 		
-		private EntityRef<Bat> _Bat;
+		private System.Nullable<System.TimeSpan> _SessionEndTime;
+		
+		private System.Nullable<short> _Temp;
+		
+		private string _Equipment;
+		
+		private string _Microphone;
+		
+		private string _Operator;
+		
+		private string _Location;
+		
+		private System.Nullable<decimal> _LocationGPSLongitude;
+		
+		private System.Nullable<decimal> _LocationGPSLatitude;
+		
+		private string _SessionNotes;
+		
+		private EntitySet<Recording> _Recordings;
 		
     #region Extensibility Method Definitions
     partial void OnLoaded();
@@ -332,17 +407,35 @@ namespace WinBLPdB
     partial void OnCreated();
     partial void OnIdChanging(int value);
     partial void OnIdChanged();
-    partial void OnBatCommonName1Changing(string value);
-    partial void OnBatCommonName1Changed();
-    partial void OnBatIDChanging(int value);
-    partial void OnBatIDChanged();
-    partial void OnSortIndexChanging(short value);
-    partial void OnSortIndexChanged();
+    partial void OnSessionTagChanging(string value);
+    partial void OnSessionTagChanged();
+    partial void OnSessionDateChanging(System.DateTime value);
+    partial void OnSessionDateChanged();
+    partial void OnSessionStartTimeChanging(System.Nullable<System.TimeSpan> value);
+    partial void OnSessionStartTimeChanged();
+    partial void OnSessionEndTimeChanging(System.Nullable<System.TimeSpan> value);
+    partial void OnSessionEndTimeChanged();
+    partial void OnTempChanging(System.Nullable<short> value);
+    partial void OnTempChanged();
+    partial void OnEquipmentChanging(string value);
+    partial void OnEquipmentChanged();
+    partial void OnMicrophoneChanging(string value);
+    partial void OnMicrophoneChanged();
+    partial void OnOperatorChanging(string value);
+    partial void OnOperatorChanged();
+    partial void OnLocationChanging(string value);
+    partial void OnLocationChanged();
+    partial void OnLocationGPSLongitudeChanging(System.Nullable<decimal> value);
+    partial void OnLocationGPSLongitudeChanged();
+    partial void OnLocationGPSLatitudeChanging(System.Nullable<decimal> value);
+    partial void OnLocationGPSLatitudeChanged();
+    partial void OnSessionNotesChanging(string value);
+    partial void OnSessionNotesChanged();
     #endregion
 		
-		public BatCommonName()
+		public RecordingSession()
 		{
-			this._Bat = default(EntityRef<Bat>);
+			this._Recordings = new EntitySet<Recording>(new Action<Recording>(this.attach_Recordings), new Action<Recording>(this.detach_Recordings));
 			OnCreated();
 		}
 		
@@ -366,22 +459,371 @@ namespace WinBLPdB
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Name="BatCommonName", Storage="_BatCommonName1", DbType="VarChar(50) NOT NULL", CanBeNull=false)]
-		public string BatCommonName1
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SessionTag", DbType="NVarChar(20) NOT NULL", CanBeNull=false)]
+		public string SessionTag
 		{
 			get
 			{
-				return this._BatCommonName1;
+				return this._SessionTag;
 			}
 			set
 			{
-				if ((this._BatCommonName1 != value))
+				if ((this._SessionTag != value))
 				{
-					this.OnBatCommonName1Changing(value);
+					this.OnSessionTagChanging(value);
 					this.SendPropertyChanging();
-					this._BatCommonName1 = value;
-					this.SendPropertyChanged("BatCommonName1");
-					this.OnBatCommonName1Changed();
+					this._SessionTag = value;
+					this.SendPropertyChanged("SessionTag");
+					this.OnSessionTagChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SessionDate", DbType="DateTime NOT NULL")]
+		public System.DateTime SessionDate
+		{
+			get
+			{
+				return this._SessionDate;
+			}
+			set
+			{
+				if ((this._SessionDate != value))
+				{
+					this.OnSessionDateChanging(value);
+					this.SendPropertyChanging();
+					this._SessionDate = value;
+					this.SendPropertyChanged("SessionDate");
+					this.OnSessionDateChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SessionStartTime", DbType="Time")]
+		public System.Nullable<System.TimeSpan> SessionStartTime
+		{
+			get
+			{
+				return this._SessionStartTime;
+			}
+			set
+			{
+				if ((this._SessionStartTime != value))
+				{
+					this.OnSessionStartTimeChanging(value);
+					this.SendPropertyChanging();
+					this._SessionStartTime = value;
+					this.SendPropertyChanged("SessionStartTime");
+					this.OnSessionStartTimeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SessionEndTime", DbType="Time")]
+		public System.Nullable<System.TimeSpan> SessionEndTime
+		{
+			get
+			{
+				return this._SessionEndTime;
+			}
+			set
+			{
+				if ((this._SessionEndTime != value))
+				{
+					this.OnSessionEndTimeChanging(value);
+					this.SendPropertyChanging();
+					this._SessionEndTime = value;
+					this.SendPropertyChanged("SessionEndTime");
+					this.OnSessionEndTimeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Temp", DbType="SmallInt")]
+		public System.Nullable<short> Temp
+		{
+			get
+			{
+				return this._Temp;
+			}
+			set
+			{
+				if ((this._Temp != value))
+				{
+					this.OnTempChanging(value);
+					this.SendPropertyChanging();
+					this._Temp = value;
+					this.SendPropertyChanged("Temp");
+					this.OnTempChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Equipment", DbType="NVarChar(120)")]
+		public string Equipment
+		{
+			get
+			{
+				return this._Equipment;
+			}
+			set
+			{
+				if ((this._Equipment != value))
+				{
+					this.OnEquipmentChanging(value);
+					this.SendPropertyChanging();
+					this._Equipment = value;
+					this.SendPropertyChanged("Equipment");
+					this.OnEquipmentChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Microphone", DbType="NVarChar(120)")]
+		public string Microphone
+		{
+			get
+			{
+				return this._Microphone;
+			}
+			set
+			{
+				if ((this._Microphone != value))
+				{
+					this.OnMicrophoneChanging(value);
+					this.SendPropertyChanging();
+					this._Microphone = value;
+					this.SendPropertyChanged("Microphone");
+					this.OnMicrophoneChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Operator", DbType="NVarChar(50)")]
+		public string Operator
+		{
+			get
+			{
+				return this._Operator;
+			}
+			set
+			{
+				if ((this._Operator != value))
+				{
+					this.OnOperatorChanging(value);
+					this.SendPropertyChanging();
+					this._Operator = value;
+					this.SendPropertyChanged("Operator");
+					this.OnOperatorChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Location", DbType="NVarChar(50) NOT NULL", CanBeNull=false)]
+		public string Location
+		{
+			get
+			{
+				return this._Location;
+			}
+			set
+			{
+				if ((this._Location != value))
+				{
+					this.OnLocationChanging(value);
+					this.SendPropertyChanging();
+					this._Location = value;
+					this.SendPropertyChanged("Location");
+					this.OnLocationChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_LocationGPSLongitude", DbType="Decimal(8,6)")]
+		public System.Nullable<decimal> LocationGPSLongitude
+		{
+			get
+			{
+				return this._LocationGPSLongitude;
+			}
+			set
+			{
+				if ((this._LocationGPSLongitude != value))
+				{
+					this.OnLocationGPSLongitudeChanging(value);
+					this.SendPropertyChanging();
+					this._LocationGPSLongitude = value;
+					this.SendPropertyChanged("LocationGPSLongitude");
+					this.OnLocationGPSLongitudeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_LocationGPSLatitude", DbType="Decimal(8,6)")]
+		public System.Nullable<decimal> LocationGPSLatitude
+		{
+			get
+			{
+				return this._LocationGPSLatitude;
+			}
+			set
+			{
+				if ((this._LocationGPSLatitude != value))
+				{
+					this.OnLocationGPSLatitudeChanging(value);
+					this.SendPropertyChanging();
+					this._LocationGPSLatitude = value;
+					this.SendPropertyChanged("LocationGPSLatitude");
+					this.OnLocationGPSLatitudeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SessionNotes", DbType="NVarChar(MAX)")]
+		public string SessionNotes
+		{
+			get
+			{
+				return this._SessionNotes;
+			}
+			set
+			{
+				if ((this._SessionNotes != value))
+				{
+					this.OnSessionNotesChanging(value);
+					this.SendPropertyChanging();
+					this._SessionNotes = value;
+					this.SendPropertyChanged("SessionNotes");
+					this.OnSessionNotesChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="RecordingSession_Recording", Storage="_Recordings", ThisKey="Id", OtherKey="RecordingSessionId")]
+		public EntitySet<Recording> Recordings
+		{
+			get
+			{
+				return this._Recordings;
+			}
+			set
+			{
+				this._Recordings.Assign(value);
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+		
+		private void attach_Recordings(Recording entity)
+		{
+			this.SendPropertyChanging();
+			entity.RecordingSession = this;
+		}
+		
+		private void detach_Recordings(Recording entity)
+		{
+			this.SendPropertyChanging();
+			entity.RecordingSession = null;
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.BatSegmentLink")]
+	public partial class BatSegmentLink : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _Id;
+		
+		private int _LabelledSegmentID;
+		
+		private int _BatID;
+		
+		private int _NumberOfPasses;
+		
+		private EntityRef<Bat> _Bat;
+		
+		private EntityRef<LabelledSegment> _LabelledSegment;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIdChanging(int value);
+    partial void OnIdChanged();
+    partial void OnLabelledSegmentIDChanging(int value);
+    partial void OnLabelledSegmentIDChanged();
+    partial void OnBatIDChanging(int value);
+    partial void OnBatIDChanged();
+    partial void OnNumberOfPassesChanging(int value);
+    partial void OnNumberOfPassesChanged();
+    #endregion
+		
+		public BatSegmentLink()
+		{
+			this._Bat = default(EntityRef<Bat>);
+			this._LabelledSegment = default(EntityRef<LabelledSegment>);
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Id", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int Id
+		{
+			get
+			{
+				return this._Id;
+			}
+			set
+			{
+				if ((this._Id != value))
+				{
+					this.OnIdChanging(value);
+					this.SendPropertyChanging();
+					this._Id = value;
+					this.SendPropertyChanged("Id");
+					this.OnIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_LabelledSegmentID", DbType="Int NOT NULL")]
+		public int LabelledSegmentID
+		{
+			get
+			{
+				return this._LabelledSegmentID;
+			}
+			set
+			{
+				if ((this._LabelledSegmentID != value))
+				{
+					if (this._LabelledSegment.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnLabelledSegmentIDChanging(value);
+					this.SendPropertyChanging();
+					this._LabelledSegmentID = value;
+					this.SendPropertyChanged("LabelledSegmentID");
+					this.OnLabelledSegmentIDChanged();
 				}
 			}
 		}
@@ -410,27 +852,27 @@ namespace WinBLPdB
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_SortIndex", DbType="SmallInt NOT NULL")]
-		public short SortIndex
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_NumberOfPasses", DbType="Int NOT NULL")]
+		public int NumberOfPasses
 		{
 			get
 			{
-				return this._SortIndex;
+				return this._NumberOfPasses;
 			}
 			set
 			{
-				if ((this._SortIndex != value))
+				if ((this._NumberOfPasses != value))
 				{
-					this.OnSortIndexChanging(value);
+					this.OnNumberOfPassesChanging(value);
 					this.SendPropertyChanging();
-					this._SortIndex = value;
-					this.SendPropertyChanged("SortIndex");
-					this.OnSortIndexChanged();
+					this._NumberOfPasses = value;
+					this.SendPropertyChanged("NumberOfPasses");
+					this.OnNumberOfPassesChanged();
 				}
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Bat_BatCommonName", Storage="_Bat", ThisKey="BatID", OtherKey="Id", IsForeignKey=true)]
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Bat_BatSegmentLink", Storage="_Bat", ThisKey="BatID", OtherKey="Id", IsForeignKey=true)]
 		public Bat Bat
 		{
 			get
@@ -447,12 +889,12 @@ namespace WinBLPdB
 					if ((previousValue != null))
 					{
 						this._Bat.Entity = null;
-						previousValue.BatCommonNames.Remove(this);
+						previousValue.BatSegmentLinks.Remove(this);
 					}
 					this._Bat.Entity = value;
 					if ((value != null))
 					{
-						value.BatCommonNames.Add(this);
+						value.BatSegmentLinks.Add(this);
 						this._BatID = value.Id;
 					}
 					else
@@ -460,6 +902,40 @@ namespace WinBLPdB
 						this._BatID = default(int);
 					}
 					this.SendPropertyChanged("Bat");
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="LabelledSegment_BatSegmentLink", Storage="_LabelledSegment", ThisKey="LabelledSegmentID", OtherKey="Id", IsForeignKey=true)]
+		public LabelledSegment LabelledSegment
+		{
+			get
+			{
+				return this._LabelledSegment.Entity;
+			}
+			set
+			{
+				LabelledSegment previousValue = this._LabelledSegment.Entity;
+				if (((previousValue != value) 
+							|| (this._LabelledSegment.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._LabelledSegment.Entity = null;
+						previousValue.BatSegmentLinks.Remove(this);
+					}
+					this._LabelledSegment.Entity = value;
+					if ((value != null))
+					{
+						value.BatSegmentLinks.Add(this);
+						this._LabelledSegmentID = value.Id;
+					}
+					else
+					{
+						this._LabelledSegmentID = default(int);
+					}
+					this.SendPropertyChanged("LabelledSegment");
 				}
 			}
 		}
@@ -657,6 +1133,532 @@ namespace WinBLPdB
 			{
 				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
 			}
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.LabelledSegment")]
+	public partial class LabelledSegment : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _Id;
+		
+		private System.TimeSpan _StartOffset;
+		
+		private System.TimeSpan _EndOffset;
+		
+		private string _Comment;
+		
+		private int _RecordingID;
+		
+		private EntitySet<BatSegmentLink> _BatSegmentLinks;
+		
+		private EntityRef<Recording> _Recording;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIdChanging(int value);
+    partial void OnIdChanged();
+    partial void OnStartOffsetChanging(System.TimeSpan value);
+    partial void OnStartOffsetChanged();
+    partial void OnEndOffsetChanging(System.TimeSpan value);
+    partial void OnEndOffsetChanged();
+    partial void OnCommentChanging(string value);
+    partial void OnCommentChanged();
+    partial void OnRecordingIDChanging(int value);
+    partial void OnRecordingIDChanged();
+    #endregion
+		
+		public LabelledSegment()
+		{
+			this._BatSegmentLinks = new EntitySet<BatSegmentLink>(new Action<BatSegmentLink>(this.attach_BatSegmentLinks), new Action<BatSegmentLink>(this.detach_BatSegmentLinks));
+			this._Recording = default(EntityRef<Recording>);
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Id", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int Id
+		{
+			get
+			{
+				return this._Id;
+			}
+			set
+			{
+				if ((this._Id != value))
+				{
+					this.OnIdChanging(value);
+					this.SendPropertyChanging();
+					this._Id = value;
+					this.SendPropertyChanged("Id");
+					this.OnIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_StartOffset", DbType="Time NOT NULL")]
+		public System.TimeSpan StartOffset
+		{
+			get
+			{
+				return this._StartOffset;
+			}
+			set
+			{
+				if ((this._StartOffset != value))
+				{
+					this.OnStartOffsetChanging(value);
+					this.SendPropertyChanging();
+					this._StartOffset = value;
+					this.SendPropertyChanged("StartOffset");
+					this.OnStartOffsetChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_EndOffset", DbType="Time NOT NULL")]
+		public System.TimeSpan EndOffset
+		{
+			get
+			{
+				return this._EndOffset;
+			}
+			set
+			{
+				if ((this._EndOffset != value))
+				{
+					this.OnEndOffsetChanging(value);
+					this.SendPropertyChanging();
+					this._EndOffset = value;
+					this.SendPropertyChanged("EndOffset");
+					this.OnEndOffsetChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Comment", DbType="NVarChar(MAX)")]
+		public string Comment
+		{
+			get
+			{
+				return this._Comment;
+			}
+			set
+			{
+				if ((this._Comment != value))
+				{
+					this.OnCommentChanging(value);
+					this.SendPropertyChanging();
+					this._Comment = value;
+					this.SendPropertyChanged("Comment");
+					this.OnCommentChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RecordingID", DbType="Int NOT NULL")]
+		public int RecordingID
+		{
+			get
+			{
+				return this._RecordingID;
+			}
+			set
+			{
+				if ((this._RecordingID != value))
+				{
+					if (this._Recording.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnRecordingIDChanging(value);
+					this.SendPropertyChanging();
+					this._RecordingID = value;
+					this.SendPropertyChanged("RecordingID");
+					this.OnRecordingIDChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="LabelledSegment_BatSegmentLink", Storage="_BatSegmentLinks", ThisKey="Id", OtherKey="LabelledSegmentID")]
+		public EntitySet<BatSegmentLink> BatSegmentLinks
+		{
+			get
+			{
+				return this._BatSegmentLinks;
+			}
+			set
+			{
+				this._BatSegmentLinks.Assign(value);
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Recording_LabelledSegment", Storage="_Recording", ThisKey="RecordingID", OtherKey="Id", IsForeignKey=true)]
+		public Recording Recording
+		{
+			get
+			{
+				return this._Recording.Entity;
+			}
+			set
+			{
+				Recording previousValue = this._Recording.Entity;
+				if (((previousValue != value) 
+							|| (this._Recording.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._Recording.Entity = null;
+						previousValue.LabelledSegments.Remove(this);
+					}
+					this._Recording.Entity = value;
+					if ((value != null))
+					{
+						value.LabelledSegments.Add(this);
+						this._RecordingID = value.Id;
+					}
+					else
+					{
+						this._RecordingID = default(int);
+					}
+					this.SendPropertyChanged("Recording");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+		
+		private void attach_BatSegmentLinks(BatSegmentLink entity)
+		{
+			this.SendPropertyChanging();
+			entity.LabelledSegment = this;
+		}
+		
+		private void detach_BatSegmentLinks(BatSegmentLink entity)
+		{
+			this.SendPropertyChanging();
+			entity.LabelledSegment = null;
+		}
+	}
+	
+	[global::System.Data.Linq.Mapping.TableAttribute(Name="dbo.Recording")]
+	public partial class Recording : INotifyPropertyChanging, INotifyPropertyChanged
+	{
+		
+		private static PropertyChangingEventArgs emptyChangingEventArgs = new PropertyChangingEventArgs(String.Empty);
+		
+		private int _Id;
+		
+		private string _RecordingName;
+		
+		private System.Nullable<System.TimeSpan> _RecordingStartTime;
+		
+		private System.Nullable<System.TimeSpan> _RecordingEndTime;
+		
+		private string _RecordingGPSLongitude;
+		
+		private string _RecordingGPSLatitude;
+		
+		private System.Nullable<int> _RecordingSessionId;
+		
+		private string _RecordingNotes;
+		
+		private EntitySet<LabelledSegment> _LabelledSegments;
+		
+		private EntityRef<RecordingSession> _RecordingSession;
+		
+    #region Extensibility Method Definitions
+    partial void OnLoaded();
+    partial void OnValidate(System.Data.Linq.ChangeAction action);
+    partial void OnCreated();
+    partial void OnIdChanging(int value);
+    partial void OnIdChanged();
+    partial void OnRecordingNameChanging(string value);
+    partial void OnRecordingNameChanged();
+    partial void OnRecordingStartTimeChanging(System.Nullable<System.TimeSpan> value);
+    partial void OnRecordingStartTimeChanged();
+    partial void OnRecordingEndTimeChanging(System.Nullable<System.TimeSpan> value);
+    partial void OnRecordingEndTimeChanged();
+    partial void OnRecordingGPSLongitudeChanging(string value);
+    partial void OnRecordingGPSLongitudeChanged();
+    partial void OnRecordingGPSLatitudeChanging(string value);
+    partial void OnRecordingGPSLatitudeChanged();
+    partial void OnRecordingSessionIdChanging(System.Nullable<int> value);
+    partial void OnRecordingSessionIdChanged();
+    partial void OnRecordingNotesChanging(string value);
+    partial void OnRecordingNotesChanged();
+    #endregion
+		
+		public Recording()
+		{
+			this._LabelledSegments = new EntitySet<LabelledSegment>(new Action<LabelledSegment>(this.attach_LabelledSegments), new Action<LabelledSegment>(this.detach_LabelledSegments));
+			this._RecordingSession = default(EntityRef<RecordingSession>);
+			OnCreated();
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_Id", AutoSync=AutoSync.OnInsert, DbType="Int NOT NULL IDENTITY", IsPrimaryKey=true, IsDbGenerated=true)]
+		public int Id
+		{
+			get
+			{
+				return this._Id;
+			}
+			set
+			{
+				if ((this._Id != value))
+				{
+					this.OnIdChanging(value);
+					this.SendPropertyChanging();
+					this._Id = value;
+					this.SendPropertyChanged("Id");
+					this.OnIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RecordingName", DbType="NVarChar(50)")]
+		public string RecordingName
+		{
+			get
+			{
+				return this._RecordingName;
+			}
+			set
+			{
+				if ((this._RecordingName != value))
+				{
+					this.OnRecordingNameChanging(value);
+					this.SendPropertyChanging();
+					this._RecordingName = value;
+					this.SendPropertyChanged("RecordingName");
+					this.OnRecordingNameChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RecordingStartTime", DbType="Time")]
+		public System.Nullable<System.TimeSpan> RecordingStartTime
+		{
+			get
+			{
+				return this._RecordingStartTime;
+			}
+			set
+			{
+				if ((this._RecordingStartTime != value))
+				{
+					this.OnRecordingStartTimeChanging(value);
+					this.SendPropertyChanging();
+					this._RecordingStartTime = value;
+					this.SendPropertyChanged("RecordingStartTime");
+					this.OnRecordingStartTimeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RecordingEndTime", DbType="Time")]
+		public System.Nullable<System.TimeSpan> RecordingEndTime
+		{
+			get
+			{
+				return this._RecordingEndTime;
+			}
+			set
+			{
+				if ((this._RecordingEndTime != value))
+				{
+					this.OnRecordingEndTimeChanging(value);
+					this.SendPropertyChanging();
+					this._RecordingEndTime = value;
+					this.SendPropertyChanged("RecordingEndTime");
+					this.OnRecordingEndTimeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RecordingGPSLongitude", DbType="NVarChar(50)")]
+		public string RecordingGPSLongitude
+		{
+			get
+			{
+				return this._RecordingGPSLongitude;
+			}
+			set
+			{
+				if ((this._RecordingGPSLongitude != value))
+				{
+					this.OnRecordingGPSLongitudeChanging(value);
+					this.SendPropertyChanging();
+					this._RecordingGPSLongitude = value;
+					this.SendPropertyChanged("RecordingGPSLongitude");
+					this.OnRecordingGPSLongitudeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RecordingGPSLatitude", DbType="NVarChar(50)")]
+		public string RecordingGPSLatitude
+		{
+			get
+			{
+				return this._RecordingGPSLatitude;
+			}
+			set
+			{
+				if ((this._RecordingGPSLatitude != value))
+				{
+					this.OnRecordingGPSLatitudeChanging(value);
+					this.SendPropertyChanging();
+					this._RecordingGPSLatitude = value;
+					this.SendPropertyChanged("RecordingGPSLatitude");
+					this.OnRecordingGPSLatitudeChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RecordingSessionId", DbType="Int")]
+		public System.Nullable<int> RecordingSessionId
+		{
+			get
+			{
+				return this._RecordingSessionId;
+			}
+			set
+			{
+				if ((this._RecordingSessionId != value))
+				{
+					if (this._RecordingSession.HasLoadedOrAssignedValue)
+					{
+						throw new System.Data.Linq.ForeignKeyReferenceAlreadyHasValueException();
+					}
+					this.OnRecordingSessionIdChanging(value);
+					this.SendPropertyChanging();
+					this._RecordingSessionId = value;
+					this.SendPropertyChanged("RecordingSessionId");
+					this.OnRecordingSessionIdChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RecordingNotes", DbType="NVarChar(MAX)")]
+		public string RecordingNotes
+		{
+			get
+			{
+				return this._RecordingNotes;
+			}
+			set
+			{
+				if ((this._RecordingNotes != value))
+				{
+					this.OnRecordingNotesChanging(value);
+					this.SendPropertyChanging();
+					this._RecordingNotes = value;
+					this.SendPropertyChanged("RecordingNotes");
+					this.OnRecordingNotesChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="Recording_LabelledSegment", Storage="_LabelledSegments", ThisKey="Id", OtherKey="RecordingID")]
+		public EntitySet<LabelledSegment> LabelledSegments
+		{
+			get
+			{
+				return this._LabelledSegments;
+			}
+			set
+			{
+				this._LabelledSegments.Assign(value);
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.AssociationAttribute(Name="RecordingSession_Recording", Storage="_RecordingSession", ThisKey="RecordingSessionId", OtherKey="Id", IsForeignKey=true)]
+		public RecordingSession RecordingSession
+		{
+			get
+			{
+				return this._RecordingSession.Entity;
+			}
+			set
+			{
+				RecordingSession previousValue = this._RecordingSession.Entity;
+				if (((previousValue != value) 
+							|| (this._RecordingSession.HasLoadedOrAssignedValue == false)))
+				{
+					this.SendPropertyChanging();
+					if ((previousValue != null))
+					{
+						this._RecordingSession.Entity = null;
+						previousValue.Recordings.Remove(this);
+					}
+					this._RecordingSession.Entity = value;
+					if ((value != null))
+					{
+						value.Recordings.Add(this);
+						this._RecordingSessionId = value.Id;
+					}
+					else
+					{
+						this._RecordingSessionId = default(Nullable<int>);
+					}
+					this.SendPropertyChanged("RecordingSession");
+				}
+			}
+		}
+		
+		public event PropertyChangingEventHandler PropertyChanging;
+		
+		public event PropertyChangedEventHandler PropertyChanged;
+		
+		protected virtual void SendPropertyChanging()
+		{
+			if ((this.PropertyChanging != null))
+			{
+				this.PropertyChanging(this, emptyChangingEventArgs);
+			}
+		}
+		
+		protected virtual void SendPropertyChanged(String propertyName)
+		{
+			if ((this.PropertyChanged != null))
+			{
+				this.PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+			}
+		}
+		
+		private void attach_LabelledSegments(LabelledSegment entity)
+		{
+			this.SendPropertyChanging();
+			entity.Recording = this;
+		}
+		
+		private void detach_LabelledSegments(LabelledSegment entity)
+		{
+			this.SendPropertyChanging();
+			entity.Recording = null;
 		}
 	}
 }

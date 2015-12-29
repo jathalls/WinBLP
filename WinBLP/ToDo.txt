@@ -6,3 +6,40 @@ a brief description of the start location for each .wav file based on the GPS
 co-ordinates.  The merge notes then get added into the final log file whenever
 the program is run.  Possibly subsequently allow a <tag> section at the start of the
 line to explicitly specify the file that the one-line descriptor applies to.
+
+
+----------------------------------------
+2 Dec 2015
+DONE On-Screen summaries now correct, but summaries to the log file are doubled for
+   some species, e.g. Sopranos and Daubenton's while being correct for others. DONE
+DONE Refactor to use common routines with the on-screen calculation of passes. DONE
+
+5-Dec 2015
+Fails to add device, microphone or operator data to session
+DONE Many but not all bats identified as 'No Bats' DONE
+
+Derive textual log file from database stored data, rather than while adding data to the database
+
+DONE Bat summaries should exclude the numbers for 'No bats'
+
+DONE Bat summaries should identify and mark as unknown, segments with no bat tag in the comment
+
+---------------------------
+While loops in ShowDialog fail because you cannot re-open a window that has been closed
+
+RecordingSession Add button does not work
+
+Recording Session Edit button does not update the detail display ?? or the database
+
+Recording Edit button does not populate the editing form
+
+Cancelling the recording edit causes an exception when the window tries to re-open
+
+Recording Edit form Cancel button does not work
+
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+searching for a match in a pair of lists:-
+
+var namesToDelete = existingBat.BatCommonNames.Where(
+                p => bat.BatCommonNames.Any(p2 => p2.BatCommonName1 == p.BatCommonName1));

@@ -1,18 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 
-namespace WinBLPdB
+namespace BatRecordingManager
 {
     /// <summary>
     /// Interaction logic for FileOrderDialog.xaml
@@ -20,6 +10,7 @@ namespace WinBLPdB
     public partial class FileOrderDialog : Window
     {
         //private List<String> fileList;
+
         #region fileList
 
         /// <summary>
@@ -30,7 +21,7 @@ namespace WinBLPdB
                 new FrameworkPropertyMetadata((new List<String>())));
 
         /// <summary>
-        /// Gets or sets the fileList property.  This dependency property 
+        /// Gets or sets the fileList property.  This dependency property
         /// indicates ....
         /// </summary>
         public List<String> fileList
@@ -39,9 +30,7 @@ namespace WinBLPdB
             set { SetValue(fileListProperty, value); }
         }
 
-        #endregion
-
-        
+        #endregion fileList
 
         /// <summary>
         /// Default Constructor
@@ -49,11 +38,11 @@ namespace WinBLPdB
         public FileOrderDialog()
         {
             InitializeComponent();
-            DataContext=this;
+            DataContext = this;
             fileList = new List<string>();
             FileListBox.ItemsSource = new List<String>();
         }
-    
+
         /// <summary>
         /// Populates the list box with the supplied list of strings
         /// </summary>
@@ -61,10 +50,7 @@ namespace WinBLPdB
         internal void Populate(List<string> list)
         {
             fileList = list;
-            
         }
-
-        
 
         /// <summary>
         /// Returns the list of strings displayed in the dialog
@@ -84,7 +70,6 @@ namespace WinBLPdB
         {
             DialogResult = true;
             this.Close();
-            
         }
 
         /// <summary>
@@ -94,12 +79,11 @@ namespace WinBLPdB
         /// <param name="e"></param>
         private void DELButton_Click(object sender, RoutedEventArgs e)
         {
-            if (FileListBox.SelectedIndex >=0 && FileListBox.SelectedItem != null)
+            if (FileListBox.SelectedIndex >= 0 && FileListBox.SelectedItem != null)
             {
                 if (fileList.Contains((String)FileListBox.SelectedItem))
                 {
                     fileList.Remove((String)FileListBox.SelectedItem);
-                    
                 }
             }
             FileListBox.Items.Refresh();
@@ -116,11 +100,10 @@ namespace WinBLPdB
             {
                 if (FileListBox.SelectedIndex > 0)
                 {
-                    String temp=fileList[FileListBox.SelectedIndex];
-                    fileList[FileListBox.SelectedIndex]=fileList[FileListBox.SelectedIndex-1];
+                    String temp = fileList[FileListBox.SelectedIndex];
+                    fileList[FileListBox.SelectedIndex] = fileList[FileListBox.SelectedIndex - 1];
                     fileList[FileListBox.SelectedIndex - 1] = temp;
                     FileListBox.Items.Refresh();
-                    
                 }
             }
         }
@@ -134,13 +117,12 @@ namespace WinBLPdB
         {
             if (FileListBox.SelectedIndex >= 0 && FileListBox.SelectedItem != null)
             {
-                if (FileListBox.SelectedIndex < FileListBox.Items.Count-1 )
+                if (FileListBox.SelectedIndex < FileListBox.Items.Count - 1)
                 {
                     String temp = fileList[FileListBox.SelectedIndex];
                     fileList[FileListBox.SelectedIndex] = fileList[FileListBox.SelectedIndex + 1];
                     fileList[FileListBox.SelectedIndex + 1] = temp;
                     FileListBox.Items.Refresh();
-
                 }
             }
         }
@@ -167,7 +149,5 @@ namespace WinBLPdB
                 }
             }
         }
-
-        
     }
 }

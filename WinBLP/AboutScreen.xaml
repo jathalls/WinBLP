@@ -1,29 +1,28 @@
-﻿<Window x:Class="WinBLPdB.AboutScreen"
+﻿<Window x:Class="BatRecordingManager.AboutScreen"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="AboutScreen" Height="300" Width="300">
     <Grid>
         <Grid.Background>
             <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
-                <GradientStop Color="#FF0EF508" Offset="0.009"/>
-                <GradientStop Color="White" Offset="1"/>
+                <GradientStop Color="#FF0EF508" Offset="0.009" />
+                <GradientStop Color="White" Offset="1" />
             </LinearGradientBrush>
         </Grid.Background>
         <Grid.Effect>
-            <DropShadowEffect Color="#FF0F81F4"/>
+            <DropShadowEffect Color="#FF0F81F4" />
         </Grid.Effect>
         <Grid.RowDefinitions>
-            <RowDefinition Height="25"/>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="35"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="57*"/>
+            <RowDefinition Height="25" />
+            <RowDefinition Height="50" />
+            <RowDefinition Height="35" />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="30" />
+            <RowDefinition Height="40" />
+            <RowDefinition Height="57*" />
         </Grid.RowDefinitions>
-        <Label Grid.Row="1" Content="WinBLP" FontSize="36" HorizontalAlignment="Center" FontWeight="Bold" VerticalAlignment="Center"/>
-        <Label Grid.Row="3" Content="Bat Log File Processor" HorizontalAlignment="Center" FontSize="24" VerticalAlignment="Center" FontWeight="Bold"/>
+        <Label Grid.Row="1" Content="WinBLP" FontSize="36" HorizontalAlignment="Center" FontWeight="Bold" VerticalAlignment="Center" />
+        <Label Grid.Row="3" Content="Bat Log File Processor" HorizontalAlignment="Center" FontSize="24" VerticalAlignment="Center" FontWeight="Bold" />
         <Label Grid.Row="5" Content="by:- Justin A T Halls" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold" FontStyle="Italic" />
-
     </Grid>
 </Window>
