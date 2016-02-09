@@ -6,11 +6,11 @@
              xmlns:local="clr-namespace:BatRecordingManager"
              mc:Ignorable="d"
              d:DesignHeight="25" d:DesignWidth="500">
-   
+
     <StackPanel
         Background="{StaticResource WindowBackgroundBrush}"
         Orientation="Horizontal">
-        <Label x:Name="startTimeLabel" 
+        <Label x:Name="startTimeLabel"
                Content="{Binding Path=startTime, Converter={StaticResource ConvertTimeSpan}}" VerticalAlignment="Center" HorizontalAlignment="Left" />
         <Label Content=" - " VerticalAlignment="Center" HorizontalAlignment="Left" />
         <Label x:Name="endTimeLabel" Content="{Binding Path=endTime, Converter={StaticResource ConvertTimeSpan}}" VerticalAlignment="Center" />

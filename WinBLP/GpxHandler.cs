@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -8,35 +9,35 @@ using System.Xml.Linq;
 namespace BatRecordingManager
 {
     /// <summary>
-    /// GpxHandler opens and processes a GPX location file if there is one
-    /// inn the working directory.  It will either open the first .gpx file in
-    /// the working directory or it will open a .gpx file  specified name.
-    /// The contents are read into an XML structure and.
-    /// A function is provided to allow an external process to pass a DateTime
-    /// and the class returns a latitude and longitude for the time closest
-    /// to the spcified time.
+    ///     GpxHandler opens and processes a GPX location file if there is one inn the working
+    ///     directory. It will either open the first .gpx file in the working directory or it will
+    ///     open a .gpx file specified name. The contents are read into an XML structure and. A
+    ///     function is provided to allow an external process to pass a DateTime and the class
+    ///     returns a latitude and longitude for the time closest to the spcified time.
     /// </summary>
     internal class GpxHandler
     {
         /// <summary>
-        /// The GPX data
+        ///     The GPX data
         /// </summary>
         private XDocument GPXData;
 
         /// <summary>
-        /// The GPX namespace
-        /// </summary>
-        private XNamespace gpxNamespace;
-
-        /// <summary>
-        /// The GPX file exists
+        ///     The GPX file exists
         /// </summary>
         private bool GPXFileExists = false;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="GpxHandler"/> class.
+        ///     The GPX namespace
         /// </summary>
-        /// <param name="Location">The location.</param>
+        private XNamespace gpxNamespace;
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="GpxHandler"/> class.
+        /// </summary>
+        /// <param name="Location">
+        ///     The location.
+        /// </param>
         public GpxHandler(string Location)
         {
             string filename = "";
@@ -86,28 +87,21 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        /// Load the namespace for a standard GPX document
+        ///     Gets the location.
         /// </summary>
-        /// <returns></returns>
-        private XNamespace GetGpxNameSpace()
+        /// <param name="time">
+        ///     The time.
+        /// </param>
+        /// <returns>
+        ///     </returns>
+        public ObservableCollection<decimal> GetLocation(DateTime time)
         {
-            XNamespace gpx = XNamespace.Get("http://www.topografix.com/GPX/1/0");
-            return gpx;
-        }
-
-        /// <summary>
-        /// Gets the location.
-        /// </summary>
-        /// <param name="time">The time.</param>
-        /// <returns></returns>
-        public List<decimal> GetLocation(DateTime time)
-        {
-            List<decimal> result = new List<decimal>();
+            ObservableCollection<decimal> result = new ObservableCollection<decimal>();
             if (GPXFileExists && GPXData != null)
             {
                 if (time.Ticks == 0L)
                 {
-                    return (new List<decimal>());
+                    return (new ObservableCollection<decimal>());
                 }
 
                 DateTime UTCTime = time.ToUniversalTime();
@@ -154,11 +148,49 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        /// Gets the offset.
+        ///     Gets the GPS coordinates.
         /// </summary>
-        /// <param name="TrackPoint">The track point.</param>
-        /// <param name="UTCTime">The UTC time.</param>
-        /// <returns></returns>
+        /// <param name="trkpt">
+        ///     The TRKPT.
+        /// </param>
+        /// <returns>
+        ///     </returns>
+        private ObservableCollection<decimal> GetGPSCoordinates(XElement trkpt)
+        {
+            string strLat = trkpt.Attribute("lat").Value;
+            string strLong = trkpt.Attribute("lon").Value;
+            decimal dLat;
+            decimal dLong;
+            Decimal.TryParse(strLat, out dLat);
+            Decimal.TryParse(strLong, out dLong);
+            ObservableCollection<decimal> result = new ObservableCollection<decimal>();
+            result.Add(dLat);
+            result.Add(dLong);
+            return (result);
+        }
+
+        /// <summary>
+        ///     Load the namespace for a standard GPX document
+        /// </summary>
+        /// <returns>
+        ///     </returns>
+        private XNamespace GetGpxNameSpace()
+        {
+            XNamespace gpx = XNamespace.Get("http://www.topografix.com/GPX/1/0");
+            return gpx;
+        }
+
+        /// <summary>
+        ///     Gets the offset.
+        /// </summary>
+        /// <param name="TrackPoint">
+        ///     The track point.
+        /// </param>
+        /// <param name="UTCTime">
+        ///     The UTC time.
+        /// </param>
+        /// <returns>
+        ///     </returns>
         private TimeSpan GetOffset(XElement TrackPoint, DateTime UTCTime)
         {
             DateTime TrackPointTime = GetTrackPointTime(TrackPoint);
@@ -166,10 +198,13 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        /// Gets the track point time.
+        ///     Gets the track point time.
         /// </summary>
-        /// <param name="TrackPoint">The track point.</param>
-        /// <returns></returns>
+        /// <param name="TrackPoint">
+        ///     The track point.
+        /// </param>
+        /// <returns>
+        ///     </returns>
         private DateTime GetTrackPointTime(XElement TrackPoint)
         {
             String strDateTimeElement = TrackPoint.Descendants(gpxNamespace + "time").First().Value;
@@ -178,30 +213,16 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        /// Gets the GPS coordinates.
+        ///     Tracks the point is earlier.
         /// </summary>
-        /// <param name="trkpt">The TRKPT.</param>
-        /// <returns></returns>
-        private List<decimal> GetGPSCoordinates(XElement trkpt)
-        {
-            string strLat = trkpt.Attribute("lat").Value;
-            string strLong = trkpt.Attribute("lon").Value;
-            decimal dLat;
-            decimal dLong;
-            Decimal.TryParse(strLat, out dLat);
-            Decimal.TryParse(strLong, out dLong);
-            List<decimal> result = new List<decimal>();
-            result.Add(dLat);
-            result.Add(dLong);
-            return (result);
-        }
-
-        /// <summary>
-        /// Tracks the point is earlier.
-        /// </summary>
-        /// <param name="UTCTime">The UTC time.</param>
-        /// <param name="trkpt">The TRKPT.</param>
-        /// <returns></returns>
+        /// <param name="UTCTime">
+        ///     The UTC time.
+        /// </param>
+        /// <param name="trkpt">
+        ///     The TRKPT.
+        /// </param>
+        /// <returns>
+        ///     </returns>
         private bool TrackPointIsEarlier(DateTime UTCTime, XElement trkpt)
         {
             DateTime TrackPointTime = GetTrackPointTime(trkpt).ToUniversalTime();

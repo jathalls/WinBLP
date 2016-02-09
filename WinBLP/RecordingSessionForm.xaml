@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:BatRecordingManager"
         mc:Ignorable="d"
         Title="RecordingSessionForm" Height="550" Width="1000">
-    
+
     <Grid Background="{StaticResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="490*" />
@@ -32,7 +32,7 @@
                 Style="{StaticResource SimpleButton}"
                 Width="100"
                 Height="30"
-                Content="CANCEL" IsCancel="True" />
+                Content="CANCEL" IsCancel="True" Click="CancelButton_Click" />
         </StackPanel>
     </Grid>
 </Window>

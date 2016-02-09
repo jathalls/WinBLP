@@ -27,6 +27,7 @@
       <Column Name="LocationGPSLongitude" Type="System.Decimal" DbType="Decimal(8,6)" CanBeNull="true" />
       <Column Name="LocationGPSLatitude" Type="System.Decimal" DbType="Decimal(8,6)" CanBeNull="true" />
       <Column Name="SessionNotes" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
+      <Column Name="OriginalFilePath" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
       <Association Name="RecordingSession_Recording" Member="Recordings" ThisKey="Id" OtherKey="RecordingSessionId" Type="Recording" />
     </Type>
   </Table>
@@ -63,7 +64,7 @@
   <Table Name="dbo.Recording" Member="Recordings">
     <Type Name="Recording">
       <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
-      <Column Name="RecordingName" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+      <Column Name="RecordingName" Type="System.String" DbType="NVarChar(MAX)" CanBeNull="true" />
       <Column Name="RecordingStartTime" Type="System.TimeSpan" DbType="Time" CanBeNull="true" />
       <Column Name="RecordingEndTime" Type="System.TimeSpan" DbType="Time" CanBeNull="true" />
       <Column Name="RecordingGPSLongitude" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />

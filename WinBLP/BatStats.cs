@@ -3,64 +3,11 @@
 namespace BatRecordingManager
 {
     /// <summary>
-    ///
-    /// </summary>
+    ///     </summary>
     public class BatStats
     {
         /// <summary>
-        /// Gets or sets the maximum.
-        /// </summary>
-        /// <value>
-        /// The maximum.
-        /// </value>
-        public TimeSpan maxDuration { get; set; }
-
-        /// <summary>
-        /// Gets or sets the mean.
-        /// </summary>
-        /// <value>
-        /// The mean.
-        /// </value>
-        public TimeSpan meanDuration { get; set; }
-
-        /// <summary>
-        /// Gets or sets the minimum.
-        /// </summary>
-        /// <value>
-        /// The minimum.
-        /// </value>
-        public TimeSpan minDuration { get; set; }
-
-        /// <summary>
-        /// Gets or sets the total.
-        /// </summary>
-        /// <value>
-        /// The total.
-        /// </value>
-        public TimeSpan totalDuration { get; set; }
-
-        /// <summary>
-        /// Gets or sets the count.
-        /// </summary>
-        /// <value>
-        /// The count.
-        /// </value>
-        public int count { get; set; }
-
-        /// <summary>
-        /// Gets or sets the passes.
-        /// </summary>
-        /// <value>
-        /// The passes.
-        /// </value>
-        public int segments { get; set; }
-
-        public int passes { get; set; }
-
-        public String batCommonName { get; set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BatStats" /> class.
+        ///     Initializes a new instance of the <see cref="BatStats"/> class.
         /// </summary>
         public BatStats()
         {
@@ -75,9 +22,11 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BatStats" /> class.
+        ///     Initializes a new instance of the <see cref="BatStats"/> class.
         /// </summary>
-        /// <param name="duration">The duration.</param>
+        /// <param name="duration">
+        ///     The duration.
+        /// </param>
         public BatStats(TimeSpan duration)
         {
             maxDuration = TimeSpan.MinValue;
@@ -93,9 +42,75 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        /// Adds the specified duration.
+        ///     Gets or sets the name of the bat common.
         /// </summary>
-        /// <param name="duration">The duration.</param>
+        /// <value>
+        ///     The name of the bat common.
+        /// </value>
+        public String batCommonName { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the count.
+        /// </summary>
+        /// <value>
+        ///     The count.
+        /// </value>
+        public int count { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the maximum.
+        /// </summary>
+        /// <value>
+        ///     The maximum.
+        /// </value>
+        public TimeSpan maxDuration { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the mean.
+        /// </summary>
+        /// <value>
+        ///     The mean.
+        /// </value>
+        public TimeSpan meanDuration { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the minimum.
+        /// </summary>
+        /// <value>
+        ///     The minimum.
+        /// </value>
+        public TimeSpan minDuration { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the passes.
+        /// </summary>
+        /// <value>
+        ///     The passes.
+        /// </value>
+        public int passes { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the passes.
+        /// </summary>
+        /// <value>
+        ///     The passes.
+        /// </value>
+        public int segments { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the total.
+        /// </summary>
+        /// <value>
+        ///     The total.
+        /// </value>
+        public TimeSpan totalDuration { get; set; }
+
+        /// <summary>
+        ///     Adds the specified duration.
+        /// </summary>
+        /// <param name="duration">
+        ///     The duration.
+        /// </param>
         public void Add(TimeSpan duration)
         {
             if (duration.Ticks > 0)
@@ -128,15 +143,16 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        /// Adds the specified new data.
+        ///     Adds the specified new data.
         /// </summary>
-        /// <param name="newData">The new data.</param>
+        /// <param name="newData">
+        ///     The new data.
+        /// </param>
         public void Add(BatStats newData)
         {
-            // if both old and new have the same name, OK
-            // if neither old nor new have name, OK
-            // if the new has name but the old doesnt't, use the new name
-            // if both have names but they are different, don't do the Add
+            // if both old and new have the same name, OK if neither old nor new have name, OK if
+            // the new has name but the old doesnt't, use the new name if both have names but they
+            // are different, don't do the Add
 
             if (!String.IsNullOrWhiteSpace(newData.batCommonName))
             {
@@ -165,9 +181,10 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        /// Passeses this instance.
+        ///     Passeses this instance.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        ///     </returns>
         internal int Passes()
         {
             return (passes);

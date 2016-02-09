@@ -6,17 +6,17 @@
         xmlns:local="clr-namespace:BatRecordingManager"
         mc:Ignorable="d"
         Title="NewTagForm" Height="100" Width="300">
-    
+
     <Grid Background="{StaticResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="44*" />
             <RowDefinition Height="25" />
         </Grid.RowDefinitions>
-        <StackPanel 
-            Orientation="Horizontal" 
-            Grid.Row="0" 
-            
-            VerticalAlignment="Center" 
+        <StackPanel
+            Orientation="Horizontal"
+            Grid.Row="0"
+
+            VerticalAlignment="Center"
             HorizontalAlignment="Stretch">
             <Label Content="New Tag:- " />
         <TextBox

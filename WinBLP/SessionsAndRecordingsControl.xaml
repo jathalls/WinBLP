@@ -1,0 +1,48 @@
+﻿<UserControl x:Class="BatRecordingManager.SessionsAndRecordingsControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:BatRecordingManager"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="700">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="300*" />
+            <RowDefinition Height="5" />
+            <RowDefinition Height="300*" />
+        </Grid.RowDefinitions>
+        <GridSplitter Grid.Row="1" />
+        <DataGrid
+            x:Name="SessionsDataGrid"
+            AutoGenerateColumns="False" CanUserReorderColumns="False"
+            CanUserAddRows="False" CanUserDeleteRows="False"
+            Background="{StaticResource WindowBackgroundBrush}"
+
+            Grid.Row="0" SelectionChanged="SessionsDataGrid_SelectionChanged" MouseDoubleClick="SessionsDataGrid_MouseDoubleClick">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding SessionTag}" Header="Tag" />
+                <DataGridTextColumn Binding="{Binding Location}" Header="Location" />
+                <DataGridTextColumn Binding="{Binding SessionDate, Converter={StaticResource ShortDate_Converter}}" Header="Date" />
+                <DataGridTextColumn Binding="{Binding SessionStartTime}" Header="Time" />
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <DataGrid
+            x:Name="RecordingsDataGrid"
+            AutoGenerateColumns="False"
+            CanUserReorderColumns="False"
+            CanUserAddRows="False"
+            CanUserDeleteRows="False"
+            Background="{StaticResource WindowBackgroundBrush}"
+            Grid.Row="2" MouseDoubleClick="RecordingsDataGrid_MouseDoubleClick">
+            <DataGrid.Columns>
+                <DataGridTextColumn Binding="{Binding RecordingName}" Header="File" />
+                <DataGridTextColumn Binding="{Binding RecordingStartTime}" Header="Start" />
+
+                <DataGridTextColumn Binding="{Binding LabelledSegments.Count}" Header="Segments" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

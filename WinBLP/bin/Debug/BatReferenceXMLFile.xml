@@ -29,7 +29,6 @@
     <BatCommonName>Leisler's</BatCommonName>
     <BatTag>Leislers</BatTag>
     <BatTag>Leisler's</BatTag>
-    
   </Bat>
   <Bat Name="Daubentons">
     <BatGenus>Myotis</BatGenus>
@@ -52,7 +51,6 @@
     <BatSpecies>serotinus</BatSpecies>
     <BatCommonName>Serotine</BatCommonName>
     <BatTag>Serotine</BatTag>
-    
   </Bat>
 <Bat Name="BLE">
     <BatGenus>Plecotus</BatGenus>
@@ -60,7 +58,6 @@
     <BatCommonName>Brown Longeared Bat</BatCommonName>
     <BatTag>BLE</BatTag>
     <BatTag>Brown Longear</BatTag>
-    
   </Bat>
   <Bat Name="GLE">
     <BatGenus>Plecotus</BatGenus>
@@ -68,7 +65,6 @@
     <BatCommonName>Grey Longeared Bat</BatCommonName>
     <BatTag>GLE</BatTag>
     <BatTag>Grey Longear</BatTag>
-    
   </Bat>
   <Bat Name="Barbastelle">
     <BatGenus>Barbastelle</BatGenus>
@@ -93,7 +89,6 @@
     <BatTag>P50</BatTag>
     <BatTag>Pip?</BatTag>
     <BatTag>Pip ?</BatTag>
-  
   </Bat>
 <Bat Name="Nathusius">
     <BatGenus>Pipistrellus</BatGenus>
@@ -166,5 +161,4 @@
     <BatTag>Myotis myotis</BatTag>
     <BatTag>GME</BatTag>
   </Bat>
-  
 </BatLibrary>

@@ -1,51 +1,44 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Linq;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 
 namespace BatRecordingManager
 {
     /// <summary>
-    /// Interaction logic for EditBatForm.xaml
+    ///     Interaction logic for EditBatForm.xaml
     /// </summary>
     public partial class EditBatForm : Window
     {
         #region newBat
 
         /// <summary>
-        /// newBat Dependency Property
+        ///     newBat Dependency Property
         /// </summary>
         public static readonly DependencyProperty newBatProperty =
             DependencyProperty.Register("newBat", typeof(Bat), typeof(EditBatForm),
                 new FrameworkPropertyMetadata(new Bat()));
 
         /// <summary>
-        /// Gets or sets the newBat property.  This dependency property
-        /// indicates ....
+        ///     Gets or sets the newBat property. This dependency property indicates ....
         /// </summary>
         public Bat newBat
         {
-            get { return (Bat)GetValue(newBatProperty); }
+            get
+            {
+                return (Bat)GetValue(newBatProperty);
+            }
             set
             {
                 SetValue(newBatProperty, value);
                 this.DataContext = newBat;
-                
             }
         }
 
-
-
         #endregion newBat
 
-
-
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="EditBatForm"/> class.
+        ///     Initializes a new instance of the <see cref="EditBatForm"/> class.
         /// </summary>
         public EditBatForm()
         {
@@ -62,8 +55,6 @@ namespace BatRecordingManager
             DeleteTagButton.IsEnabled = true;
             this.DataContext = newBat;
         }
-
-        
 
         private void AddNewTagButton_Click(object sender, RoutedEventArgs e)
         {
@@ -134,6 +125,7 @@ namespace BatRecordingManager
             newBat.BatSpecies = BatSpeciesTextBlock.Text;
             newBat.Batgenus = BatGenusTextBlock.Text;
             newBat.Notes = BatNotesTextBlock.Text;
+            newBat.Name = CommonNameTextBox.Text;
             string error = DBAccess.ValidateBat(newBat);
             if (String.IsNullOrWhiteSpace(error))
             {
@@ -150,6 +142,7 @@ namespace BatRecordingManager
         private void TagEditBox_LostFocus(object sender, RoutedEventArgs e)
         {
         }
+
         /*
         private void CommonNameTextBlock_LostFocus(object sender, RoutedEventArgs e)
         {
@@ -173,6 +166,4 @@ namespace BatRecordingManager
             }
         }*/
     }
-
-    
 }

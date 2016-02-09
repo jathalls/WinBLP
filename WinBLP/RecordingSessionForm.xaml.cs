@@ -1,22 +1,78 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 
 namespace BatRecordingManager
 {
     /// <summary>
-    /// Interaction logic for RecordingSessionForm.xaml
+    ///     Interaction logic for RecordingSessionForm.xaml
     /// </summary>
     public partial class RecordingSessionForm : Window
     {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="RecordingSessionForm"/> class.
+        /// </summary>
         public RecordingSessionForm()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        ///     Gets the recording session.
+        /// </summary>
+        /// <returns>
+        ///     </returns>
+        public RecordingSession GetRecordingSession()
+        {
+            return (recordingSessionControl.recordingSession);
+        }
+
+        /// <summary>
+        ///     Sets the recording session.
+        /// </summary>
+        /// <param name="session">
+        ///     The session.
+        /// </param>
+        public void SetRecordingSession(RecordingSession session)
+        {
+            recordingSessionControl.recordingSession = session;
+        }
+
+        /// <summary>
+        ///     Clears this instance.
+        /// </summary>
+        internal void Clear()
+        {
+            recordingSessionControl.recordingSession = new RecordingSession();
+        }
+
+        /// <summary>
+        ///     Handles the Click event of the CancelButton control.
+        /// </summary>
+        /// <param name="sender">
+        ///     The source of the event.
+        /// </param>
+        /// <param name="e">
+        ///     The <see cref="RoutedEventArgs"/> instance containing the event data.
+        /// </param>
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
+            DialogResult = false;
+            this.Close();
+        }
+
+        /// <summary>
+        ///     Handles the Click event of the OKButton control.
+        /// </summary>
+        /// <param name="sender">
+        ///     The source of the event.
+        /// </param>
+        /// <param name="e">
+        ///     The <see cref="RoutedEventArgs"/> instance containing the event data.
+        /// </param>
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
             if (recordingSessionControl.VerifyFormContents())
             {
+                DBAccess.UpdateRecordingSession(recordingSessionControl.recordingSession);
                 DialogResult = true;
                 this.Close();
             }
@@ -25,21 +81,6 @@ namespace BatRecordingManager
                 DialogResult = false;
                 MessageBox.Show("Recording Session Validation failed");
             }
-        }
-
-        public void SetRecordingSession(RecordingSession session)
-        {
-            recordingSessionControl.recordingSession = session;
-        }
-
-        public RecordingSession GetRecordingSession()
-        {
-            return (recordingSessionControl.recordingSession);
-        }
-
-        internal void Clear()
-        {
-            recordingSessionControl.recordingSession = new RecordingSession();
         }
     }
 }

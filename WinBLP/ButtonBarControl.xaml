@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:BatRecordingManager"
              mc:Ignorable="d"
              d:DesignHeight="25" d:DesignWidth="300">
-    
+
     <Grid>
         <StackPanel x:Name="ButtonPanel" Orientation="Horizontal" Background="{StaticResource BlueGradientBackground}">
             <Button
@@ -14,7 +14,6 @@
                     Style="{StaticResource SimpleButton}"
                 Width="50"
                     Content="ADD">
-                
             </Button>
             <Button
                     x:Name="DeleteButton"

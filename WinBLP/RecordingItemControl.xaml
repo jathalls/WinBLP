@@ -6,8 +6,8 @@
              xmlns:local="clr-namespace:BatRecordingManager"
              mc:Ignorable="d"
              d:DesignHeight="100" d:DesignWidth="500">
-    
-    <StackPanel Orientation="Vertical" x:Name="RecordingStackPanel" Background="{StaticResource WindowBackgroundBrush}">
+
+    <StackPanel Orientation="Vertical" x:Name="RecordingStackPanel" Background="{StaticResource WindowBackgroundBrush}" Focusable="True">
 
         <Label
 
@@ -16,13 +16,13 @@
         <Label
 
             Style="{StaticResource SimpleLabel}"
-            x:Name="LineTwoLabel" />
+            x:Name="LineTwoLabel" Focusable="True" />
         <Label
             Style="{StaticResource SimpleLabel}"
 
             x:Name="LineThreeLabel" />
         <StackPanel x:Name="BatPassSummaryStackPanel" Orientation="Vertical" />
         <ListView
-            x:Name="LabelledSegmentListView" Style="{StaticResource SimpleListBox}"/>
+            x:Name="LabelledSegmentListView" Style="{StaticResource SimpleListBox}" />
     </StackPanel>
 </UserControl>

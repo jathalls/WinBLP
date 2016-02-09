@@ -7,152 +7,226 @@
         xmlns:local="clr-namespace:BatRecordingManager"
         mc:Ignorable="d"
         Title="RecordingForm" Height="700" Width="1024">
+    <Window.Resources>
+        <Style TargetType="ListViewItem" x:Key="itemStyle">
+            <Style.Triggers>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="IsSelected" Value="True" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
     <Grid
-        Background="{StaticResource WindowBackgroundBrush}"
-        >
+        Background="{StaticResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="200"/>
-            <RowDefinition Height="455*"/>
-            <RowDefinition Height="25"/>
+            <RowDefinition Height="200" />
+            <RowDefinition Height="25" />
+            <RowDefinition Height="455*" />
+            <RowDefinition Height="25" />
         </Grid.RowDefinitions>
 
         <Grid
-            x:Name="RecordingDetailGrid" ShowGridLines="True"
-            >
+            Grid.Row="0"
+            DataContext="{Binding Path=recording}"
+            x:Name="RecordingDetailGrid" ShowGridLines="True">
             <Grid.RowDefinitions>
-                <RowDefinition Height="25"/>
-                <RowDefinition Height="25"/>
-                <RowDefinition Height="25"/>
-                <RowDefinition Height="97*"/>
+                <RowDefinition Height="25" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="25" />
+                <RowDefinition Height="97*" />
             </Grid.RowDefinitions>
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100"/>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="100" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="40" />
                 </Grid.ColumnDefinitions>
                 <Label
                     Grid.Column="0"
                     Style="{StaticResource SimpleLabel}"
-                    Content="FileName:- "/>
+                    Content="FileName:- " />
                 <TextBox
                     Grid.Column="1"
                     x:Name="RecordingNameTextBox"
                     Style="{StaticResource SimpleTextBox}"
-                    Text="{Binding Path=RecordingName, Mode=TwoWay}"
-                    HorizontalAlignment="Stretch" MinWidth="500"
-                    />
+                    Text=""
+                    HorizontalAlignment="Stretch" MinWidth="500" />
                 <Button
                     Grid.Column="2"
                     x:Name="BrowseForFileButton"
                     Style="{StaticResource SimpleButton}"
                     Content=". . ."
-                    Width="30"
-                    />
+                    Width="30" Click="BrowseForFileButton_Click" />
             </Grid>
 
             <Grid
                 Grid.Row="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="200"/>
-                    <ColumnDefinition Width="150"/>
-                    <ColumnDefinition Width="150"/>
-                    <ColumnDefinition Width="150"/>
-                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="150" />
                 </Grid.ColumnDefinitions>
                 <Label
                     Grid.Column="0"
                     Style="{StaticResource SimpleLabel}"
-                    Content="GPS Co-ordinates:- "/>
+                    Content="GPS Co-ordinates:- " />
                 <Label
                     Grid.Column="1"
                     Style="{StaticResource SimpleLabel}"
-                    Content="Latitude" HorizontalAlignment="Right"/>
+                    Content="Latitude" HorizontalAlignment="Right" />
                 <TextBox
                     Grid.Column="2"
                     x:Name="GPSLatitudeTextBox"
-                    Text="{Binding Path=RecordingGPSLatitude,Mode=TwoWay}"
-                    Style="{StaticResource SimpleTextBox}"/>
+                    Text=""
+                    Style="{StaticResource SimpleTextBox}" />
                 <Label
                     Grid.Column="3"
                     Style="{StaticResource SimpleLabel}"
-                    Content="Longitude " HorizontalAlignment="Right"/>
+                    Content="Longitude " HorizontalAlignment="Right" />
                 <TextBox
                     Grid.Column="4"
                     x:Name="GPSLongitudeTextBox"
-                    Text="{Binding Path=RecordingGPSLongitude,Mode=TwoWay}"
-                    Style="{StaticResource SimpleTextBox}"/>
-
+                    Text=""
+                    Style="{StaticResource SimpleTextBox}" />
             </Grid>
 
             <Grid
                 Grid.Row="2">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="200"/>
-                    <ColumnDefinition Width="150"/>
-                    <ColumnDefinition Width="150"/>
-                    <ColumnDefinition Width="150"/>
-                    <ColumnDefinition Width="150"/>
-                    <ColumnDefinition Width="208*"/>
+                    <ColumnDefinition Width="200" />
+                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="208*" />
                 </Grid.ColumnDefinitions>
                 <Label
                     Grid.Column="0" Style="{StaticResource SimpleLabel}"
-                    Content="Recording Times:- "/>
+                    Content="Recording Times:- " />
                 <Label
                     Grid.Column="1" Style="{StaticResource SimpleLabel}"
-                    Content="Start " HorizontalAlignment="Right"/>
+                    Content="Start " HorizontalAlignment="Right" />
                 <xctk:TimePicker
-                    Grid.Column="2"
-                    Value="{Binding Path=RecordingStartTime,Mode=TwoWay}"/>
+                    x:Name="StartTimeTimePicker"
+                    Grid.Column="2" />
                 <Label
                     Grid.Column="3" Style="{StaticResource SimpleLabel}"
-                    Content="End " HorizontalAlignment="Right"/>
+                    Content="End " HorizontalAlignment="Right" />
                 <xctk:TimePicker
-                    Grid.Column="4"
-                    Value="{Binding Path=RecordingEndTime,Mode=TwoWay}"/>
-                    
-
+                    x:Name="EndTimeTimePicker"
+                    Grid.Column="4" />
             </Grid>
             <TextBox
                 x:Name="RecordingNotesTextBox"
                 Style="{StaticResource SimpleTextBox}"
-                Grid.Row="3"
-                Text="{Binding Path=RecordingNotes,Mode=TwoWay}" TextWrapping="Wrap"/>
-
-            
+                Grid.Row="2"
+                Text="{Binding Path=RecordingNotes, Mode=TwoWay}"
+                TextWrapping="Wrap"
+                AcceptsReturn="True"
+                AcceptsTab="True"
+                VerticalContentAlignment="Stretch"
+                VerticalScrollBarVisibility="Auto" Margin="0,24.4,-0.4,-126" Grid.RowSpan="2" />
         </Grid>
 
-
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <StackPanel
+        <Border Grid.Row ="1" BorderBrush="Black" BorderThickness="0,3,0,0">
+            <StackPanel Orientation="Horizontal" Grid.Row="1" Background="{StaticResource BlueGradientBackground}">
+                <Label Content="Recording Segments:- " Style="{StaticResource SimpleLabel}" />
+                <StackPanel
                     Grid.Row="1"
-                x:Name="LabelledSegmentsStackPanel"
-                Background="{StaticResource BlueGradientBackground}"
-                    >
-
+                    Orientation="Horizontal"
+                    Background="{StaticResource ButtonBarBackground}">
+                    <Button
+                        Content="Add"
+                        Style="{StaticResource SimpleButton}"
+                        Width="50"
+                        x:Name="AddSegmentButton" Click="AddSegmentButton_Click_1" />
+                    <Button
+                        Content="Del"
+                        Style="{StaticResource SimpleButton}"
+                        Width="50"
+                        x:Name="DeleteSegmentButton" Click="DeleteSegmentButton_Click_1" />
+                </StackPanel>
             </StackPanel>
-        </ScrollViewer>
+        </Border>
+
+        <ListView
+
+                Grid.Row="2"
+                ItemsSource="{Binding Path=LabelledSegmentsList}"
+                x:Name="LabelledSegmentsListView"
+
+                Background="{StaticResource BlueGradientBackground}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="{x:Type ListViewItem}">
+
+                    <EventSetter Event="GotKeyboardFocus" Handler="OnListViewItemFocused" />
+                </Style>
+            </ListView.ItemContainerStyle>
+
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <WrapPanel>
+                        <Button
+                                Name="ButtonSaveSegment"
+                                Content="Save" Click="ButtonSaveSegment_Click">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Visibility" Value="Hidden" />
+                                    <Setter Property="IsEnabled" Value="True" />
+                                    <!--
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding ElementName=FormattedLabelledSegmentTextBox, Path=IsFocused}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>-->
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <TextBox
+                                Name="FormattedLabelledSegmentTextBox"
+                                Margin="10,0,10,0"
+                                MinWidth="50"
+                                Text="{Binding .,Converter={StaticResource ConvertSegmentToText}}">
+                            <TextBox.Style>
+                                <Style TargetType="TextBox">
+                                    <EventSetter Event="GotKeyboardFocus" Handler="OnTextBoxFocused" />
+                                    <Style.Triggers>
+                                        <Trigger Property="IsFocused" Value="True">
+                                            <Setter Property="Foreground" Value="Green" />
+                                            <Setter Property="IsReadOnly" Value="False" />
+                                        </Trigger>
+                                        <Trigger Property="IsFocused" Value="False">
+                                            <Setter Property="Foreground" Value="Red" />
+                                            <Setter Property="IsReadOnly" Value="True" />
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBox.Style>
+                        </TextBox>
+                    </WrapPanel>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
         <StackPanel
             x:Name="ButtonBarStackPanel"
             Background="{StaticResource BlueGradientBackground}"
             Orientation="Horizontal"
-            Grid.Row="2"
-            Grid.Column="0" HorizontalAlignment="Right" Margin="0,0.4,-0.4,0.4"
-            >
+            Grid.Row="3"
+            Grid.Column="0" HorizontalAlignment="Right">
             <Button
                 x:Name="OKButton"
                 Style="{StaticResource SimpleButton}"
                 Content="OK"
                 Width="50" HorizontalAlignment="Right"
-                Margin="20,0,10,0"
-                />
+                Margin="20,0,10,0" IsDefault="True" Click="OKButton_Click" />
             <Button
                 x:Name="CancelButton"
                 Width="50"
                 Style="{StaticResource SimpleButton}"
-                Content="Cancel" HorizontalAlignment="Right" HorizontalContentAlignment="Center" Margin="10,0"
-                />
+                Content="Cancel" HorizontalAlignment="Right" HorizontalContentAlignment="Center" Margin="10,0" IsCancel="True" Click="CancelButton_Click" />
         </StackPanel>
-
     </Grid>
 </Window>

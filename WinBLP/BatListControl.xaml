@@ -8,12 +8,11 @@
              xmlns:local="clr-namespace:BatRecordingManager"
              mc:Ignorable="d"
              d:DesignHeight="768" d:DesignWidth="1024">
-    
 
     <Grid
         x:Name="BatListGrid"
         Background="{StaticResource WindowBackgroundBrush}"
-        
+
         Visibility="Visible">
 
         <Grid.ColumnDefinitions>
@@ -63,7 +62,6 @@
 
             Grid.Column="1"
             Margin="5,0,5,0" BorderThickness="2" BorderBrush="#FF3127CB">
-            
         </local:BatDetailControl>
     </Grid>
 </UserControl>

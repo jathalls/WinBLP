@@ -1,0 +1,102 @@
+﻿<UserControl x:Class="BatRecordingManager.RecordingsDetailListControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:BatRecordingManager"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="300">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="28" />
+            <RowDefinition Height="100*" />
+        </Grid.RowDefinitions>
+
+        <Border BorderBrush="Black" BorderThickness="0,3,0,0" Grid.Row="0">
+            <!-- A line separates the details from the list of recordings/-->
+
+            <StackPanel Orientation="Horizontal" Background="{StaticResource BlueGradientBackground}">
+                <!-- A button bar allows manipulation of the recording list /-->
+                <Label
+                                Style="{StaticResource SimpleLabel}"
+                                Content="Recording:- " />
+                <Button
+                                x:Name="AddRecordingButton"
+                                Content="ADD"
+                                Width="50"
+                                    IsEnabled="False"
+                                Style="{StaticResource SimpleButton}" Click="AddRecordingButton_Click" />
+                <Button
+                                x:Name="EditRecordingButton"
+                                Content="EDIT"
+                                Width="50"
+                                    IsEnabled="False"
+                                Style="{StaticResource SimpleButton}" Click="EditRecordingButton_Click" />
+                <Button
+                                x:Name="DeleteRecordingButton"
+                                Content="DEL"
+                                Width="50"
+                                    IsEnabled="False"
+                                Style="{StaticResource SimpleButton}" Click="DeleteRecordingButton_Click" />
+            </StackPanel>
+        </Border>
+
+        <ListBox x:Name="RecordingsListView" Grid.Row="1"
+
+            Style="{StaticResource SimpleListBox}" SelectionChanged="RecordingsListView_SelectionChanged"
+                     ScrollViewer.VerticalScrollBarVisibility="Visible">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="{x:Type ListBoxItem}">
+
+                    <EventSetter Event="GotKeyboardFocus" Handler="OnListViewItemFocused" />
+                </Style>
+            </ListBox.ItemContainerStyle>
+
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Vertical" x:Name="RecordingStackPanel" Background="{StaticResource WindowBackgroundBrush}" Focusable="True">
+
+                        <Label
+                            Style="{StaticResource SimpleLabel}"
+                            x:Name="LineOneLabel"
+                            BorderThickness="0,2,0,0"
+                            Content="{Binding Converter={StaticResource recordingDetailsConverter}}"
+                            BorderBrush="Black" />
+                        <Label
+                            Style="{StaticResource SimpleLabel}"
+                            x:Name="LineTwoLabel"
+                            Content="{Binding Converter={StaticResource recordingToGPSConverter}}"
+                            Focusable="True" />
+                        <Label
+                            Style="{StaticResource SimpleLabel}"
+                            Content="{Binding RecordingNotes}"
+                            x:Name="LineThreeLabel" />
+                        <Border>
+                            <StackPanel Orientation="Vertical">
+                                <TextBlock
+                                    x:Name="RecordingPassSummaryListView"
+                                    Text="{Binding Converter={StaticResource recordingPassSummaryConverter}}"
+                                    ></TextBlock>
+                                <ListView
+                                    x:Name="LabelledSegmentListView"
+                                    ItemsSource="{Binding LabelledSegments}"
+                                    Style="{StaticResource SimpleListBox}">
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock
+                                                Text="{Binding Converter={StaticResource labelledSegmentConverter}}"
+                                                x:Name="LabelledSegmentTextBlock" />
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <!-- The recordings list is populated from code -->
+    </Grid>
+</UserControl>

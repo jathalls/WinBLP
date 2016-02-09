@@ -37,9 +37,63 @@ Cancelling the recording edit causes an exception when the window tries to re-op
 
 Recording Edit form Cancel button does not work
 
+DONE RecordingForm needs a DateTime? to TimeSpan two-way converter
+
+DONE Throws an uncaught/caught null reference exception during start-up - not fatal
+
+DONE OperatorList and EquipmentList do not exist
+
+DONE EditBatForm does not save changes
+
+Double clicking a bat in the ListByBats page should switch to BatReference page
+and select the clicked bat
+
+----------------------------------------------------------------------------------
+Feb2016 Testing
+RecordingSessionForm - 
+	DONE Date should default to .Today
+	DONE StartTime and EndTime defaults
+	INHERENT Can't append text to ComboBox editable contents (can but use -> to get to end of line and deselect contents)
+	OK Add, Edit, Delete session work OK
+
+	RecordingForm OK
+		Add OK
+			LabelledSegmentForm - Operates OK but does not save
+			Recording Saved but display not updated
+		EDIT
+			DONE shows blank form, not prefilled with recording
+		DEL
+			DONE does not delete recording
+			Add/Del Segments doesn't work when empty
+
+DONE When Import new session, ListBySession display soes not update - ?Add a REFRESH button
+On import - if GPX file present can use co-ordinates to fill in the session GPS location fields
+
+When you select a Recording Datasection the selection is always for the second
+recording and the RecordingItemsList view moves to the top of the list instead of
+the selected item - so that it is impossible to perform double-clicks on the GPS
+co-ordinates for any but the first two recordings.
+
+
+
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-searching for a match in a pair of lists:-
+searching for a match in a pair of lists (e.g. bat.CommonNames, existingBat.CommonNames):-
 
 var namesToDelete = existingBat.BatCommonNames.Where(
                 p => bat.BatCommonNames.Any(p2 => p2.BatCommonName1 == p.BatCommonName1));
+
+----------------------------------------------------------------------------------
+refreshing a list view or similar when the contents have changed
+
+ICollectionView view = CollectionViewSource.GetDefaultView(FolderListView.ItemsSource);
+            view.Refresh();
+
+
+
+
+
+
+
+
+

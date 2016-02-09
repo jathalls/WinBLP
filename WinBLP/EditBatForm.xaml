@@ -6,12 +6,12 @@
         xmlns:local="clr-namespace:BatRecordingManager"
         mc:Ignorable="d"
         Title="EditBatForm" Height="300" Width="500">
-    
+
     <Grid ShowGridLines="True" Background="{StaticResource WindowBackgroundBrush}">
-        
+
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="47*" />
-            <ColumnDefinition Width="151*" />
+            <ColumnDefinition Width="50*" />
+            <ColumnDefinition Width="150*" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="25" />
@@ -23,10 +23,10 @@
             <RowDefinition Height="30*" />
         </Grid.RowDefinitions>
 
-        
         <Label
             Content="Common Name"
             Grid.Row="1"
+            Style="{StaticResource SimpleLabel}"
             Grid.Column="0" Margin="0,0.2,2.8,24.4" Grid.RowSpan="2" />
         <!--
         <TextBox
@@ -42,9 +42,7 @@
             x:Name="CommonNameTextBox"
             Style="{StaticResource SimpleTextBox}"
             Text="{Binding Path=Name}"
-            Background="{StaticResource WindowBackgroundBrush}"
-            
-            />
+            Background="{StaticResource WindowBackgroundBrush}" />
 
         <Label
             Content="Genus"
@@ -89,12 +87,11 @@
                 <TextBox
                 x:Name="TagEditBox"
                     Style="{StaticResource SimpleTextBox}"
-                    
+
                     Background="{StaticResource WindowBackgroundBrush}"
                 Text="{Binding ElementName=BatTagList.SelectedItem, Mode=OneWay}"
                 Width="200" HorizontalContentAlignment="Stretch"
-                    BorderThickness="2"
-                     />
+                    BorderThickness="2" />
                 <Button
                     x:Name="AddNewTagButton"
                     Style="{StaticResource SimpleButton}"

@@ -399,6 +399,8 @@ namespace BatRecordingManager
 		
 		private string _SessionNotes;
 		
+		private string _OriginalFilePath;
+		
 		private EntitySet<Recording> _Recordings;
 		
     #region Extensibility Method Definitions
@@ -431,6 +433,8 @@ namespace BatRecordingManager
     partial void OnLocationGPSLatitudeChanged();
     partial void OnSessionNotesChanging(string value);
     partial void OnSessionNotesChanged();
+    partial void OnOriginalFilePathChanging(string value);
+    partial void OnOriginalFilePathChanged();
     #endregion
 		
 		public RecordingSession()
@@ -695,6 +699,26 @@ namespace BatRecordingManager
 					this._SessionNotes = value;
 					this.SendPropertyChanged("SessionNotes");
 					this.OnSessionNotesChanged();
+				}
+			}
+		}
+		
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_OriginalFilePath", DbType="NVarChar(MAX)")]
+		public string OriginalFilePath
+		{
+			get
+			{
+				return this._OriginalFilePath;
+			}
+			set
+			{
+				if ((this._OriginalFilePath != value))
+				{
+					this.OnOriginalFilePathChanging(value);
+					this.SendPropertyChanging();
+					this._OriginalFilePath = value;
+					this.SendPropertyChanged("OriginalFilePath");
+					this.OnOriginalFilePathChanged();
 				}
 			}
 		}
@@ -1438,7 +1462,7 @@ namespace BatRecordingManager
 			}
 		}
 		
-		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RecordingName", DbType="NVarChar(50)")]
+		[global::System.Data.Linq.Mapping.ColumnAttribute(Storage="_RecordingName", DbType="NVarChar(MAX)")]
 		public string RecordingName
 		{
 			get

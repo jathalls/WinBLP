@@ -81,7 +81,7 @@
         </StackPanel>
 
         <DockPanel Grid.Column="0" Grid.Row="1">
-            <TextBox x:Name="BatNameTagListBox" DockPanel.Dock="Top" Text="Bat Names" Style="{StaticResource SimpleTextBox}"/>
+            <TextBox x:Name="BatNameTagListBox" DockPanel.Dock="Top" Text="Bat Names" Style="{StaticResource SimpleTextBox}" />
             <ListBox x:Name="BatNameListBox" ItemsSource="{Binding Path=BatList}"
                      Style="{StaticResource SimpleListBox}"
                      SelectionChanged="BatNameListBox_SelectionChanged">
@@ -118,8 +118,6 @@
                         Background="SteelBlue"
                         Foreground="White"
                         Padding="10,2,2,2">Common Names</TextBlock>
-                   
-                   
                 </StackPanel>
                 <TextBox
                     x:Name="CommonNameTextBlock"
@@ -168,7 +166,7 @@
                         x:Name="TagUpButton"
                         Width="40"
                         Height="20"
-                        
+
                         Margin="100,0,0,0"
                         Style="{StaticResource SimpleButton}"
                         Content="UP" Click="TagUpButton_Click" />
@@ -176,7 +174,7 @@
                         x:Name="TagDownButton"
                         Width="40"
                         Height="20"
-                        
+
                         Margin="10,0,0,0"
                         Style="{StaticResource SimpleButton}"
                         Content="DOWN" Click="TagDownButton_Click" />

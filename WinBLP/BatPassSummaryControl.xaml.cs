@@ -10,31 +10,34 @@ namespace BatRecordingManager
     {
         private BatStats _PassSummary;
 
+        public BatPassSummaryControl()
+        {
+            InitializeComponent();
+        }
+
         /// <summary>
         /// Gets or sets the PassSummary property.  This dependency property
         /// indicates ....
         /// </summary>
         public BatStats PassSummary
         {
-            get { return (_PassSummary); }
+            get
+            {
+                return (_PassSummary);
+            }
             set
             {
                 _PassSummary = value;
 
                 SummaryStackpanel.Children.Clear();
 
-                String statstring = Tools.GetFormattedBatStats(value,false);
+                String statstring = Tools.GetFormattedBatStats(value, false);
                 Label statLabel = new Label();
                 statLabel.Content = statstring;
                 SummaryStackpanel.Children.Add(statLabel);
                 InvalidateArrange();
                 UpdateLayout();
             }
-        }
-
-        public BatPassSummaryControl()
-        {
-            InitializeComponent();
         }
     }
 }

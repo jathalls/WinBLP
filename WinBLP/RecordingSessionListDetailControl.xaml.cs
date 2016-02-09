@@ -1,94 +1,180 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Input;
 
 namespace BatRecordingManager
 {
     /// <summary>
-    /// Interaction logic for RecordingSessionListDetailControl.xaml
+    ///     Interaction logic for RecordingSessionListDetailControl.xaml
     /// </summary>
     public partial class RecordingSessionListDetailControl : UserControl
     {
         #region recordingSessionList
 
         /// <summary>
-        /// recordingSessionList Dependency Property
+        ///     recordingSessionList Dependency Property
         /// </summary>
         public static readonly DependencyProperty recordingSessionListProperty =
-            DependencyProperty.Register("recordingSessionList", typeof(List<RecordingSession>), typeof(RecordingSessionListDetailControl),
-                new FrameworkPropertyMetadata((List<RecordingSession>)new List<RecordingSession>()));
+            DependencyProperty.Register("recordingSessionList", typeof(ObservableCollection<RecordingSession>), typeof(RecordingSessionListDetailControl),
+                new FrameworkPropertyMetadata((ObservableCollection<RecordingSession>)new ObservableCollection<RecordingSession>()));
 
         /// <summary>
-        /// Gets or sets the recordingSessionList property.  This dependency property
-        /// indicates ....
+        ///     The _displayed recordings
         /// </summary>
-        public List<RecordingSession> recordingSessionList
+        private ObservableCollection<Recording> _displayedRecordings;
+
+        /// <summary>
+        ///     Gets or sets the displayed recordings.
+        /// </summary>
+        /// <value>
+        ///     The displayed recordings.
+        /// </value>
+        public ObservableCollection<Recording> displayedRecordings
         {
-            get { return (List<RecordingSession>)GetValue(recordingSessionListProperty); }
+            get
+            {
+                return (_displayedRecordings);
+            }
+            set
+            {
+                _displayedRecordings = value;
+                if (value != null && RecordingsListControl != null)
+                {
+                    RecordingsListControl.recordingsList = displayedRecordings;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Gets or sets the recordingSessionList property. This dependency property indicates ....
+        /// </summary>
+        public ObservableCollection<RecordingSession> recordingSessionList
+        {
+            get
+            {
+                return (ObservableCollection<RecordingSession>)GetValue(recordingSessionListProperty);
+            }
             set
             {
                 SetValue(recordingSessionListProperty, value);
-                RecordingSessionListView.ItemsSource = value;
+                if (value != null && RecordingSessionListView != null)
+                {
+                    RecordingSessionListView.ItemsSource = value;
+                }
             }
         }
 
         #endregion recordingSessionList
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RecordingSessionListDetailControl"/> class.
+        ///     Initializes a new instance of the <see cref="RecordingSessionListDetailControl"/> class.
         /// </summary>
         public RecordingSessionListDetailControl()
         {
+            recordingSessionList = new ObservableCollection<RecordingSession>();
+            displayedRecordings = new ObservableCollection<Recording>();
+
             InitializeComponent();
             this.DataContext = this;
+
+            //RecordingsListView.ItemsSource = displayedRecordingControls;
         }
 
         /// <summary>
-        /// Handles the SelectionChanged event of the RecordingSessionListView control.
-        /// Selection has changed in the list, so update the details panel with the newly
-        /// selected item.
+        ///     Refreshes the data in the display when this pane is made visible; It might slow down
+        ///     context switches, but is necessary if other panes have changed the data. A more
+        ///     sophisticated approach would be to have any display set a 'modified' flag which
+        ///     would trigger the update or not as necessary;
         /// </summary>
-        /// <param name="sender">The source of the event.</param>
-        /// <param name="e">The <see cref="SelectionChangedEventArgs"/> instance containing the event data.</param>
-        private void RecordingSessionListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        /// <exception cref="System.NotImplementedException">
+        ///     </exception>
+        internal void RefreshData()
         {
-            recordingSessionControl.recordingSession = (RecordingSession)RecordingSessionListView.SelectedItem;
-            List<BatStats> statsForSession = DBAccess.GetStatsForSession(recordingSessionControl.recordingSession);
+            int old_selection;
 
-            var commonNames = (from stat in statsForSession
-                               select stat.batCommonName).Distinct();
-            foreach (var name in commonNames)
-            {
-                int passes = statsForSession.Where(ss => ss.batCommonName == name).Sum(pass => pass.passes);
-                int segs = statsForSession.Where(ss => ss.batCommonName == name).Sum(seg => seg.segments);
-                Debug.WriteLine(name + " " + passes + "/" + segs);
-            }
-
-            statsForSession = CondenseStatsList(statsForSession);
-            SessionSummaryStackPanel.Children.Clear();
-            foreach (var batstat in statsForSession)
-            {
-                BatPassSummaryControl batPassSummary = new BatPassSummaryControl();
-                batPassSummary.Content = Tools.GetFormattedBatStats(batstat,false);
-                SessionSummaryStackPanel.Children.Add(batPassSummary);
-            }
-            PopulateRecordingsList(recordingSessionControl.recordingSession);
+            old_selection = RecordingSessionListView.SelectedIndex;
+            recordingSessionList = DBAccess.GetRecordingSessionList();
+            RecordingSessionListView.ItemsSource = recordingSessionList;
+            RecordingSessionListView.SelectedIndex = old_selection;
+            CollectionViewSource.GetDefaultView(RecordingSessionListView.ItemsSource).Refresh();
         }
 
         /// <summary>
-        /// Condenses the stats list.  Given a List of BatStats for a wide collection
-        /// of bats and passes, condenses it to have a single BatStat for each bat
-        /// type along with the cumulative number of passes and segments.
+        ///     Selects the specified recording session.
         /// </summary>
-        /// <param name="statsForSession">The stats for session.</param>
-        /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        private List<BatStats> CondenseStatsList(List<BatStats> statsForSession)
+        /// <param name="recordingSession">
+        ///     The recording session.
+        /// </param>
+        internal void Select(RecordingSession recordingSession)
         {
-            List<BatStats> result = new List<BatStats>();
+            for (int i = 0; i < RecordingSessionListView.Items.Count; i++)
+            {
+                RecordingSession session = RecordingSessionListView.Items[i] as RecordingSession;
+                if (session.Id == recordingSession.Id)
+                {
+                    RecordingSessionListView.SelectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        private void AddEditRecordingSession(RecordingSessionForm recordingSessionForm)
+        {
+            int selectedIndex = RecordingSessionListView.SelectedIndex;
+
+            string error = "No Data Entered";
+
+            if (!recordingSessionForm.ShowDialog() ?? false)
+            {
+                if (recordingSessionForm.DialogResult ?? false)
+                {
+                    if (!string.IsNullOrWhiteSpace(error))
+                    {
+                        MessageBox.Show(error);
+                    }
+                }
+            }
+            this.recordingSessionList = DBAccess.GetRecordingSessionList();
+            if (selectedIndex >= 0 && selectedIndex <= this.RecordingSessionListView.Items.Count)
+            {
+                RecordingSessionListView.SelectedIndex = selectedIndex;
+            }
+        }
+
+        private void AddRecordingSessionButton_Click(object sender, RoutedEventArgs e)
+        {
+            RecordingSessionForm recordingSessionForm = new RecordingSessionForm();
+
+            recordingSessionForm.Clear();
+            RecordingSession newSession = new RecordingSession();
+            newSession.SessionDate = DateTime.Today;
+            newSession.SessionStartTime = new TimeSpan(18, 0, 0);
+            newSession.SessionEndTime = new TimeSpan(24, 0, 0);
+            recordingSessionForm.SetRecordingSession(newSession);
+
+            AddEditRecordingSession(recordingSessionForm);
+        }
+
+        /// <summary>
+        ///     Condenses the stats list. Given a List of BatStats for a wide collection of bats and
+        ///     passes, condenses it to have a single BatStat for each bat type along with the
+        ///     cumulative number of passes and segments.
+        /// </summary>
+        /// <param name="statsForSession">
+        ///     The stats for session.
+        /// </param>
+        /// <returns>
+        ///     </returns>
+        /// <exception cref="System.NotImplementedException">
+        ///     </exception>
+        private ObservableCollection<BatStats> CondenseStatsList(ObservableCollection<BatStats> statsForSession)
+        {
+            ObservableCollection<BatStats> result = new ObservableCollection<BatStats>();
             foreach (var stat in statsForSession)
             {
                 var matchingStats = from s in result
@@ -107,90 +193,9 @@ namespace BatRecordingManager
             return (result);
         }
 
-        /// <summary>
-        /// Populates the segment list.
-        /// The recordingSessionControl has been automatically updated by writing the
-        /// selected session to it.  This function uses the selected recordingSession to
-        /// fill in the list of LabelledSegments.
-        /// </summary>
-        /// <param name="recordingSession">The recording session.</param>
-        /// <exception cref="System.NotImplementedException"></exception>
-        private void PopulateRecordingsList(RecordingSession recordingSession)
-        {
-            // TODO each recording will give access to a passes summary
-            // these should be merged into a session summary and each 'bat'
-            // in the summary must be added to the SessionSummaryStackPanel
-            
-            RecordingsListView.Items.Clear();
-            if (recordingSession == null) return;
-            foreach (var recording in recordingSession.Recordings)
-            {
-                RecordingItemControl recordingControl = new RecordingItemControl();
-                recordingControl.recordingItem = recording;
-
-                RecordingsListView.Items.Add(recordingControl);
-            }
-        }
-
-        private void AddRecordingSessionButton_Click(object sender, RoutedEventArgs e)
-        {
-            RecordingSessionForm recordingSessionForm = new RecordingSessionForm();
-
-            recordingSessionForm.Clear();
-            recordingSessionForm.recordingSessionControl.recordingSession.SessionDate = DateTime.Now;
-            recordingSessionForm.recordingSessionControl.recordingSession.SessionStartTime = new TimeSpan(18, 0, 0);
-            recordingSessionForm.recordingSessionControl.recordingSession.SessionEndTime = new TimeSpan(22, 0, 0);
-            AddEditRecordingSession(recordingSessionForm);
-
-        }
-
-        private void AddEditRecordingSession(RecordingSessionForm recordingSessionForm)
-        {
-
-            RecordingSession newSession = recordingSessionForm.GetRecordingSession();
-            string error = "No Data Entered";
-
-
-            if (!recordingSessionForm.ShowDialog() ?? false)
-            {
-
-                if (recordingSessionForm.DialogResult ?? false)
-                {
-
-                    error = DBAccess.InsertRecordingSession(newSession);
-                    if (!string.IsNullOrWhiteSpace(error))
-                    {
-                        MessageBox.Show(error);
-                    }
-                }
-
-            }
-            this.recordingSessionList = DBAccess.GetRecordingSessionList();
-
-
-
-        }
-
-        private void EditRecordingSessionButton_Click(object sender, RoutedEventArgs e)
-        {
-            RecordingSessionForm form = new RecordingSessionForm();
-            if(RecordingSessionListView.SelectedItem!= null)
-            {
-                form.recordingSessionControl.recordingSession = RecordingSessionListView.SelectedItem as RecordingSession;
-
-
-            }
-            else
-            {
-                form.Clear();
-            }
-            AddEditRecordingSession(form);
-
-        }
-
         private void DeleteRecordingSessionButton_Click(object sender, RoutedEventArgs e)
         {
-            if(RecordingSessionListView.SelectedItem!= null)
+            if (RecordingSessionListView.SelectedItem != null)
             {
                 RecordingSession session = RecordingSessionListView.SelectedItem as RecordingSession;
                 DBAccess.DeleteSession(session);
@@ -198,50 +203,71 @@ namespace BatRecordingManager
             }
         }
 
-        private void AddRecordingButton_Click(object sender, RoutedEventArgs e)
+        private void EditRecordingSessionButton_Click(object sender, RoutedEventArgs e)
         {
-            Recording recording = new Recording();
-            AddEditRecording(recording);
-        }
-
-        private void EditRecordingButton_Click(object sender, RoutedEventArgs e)
-        {
-            Recording recording = new Recording();
-            if(RecordingsListView.SelectedItem!= null)
+            RecordingSessionForm form = new RecordingSessionForm();
+            if (RecordingSessionListView.SelectedItem != null)
             {
-                recording = (RecordingsListView.SelectedItem as RecordingItemControl).recordingItem;
+                form.recordingSessionControl.recordingSession = RecordingSessionListView.SelectedItem as RecordingSession;
             }
-            AddEditRecording(recording);
-
+            else
+            {
+                form.Clear();
+            }
+            AddEditRecordingSession(form);
         }
 
-        private void AddEditRecording(Recording recording)
+        private void OnListViewItemFocused(object sender, RoutedEventArgs e)
         {
-            if (recording == null) recording = new Recording();
+            //ListViewItem lvi = sender as D
+            //lvi.IsSelected = true;
+            //lvi.BringIntoView();
+        }
 
-            RecordingForm recordingForm = new RecordingForm();
-            recordingForm.recording = recording;
-            
-                if (recordingForm.ShowDialog() ?? false)
+        /// <summary>
+        ///     Handles the SelectionChanged event of the RecordingSessionListView control.
+        ///     Selection has changed in the list, so update the details panel with the newly
+        ///     selected item.
+        /// </summary>
+        /// <param name="sender">
+        ///     The source of the event.
+        /// </param>
+        /// <param name="e">
+        ///     The <see cref="SelectionChangedEventArgs"/> instance containing the event data.
+        /// </param>
+        private void RecordingSessionListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Wait;
+            try
+            {
+                recordingSessionControl.recordingSession = (RecordingSession)RecordingSessionListView.SelectedItem;
+                if (recordingSessionControl.recordingSession == null)
                 {
-                    if (recordingForm.DialogResult ?? false)
-                    {
-                        DBAccess.UpdateRecording(recordingForm.recording, null);
-                        
-                    }
-                }
-            
-            PopulateRecordingsList((RecordingSessionListView.SelectedItem ?? null) as RecordingSession);
-        }
+                    SessionSummaryStackPanel.Children.Clear();
 
-        private void DeleteRecordingButton_Click(object sender, RoutedEventArgs e)
-        {
-            if(RecordingsListView.SelectedItem!= null)
-            {
-                RecordingItemControl selectedRecording = RecordingsListView.SelectedItem as RecordingItemControl;
-                selectedRecording.DeleteRecording();
+                    displayedRecordings.Clear();
+                    RecordingsListControl.selectedSession = recordingSessionControl.recordingSession;
+                }
+                else
+                {
+                    ObservableCollection<BatStats> statsForSession = DBAccess.GetStatsForSession(recordingSessionControl.recordingSession);
+
+                    statsForSession = CondenseStatsList(statsForSession);
+                    SessionSummaryStackPanel.Children.Clear();
+                    foreach (var batstat in statsForSession)
+                    {
+                        BatPassSummaryControl batPassSummary = new BatPassSummaryControl();
+                        batPassSummary.Content = Tools.GetFormattedBatStats(batstat, false);
+                        SessionSummaryStackPanel.Children.Add(batPassSummary);
+                    }
+                    displayedRecordings = new ObservableCollection<Recording>(recordingSessionControl.recordingSession.Recordings);
+                    RecordingsListControl.selectedSession = recordingSessionControl.recordingSession;
+                }
             }
-            PopulateRecordingsList((RecordingSessionListView.SelectedItem ?? null) as RecordingSession);
+            finally
+            {
+                Mouse.OverrideCursor = null;
+            }
         }
     }
 }

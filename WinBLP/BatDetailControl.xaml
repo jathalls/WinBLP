@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:BatRecordingManager"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="500">
-    
+
     <Grid ShowGridLines="True"
           Background="{StaticResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
@@ -20,7 +20,7 @@
             <ColumnDefinition Width="100*" />
             <ColumnDefinition Width="400*" />
         </Grid.ColumnDefinitions>
-        
+
         <Label
             x:Name="BatCommonNameLabel"
             Grid.Column="0"
@@ -48,13 +48,13 @@
             Grid.Column="1"
             Grid.Row="1"
             Text="{Binding Path=SelectedItem.Name }"
-            Margin="6,4,0,4.8" 
+            Margin="6,4,0,4.8"
             VerticalAlignment="Center" />
         <TextBlock
             x:Name="LatinNameTextBlock"
             Grid.Column="1"
             Grid.Row="2"
-            
+
             Text="{Binding Path=SelectedItem, Converter={StaticResource ConvertLatinName} }" VerticalAlignment="Center" Margin="3,4.2,0,4.6" FontStyle="Italic" />
         <StackPanel Orientation="Vertical"
                     Grid.Row="3"
@@ -68,7 +68,7 @@
             Grid.Row="3"
                 Style="{StaticResource SimpleListBox}"
             ItemsSource="{Binding Path=SelectedItem.BatTags, Converter={StaticResource SortBatTags}}"
-            MouseLeftButtonDown="BatTagsListView_MouseLeftButtonDown"
+
             DisplayMemberPath="BatTag1" Margin="4,0,0,0">
             </ListView>
         </StackPanel>

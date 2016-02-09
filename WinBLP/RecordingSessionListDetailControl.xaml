@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:BatRecordingManager"
              mc:Ignorable="d"
              d:DesignHeight="700" d:DesignWidth="1000">
-    
+
     <Grid
         Background="{StaticResource WindowBackgroundBrush}">
 
@@ -27,13 +27,13 @@
             Background="{StaticResource BlueGradientBackground}">
             <Label
                 Style="{StaticResource SimpleLabel}"
-                Content="Sessions:- "  />
+                Content="Sessions:- " />
             <Button
                 x:Name="AddRecordingSessionButton"
                 Width="50" Height="25"
                 Content="ADD"
                 Style="{StaticResource SimpleButton}" Click="AddRecordingSessionButton_Click" />
-            
+
             <Button
                 x:Name="EditRecordingSessionButton"
                 Width="50" Height="25"
@@ -54,79 +54,67 @@
             </Grid.RowDefinitions>
             <Grid Margin="5,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100" />
-                    <ColumnDefinition Width="10*" />
-                    <ColumnDefinition Width="5*" />
+                    <ColumnDefinition Width="180*" />
+                    <ColumnDefinition Width="240*" />
+                    <ColumnDefinition Width="90*" />
                 </Grid.ColumnDefinitions>
                 <Label Grid.Column="0" Content="Tag" />
                 <Label Grid.Column="1" Content="Location" />
                 <Label Grid.Column="2" Content="Date" />
             </Grid>
-            <ScrollViewer Grid.Column="0" Grid.Row="1">
+            <ScrollViewer Grid.Column="0" Grid.Row="1" Background="{StaticResource BlueGradientBackground}">
                 <ListView
-                x:Name="RecordingSessionListView"
+                    x:Name="RecordingSessionListView"
                     Style="{StaticResource SimpleListBox}"
-                Background="{StaticResource WindowBackgroundBrush}" SelectionChanged="RecordingSessionListView_SelectionChanged">
+                    Background="{StaticResource WindowBackgroundBrush}"
+                    SelectionChanged="RecordingSessionListView_SelectionChanged"
+                    HorizontalContentAlignment="Stretch">
                     <ListView.ItemTemplate>
                         <DataTemplate DataType="{x:Type local:RecordingSession}">
-                            <Grid Margin="5,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <Grid
+                                Margin="5,0,0,0"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch" ShowGridLines="True">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100" />
-                                    <ColumnDefinition Width="10*" />
-                                    <ColumnDefinition Width="5*" />
+                                    <ColumnDefinition Width="180*" />
+                                    <ColumnDefinition Width="240*" />
+                                    <ColumnDefinition Width="55*" />
                                 </Grid.ColumnDefinitions>
 
-                                <TextBlock Text="{Binding  Path=SessionTag}" Grid.Column="0" />
-                                <TextBlock Text="{Binding Path=Location}" Grid.Column="1" Margin="5,0,0,0" />
-                                <TextBlock Text="{Binding Path=RecordingDate}" Grid.Column="2" Margin="5,0,0,0" />
+                                <TextBlock Text="{Binding  Path=SessionTag}" Grid.Column="0" Margin="5,0" />
+                                <TextBlock Text="{Binding Path=Location}" Grid.Column="1" Margin="5,0" />
+                                <TextBlock Text="{Binding Path=SessionDate,Converter={StaticResource ShortDate_Converter}}"
+                                           Grid.Column="2"
+                                           Margin="5,0" />
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
             </ScrollViewer>
         </Grid>
-        <ScrollViewer Grid.Row="0" Grid.Column="2" Grid.RowSpan="3">
-            <StackPanel Orientation="Vertical">
-                <local:RecordingSessionControl
-                    x:Name="recordingSessionControl" />
-                <!-- Recording session control shows the session details /-->
-                
-                <StackPanel x:Name="SessionSummaryStackPanel" Orientation="Vertical" />
-                <!-- session summary is populated by code when the session selection changes /-->
-                
-                <Border BorderBrush="Black" BorderThickness="0,3,0,0">
-                    <!-- A line separates the details from the list of recordings/-->
+        <Grid
+            Grid.Row="0" Grid.Column="2" Grid.RowSpan="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="100*" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="100*" />
+            </Grid.RowDefinitions>
+            <GridSplitter Grid.Row="1" />
 
-                <StackPanel Orientation="Horizontal" Background="{StaticResource BlueGradientBackground}">
-                    <!-- A button bar allows manipulation of the recording list /-->
-                    <Label 
-                        Style="{StaticResource SimpleLabel}"
-                        Content="Recording:- "/>
-                    <Button
-                        x:Name="AddRecordingButton"
-                        Content="ADD"
-                        Width="50"
-                        Style="{StaticResource SimpleButton}" Click="AddRecordingButton_Click" />
-                    <Button
-                        x:Name="EditRecordingButton"
-                        Content="EDIT"
-                        Width="50"
-                        Style="{StaticResource SimpleButton}" Click="EditRecordingButton_Click" />
-                    <Button
-                        x:Name="DeleteRecordingButton"
-                        Content="DEL"
-                        Width="50"
-                        Style="{StaticResource SimpleButton}" Click="DeleteRecordingButton_Click" />
+            <ScrollViewer Grid.Row="0">
+                <StackPanel Orientation="Vertical">
+                    <local:RecordingSessionControl
+                        x:Name="recordingSessionControl" />
+                    <!-- Recording session control shows the session details /-->
+
+                    <StackPanel x:Name="SessionSummaryStackPanel" Orientation="Vertical" />
+                    <!-- session summary is populated by code when the session selection changes /-->
                 </StackPanel>
-                </Border>
-                
-                
-                <ListView
-                    Style="{StaticResource SimpleListBox}"
-                    x:Name="RecordingsListView" />
-                <!-- The recordings list is populated from code -->
-                
-            </StackPanel>
-        </ScrollViewer>
+            </ScrollViewer>
+
+            <local:RecordingsDetailListControl
+                Grid.Row="2"
+                    x:Name="RecordingsListControl" ScrollViewer.VerticalScrollBarVisibility="Disabled" />
+        </Grid>
     </Grid>
 </UserControl>

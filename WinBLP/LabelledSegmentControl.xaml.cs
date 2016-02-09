@@ -25,7 +25,10 @@ namespace BatRecordingManager
         /// </summary>
         public LabelledSegment labelledSegment
         {
-            get { return (LabelledSegment)GetValue(labelledSegmentProperty); }
+            get
+            {
+                return (LabelledSegment)GetValue(labelledSegmentProperty);
+            }
             set
             {
                 SetValue(labelledSegmentProperty, value);
