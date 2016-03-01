@@ -52,6 +52,9 @@ namespace BatRecordingManager
 
         #endregion labelledSegment
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="LabelledSegmentForm"/> class.
+        /// </summary>
         public LabelledSegmentForm()
         {
             InitializeComponent();

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows.Data;
 
@@ -142,12 +144,33 @@ namespace BatRecordingManager
             return (stat.passes);
         }
 
+        internal static void OpenWavFile(Recording selectedRecording)
+        {
+            if (selectedRecording == null) return;
+            if (selectedRecording.RecordingSession == null) return;
+            String folder = selectedRecording.RecordingSession.OriginalFilePath;
+            if (String.IsNullOrWhiteSpace(folder)) return;
+            if (folder.EndsWith(@"\"))
+            {
+                folder = folder.Truncate(folder.Length - 1);
+            }
+            if (!Directory.Exists(folder)) return; // can't run the file if we can't find it
+            folder = folder + selectedRecording.RecordingName;
+            if (!File.Exists(folder)) { return; }
+            Process externalProcess = new Process();
+            externalProcess.StartInfo.FileName = folder;
+            //externalProcess.StartInfo.Arguments = folder;
+            externalProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+            externalProcess.Start();
+        }
+
+        /*
         internal static SegmentAndBatList Parse(String segmentLine)
         {
             ObservableCollection<Bat> bats = DBAccess.GetSortedBatList();
             var result = FileProcessor.ProcessLabelledSegment(segmentLine, bats);
             return (result);
-        }
+        }*/
 
         /// <summary>
         ///     Parses a line in the format 00'00.00 into a TimeSpan the original strting has been

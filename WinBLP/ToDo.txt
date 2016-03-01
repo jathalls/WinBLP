@@ -25,7 +25,7 @@ DONE Bat summaries should exclude the numbers for 'No bats'
 DONE Bat summaries should identify and mark as unknown, segments with no bat tag in the comment
 
 ---------------------------
-While loops in ShowDialog fail because you cannot re-open a window that has been closed
+DONE While loops in ShowDialog fail because you cannot re-open a window that has been closed
 
 RecordingSession Add button does not work
 
@@ -69,13 +69,14 @@ RecordingSessionForm -
 DONE When Import new session, ListBySession display soes not update - ?Add a REFRESH button
 On import - if GPX file present can use co-ordinates to fill in the session GPS location fields
 
-When you select a Recording Datasection the selection is always for the second
+DONE When you select a Recording Datasection the selection is always for the second
 recording and the RecordingItemsList view moves to the top of the list instead of
 the selected item - so that it is impossible to perform double-clicks on the GPS
 co-ordinates for any but the first two recordings.
 
 
-
+DONE After creating a new database imported data shows all segments as 'Unknown' instead
+of picking up the correct Tags.
 
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 searching for a match in a pair of lists (e.g. bat.CommonNames, existingBat.CommonNames):-
@@ -83,14 +84,21 @@ searching for a match in a pair of lists (e.g. bat.CommonNames, existingBat.Comm
 var namesToDelete = existingBat.BatCommonNames.Where(
                 p => bat.BatCommonNames.Any(p2 => p2.BatCommonName1 == p.BatCommonName1));
 
+var commonList = list1.Where(list1Element => list2.Any(list2Element => list2Element.item==list1Element.item));
+
 ----------------------------------------------------------------------------------
 refreshing a list view or similar when the contents have changed
 
 ICollectionView view = CollectionViewSource.GetDefaultView(FolderListView.ItemsSource);
-            view.Refresh();
+           if(view!=null) view.Refresh();
 
 
 
+
+??????????????????????????????????????????????????????????????????????????????????????
+BingMaps Basic Key:-
+
+AhhVL9x6bq6w0NbyqlwjmXDh3Qd64GbWowQQlFzrqx0ChD1MvaLkMTDQxuh2bhzh
 
 
 

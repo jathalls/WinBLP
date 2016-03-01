@@ -163,33 +163,33 @@ namespace BatRecordingManager
         ///     </returns>
         /// <exception cref="System.NotImplementedException">
         ///     </exception>
-        public bool VerifyFormContents()
+        public string VerifyFormContents()
         {
-            bool result = true;
+            string result = "";
 
             if (String.IsNullOrWhiteSpace(recordingSession.SessionTag))
             {
-                result = false;
+                result = "Must have a valid session Tag";
             }
             DateTime? date = recordingSession.SessionDate;
             if (date == null)
             {
-                result = false;
+                result = "Must have a valid date";
             }
             else
             {
                 if (date.Value.Year < 1990)
                 {
-                    result = false;
+                    result = "Must have a valid date later than 1990";
                 }
                 if (date.Value > DateTime.Now)
                 {
-                    result = false;
+                    result = "Must have a valid date earlier than now";
                 }
             }
             if (String.IsNullOrWhiteSpace(recordingSession.Location))
             {
-                result = false;
+                result = "Must have a valid Location";
             }
 
             return (result);
@@ -200,6 +200,41 @@ namespace BatRecordingManager
             FileBrowser fileBrowser = new FileBrowser();
             fileBrowser.SelectFolder();
             FolderTextBox.Text = fileBrowser.WorkingFolder;
+        }
+
+        private void GPSLatitudeTextBox_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            Tuple<decimal, decimal> coordinates;
+            decimal lat = 100.0m;
+            decimal longit = 200.0m;
+            if (!decimal.TryParse(GPSLatitudeTextBox.Text, out lat)) return;
+            if (!decimal.TryParse(GPSLongitudeTextBox.Text, out longit)) return;
+            if (!(lat <= 90.0m && lat >= -90.0m && longit <= 180.0m && longit >= -180.0m)) return;
+            coordinates = new Tuple<decimal, decimal>(lat, longit);
+
+            MapWindow mapWindow = new MapWindow();
+            mapWindow.mapControl.coordinates = coordinates;
+            mapWindow.Show();
+            if (recordingSession != null && recordingSession.Recordings != null && recordingSession.Recordings.Count > 0)
+            {
+                int i = 0;
+                foreach (var rec in recordingSession.Recordings)
+                {
+                    i++;
+                    double latitude = 100;
+                    double longitude = 200;
+                    if (Double.TryParse(rec.RecordingGPSLatitude, out latitude))
+                    {
+                        if (Double.TryParse(rec.RecordingGPSLongitude, out longitude))
+                        {
+                            if (latitude <= 90.0 && latitude >= -90.0 && longitude <= 180.0 && longitude >= -180.0)
+                            {
+                                mapWindow.mapControl.AddPushPin(new Tuple<double, double>(latitude, longitude), i.ToString());
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

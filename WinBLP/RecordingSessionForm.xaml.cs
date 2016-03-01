@@ -70,7 +70,8 @@ namespace BatRecordingManager
         /// </param>
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
-            if (recordingSessionControl.VerifyFormContents())
+            string err = recordingSessionControl.VerifyFormContents();
+            if (string.IsNullOrWhiteSpace(err))
             {
                 DBAccess.UpdateRecordingSession(recordingSessionControl.recordingSession);
                 DialogResult = true;
@@ -78,8 +79,7 @@ namespace BatRecordingManager
             }
             else
             {
-                DialogResult = false;
-                MessageBox.Show("Recording Session Validation failed");
+                MessageBox.Show(err, "Recording Session Validation failed");
             }
         }
     }

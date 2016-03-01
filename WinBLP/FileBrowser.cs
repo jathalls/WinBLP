@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -27,6 +28,8 @@ namespace BatRecordingManager
         ///     The existing log file name
         /// </summary>
         private string existingLogFileName = "";
+
+        private bool isProcessingFolder = false;
 
         /// <summary>
         ///     The output log file name
@@ -176,7 +179,10 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Processes the folder.
+        ///     Processes the folder. Called when a new folder is to be dealt with. If there is a
+        ///     manifext file, copies the file names from that into the file list. if not, then
+        ///     copies names of all .txt files except .log.txt files. if there are still just 0 or 1
+        ///     file in the list, try to extract comment files from a log file
         /// </summary>
         /// <param name="folder">
         ///     The folder.
@@ -186,15 +192,15 @@ namespace BatRecordingManager
         public string ProcessFolder(String folder)
         {
             string folderPath = workingFolder;
-            if (!String.IsNullOrWhiteSpace(folder))
+            if (!String.IsNullOrWhiteSpace(folder))// can't do anything without a folder to read files from
             {
-                if (Directory.Exists(folder))
+                if (Directory.Exists(folder)) // still can't do anything if the folder doesn't exist (in which case return null)
                 {
                     folderPath = folder;
                     textFileNames.Clear();
                     var manifests = Directory.GetFiles(folderPath, "*.manifest", SearchOption.TopDirectoryOnly);
-                    if (manifests != null && manifests.Count() > 0 && File.Exists(manifests[0]))
-                    {
+                    if (manifests != null && manifests.Count() > 0 && File.Exists(manifests[0])) // we have a manifest
+                    {// so add the files in the manifest tot he files list
                         textFileNames.Clear();
                         var manifestFiles = File.ReadAllLines(manifests[0]);
                         foreach (var file in manifestFiles)
@@ -205,25 +211,39 @@ namespace BatRecordingManager
                             }
                         }
                     }
-                    if (textFileNames.Count <= 0)
-                    {
+                    if (textFileNames.Count <= 0) // if we have no files yet - no or empty manifest
+                    {//get all the text files in the folder
                         var files = from file in Directory.GetFiles(folderPath, "*.txt", SearchOption.TopDirectoryOnly)
                                     orderby file
                                     select file;
                         textFileNames.Clear();
                         foreach (string filename in files)
                         {
-                            if (!filename.EndsWith(".log.txt"))
+                            if (!filename.EndsWith(".log.txt"))// except for .log.txt files
                             {
                                 textFileNames.Add(filename);
                             }
                         }
                     }
+                    if (textFileNames.Count <= 1)
+                    {
+                        if (!isProcessingFolder)
+                        {
+                            isProcessingFolder = true;// to prevent call to this function from ExtractCommentFilesFromLogFile
+                            // recursing. It can recurse once but after that will be blocked
+                            folderPath = ExtractCommentFilesFromLogFile(folder);
+                            isProcessingFolder = false;
+                        }
+                    }
                 }
-                else { return (null); }
+                else
+                {
+                    isProcessingFolder = false;
+                    folderPath = null;
+                }
             }
             WorkingFolder = folderPath;
-
+            isProcessingFolder = false;
             return (folderPath);
         }
 
@@ -437,6 +457,121 @@ namespace BatRecordingManager
         }
 
         /// <summary>
+        ///     Extracts the comment files from log file. there ar no or just one text file in the
+        ///     selected folder except for .log.txt files. This function identifies a .log.txt file
+        ///     with the same name as the folder and splits it into several separate files.
+        ///     Everything up to the first occurrence of a .wav filename is extracted into a .txt
+        ///     file with the same name as the folder - a new header file. For each .wav file in the
+        ///     folder which does not have a matching .txt file, the .log.txt file will be split at
+        ///     the first occurrence of the .wav file name and the contents as far the next .wav
+        ///     file name will be copied to a .txt file with the same name as the .wav file. Finally
+        ///     ProcessFolder is called and it's result returned.
+        /// </summary>
+        private string ExtractCommentFilesFromLogFile(String folder)
+        {
+            if (!folder.EndsWith(@"\"))
+            {
+                folder = folder + @"\";
+            }
+            string logFileText = "";
+            String folderName = GetFoldernameFromPath(folder);
+            if (File.Exists(folder + folderName + ".log.txt"))
+            {
+                logFileText = File.ReadAllText(folder + folderName + ".log.txt");
+            }
+            if (string.IsNullOrWhiteSpace(logFileText))
+            {
+                var logFiles = Directory.GetFiles(folder, "*.log.txt");
+                if (logFiles == null || logFiles.Count() <= 0)
+                {
+                    return (folder);
+                }
+                string biggestFile = "";
+                long fileSize = long.MinValue;
+                foreach (var file in logFiles)
+                {
+                    FileInfo f = new FileInfo(file);
+                    if (f.Length > fileSize)
+                    {
+                        fileSize = f.Length;
+                        biggestFile = file;
+                    }
+                }
+                if (String.IsNullOrWhiteSpace(biggestFile))
+                {
+                    return (folder);
+                }
+                logFileText = File.ReadAllText(biggestFile);
+                if (string.IsNullOrWhiteSpace(logFileText))
+                {
+                    return (folder);
+                }
+            }
+            if (!File.Exists(folder + folderName + ".txt"))
+            {
+                var sw = File.AppendText(folder + folderName + ".txt");
+                int index = logFileText.IndexOf(".wav");
+                if (index > 0)
+                {
+                    sw.Write(logFileText.Substring(0, index));
+                    sw.WriteLine();
+                }
+                else
+                {
+                    sw.Write(folderName);
+                    sw.WriteLine();
+                }
+
+                sw.Close();// Header file is complete
+            }
+
+            var wavFiles = Directory.GetFiles(folder, "*.wav");
+            if (wavFiles != null && wavFiles.Count() > 0)
+            {
+                foreach (var file in wavFiles)
+                {
+                    string matchingTextFile = file.Substring(0, file.Length - 3) + "txt";
+                    if (!File.Exists(matchingTextFile))
+                    {
+                        string wavFileName = file.Substring(file.LastIndexOf(@"\") + 1);
+                        var sw = File.AppendText(matchingTextFile);
+
+                        int index1 = logFileText.IndexOf(wavFileName);
+                        int index2 = -1;
+                        if (index1 >= 0)
+                        {
+                            string rest = logFileText.Substring(index1);
+                            string rest2 = rest.Substring(wavFileName.Length);
+                            index2 = rest2.IndexOf(".wav") + wavFileName.Length;
+                            if (index2 > 0)
+                            {
+                                try
+                                {
+                                    string outStr = rest.Substring(0, index2);
+                                    sw.Write(outStr);
+                                }
+                                catch (Exception)
+                                {
+                                    sw.Write(rest);
+                                }
+                            }
+                            else
+                            {
+                                sw.Write(rest);
+                            }
+                        }
+                        sw.WriteLine();
+                        sw.Close();
+                    }
+                }
+            }
+
+            ProcessFolder(folder);
+
+            return (folder);
+        }
+
+        /// <summary>
         ///     Generates a list of folders with wav files beneath the rootFolder supplied. The
         ///     Directory tree is traversed and each folder containing wav files is added to the
         ///     list, but once such a folder is identified its child folders are not included in the search.
@@ -454,6 +589,29 @@ namespace BatRecordingManager
             GetWavFileFolder(rootFolder, ref wavFolders);
 
             return (wavFolders);
+        }
+
+        /// <summary>
+        ///     Gets the foldername from path.
+        /// </summary>
+        /// <param name="folder">
+        ///     The folder.
+        /// </param>
+        /// <returns>
+        ///     </returns>
+        private string GetFoldernameFromPath(string folder)
+        {
+            if (folder.EndsWith(@"\"))
+            {
+                folder = folder.Substring(0, folder.Length - 1);
+                int index = folder.LastIndexOf(@"\");
+
+                if (index >= 0 && index < folder.Length)
+                {
+                    folder = folder.Substring(index + 1);
+                }
+            }
+            return (folder);
         }
 
         /// <summary>

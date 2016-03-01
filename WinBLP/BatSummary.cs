@@ -16,7 +16,7 @@ namespace BatRecordingManager
         /// </summary>
         //private XElement xeBatLibrary = null;
 
-        private String FileLocation = null;
+        //private String FileLocation = null;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="BatSummary"/> class.
@@ -45,9 +45,10 @@ namespace BatRecordingManager
             return (matchingBats);
         }
 
+        /*
         internal string getFileLocation()
         {
             return (FileLocation);
-        }
+        }*/
     }
 }

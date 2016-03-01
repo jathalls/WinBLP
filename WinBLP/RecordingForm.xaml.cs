@@ -349,14 +349,24 @@ namespace BatRecordingManager
         /// </param>
         private void DeleteSegmentButton_Click_1(object sender, RoutedEventArgs e)
         {
+            LabelledSegment segmentToDelete = null;
             if (LabelledSegmentsListView == null) return;
 
             if (LabelledSegmentsListView.Items == null) return;
             if (LabelledSegmentsListView.Items.Count <= 0) return;
-            LabelledSegment segmentToDelete = LabelledSegmentsListView.SelectedItem as LabelledSegment;
-            if (segmentToDelete == null) return;
+            try
+            {
+                int indexToDelete = LabelledSegmentsListView.SelectedIndex;
+
+                segmentToDelete = LabelledSegmentsList[indexToDelete];
+                if (segmentToDelete == null) return;
+            }
+            catch (Exception)
+            {
+                return;
+            }
             int index = LabelledSegmentsListView.SelectedIndex;
-            var result = MessageBox.Show("Are you sure you want to permanently delete this Segment?", "Permanent Deletion Warning", MessageBoxButton.YesNo);
+            var result = MessageBox.Show("Are you sure you want to permanently delete this Segment?", "Deleting \"" + segmentToDelete.Comment + "\"", MessageBoxButton.YesNo);
             if (result == MessageBoxResult.Yes)
             {
                 DBAccess.DeleteSegment(segmentToDelete);

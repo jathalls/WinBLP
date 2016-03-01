@@ -6,22 +6,21 @@ using System.Windows.Data;
 namespace BatRecordingManager
 {
     /// <summary>
-    /// Interaction logic for LabelledSegmentControl.xaml
+    ///     Interaction logic for LabelledSegmentControl.xaml
     /// </summary>
     public partial class LabelledSegmentControl : UserControl
     {
         #region labelledSegment
 
         /// <summary>
-        /// labelledSegment Dependency Property
+        ///     labelledSegment Dependency Property
         /// </summary>
         public static readonly DependencyProperty labelledSegmentProperty =
             DependencyProperty.Register("labelledSegment", typeof(LabelledSegment), typeof(LabelledSegmentControl),
                 new FrameworkPropertyMetadata((LabelledSegment)new LabelledSegment()));
 
         /// <summary>
-        /// Gets or sets the labelledSegment property.  This dependency property
-        /// indicates ....
+        ///     Gets or sets the labelledSegment property. This dependency property indicates ....
         /// </summary>
         public LabelledSegment labelledSegment
         {
@@ -44,15 +43,14 @@ namespace BatRecordingManager
         #region startTime
 
         /// <summary>
-        /// startTime Dependency Property
+        ///     startTime Dependency Property
         /// </summary>
         public static readonly DependencyProperty startTimeProperty =
             DependencyProperty.Register("startTime", typeof(TimeSpan), typeof(LabelledSegmentControl),
                 new FrameworkPropertyMetadata((TimeSpan)new TimeSpan()));
 
         /// <summary>
-        /// Gets or sets the startTime property.  This dependency property
-        /// indicates ....
+        ///     Gets or sets the startTime property. This dependency property indicates ....
         /// </summary>
         public TimeSpan startTime
         {
@@ -65,15 +63,14 @@ namespace BatRecordingManager
         #region endTime
 
         /// <summary>
-        /// endTime Dependency Property
+        ///     endTime Dependency Property
         /// </summary>
         public static readonly DependencyProperty endTimeProperty =
             DependencyProperty.Register("endTime", typeof(TimeSpan), typeof(LabelledSegmentControl),
                 new FrameworkPropertyMetadata((TimeSpan)new TimeSpan()));
 
         /// <summary>
-        /// Gets or sets the endTime property.  This dependency property
-        /// indicates ....
+        ///     Gets or sets the endTime property. This dependency property indicates ....
         /// </summary>
         public TimeSpan endTime
         {
@@ -86,15 +83,14 @@ namespace BatRecordingManager
         #region duration
 
         /// <summary>
-        /// duration Dependency Property
+        ///     duration Dependency Property
         /// </summary>
         public static readonly DependencyProperty durationProperty =
             DependencyProperty.Register("duration", typeof(TimeSpan), typeof(LabelledSegmentControl),
                 new FrameworkPropertyMetadata((TimeSpan)new TimeSpan()));
 
         /// <summary>
-        /// Gets or sets the duration property.  This dependency property
-        /// indicates ....
+        ///     Gets or sets the duration property. This dependency property indicates ....
         /// </summary>
         public TimeSpan duration
         {
@@ -107,15 +103,14 @@ namespace BatRecordingManager
         #region comment
 
         /// <summary>
-        /// comment Dependency Property
+        ///     comment Dependency Property
         /// </summary>
         public static readonly DependencyProperty commentProperty =
             DependencyProperty.Register("comment", typeof(String), typeof(LabelledSegmentControl),
                 new FrameworkPropertyMetadata((String)""));
 
         /// <summary>
-        /// Gets or sets the comment property.  This dependency property
-        /// indicates ....
+        ///     Gets or sets the comment property. This dependency property indicates ....
         /// </summary>
         public String comment
         {
@@ -126,7 +121,7 @@ namespace BatRecordingManager
         #endregion comment
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="LabelledSegmentControl"/> class.
+        ///     Initializes a new instance of the <see cref="LabelledSegmentControl"/> class.
         /// </summary>
         public LabelledSegmentControl()
         {
@@ -138,18 +133,27 @@ namespace BatRecordingManager
     #region TimeSpanConverter (ValueConverter)
 
     /// <summary>
-    /// Converter class for displaying a timespan object as a string
+    ///     Converter class for displaying a timespan object as a string
     /// </summary>
     public class TimeSpanConverter : IValueConverter
     {
         /// <summary>
-        /// Converts a Timespan object into a formatted string
+        ///     Converts a Timespan object into a formatted string
         /// </summary>
-        /// <param name="value">The value.</param>
-        /// <param name="targetType">Type of the target.</param>
-        /// <param name="parameter">The parameter.</param>
-        /// <param name="culture">The culture.</param>
-        /// <returns></returns>
+        /// <param name="value">
+        ///     The value.
+        /// </param>
+        /// <param name="targetType">
+        ///     Type of the target.
+        /// </param>
+        /// <param name="parameter">
+        ///     The parameter.
+        /// </param>
+        /// <param name="culture">
+        ///     The culture.
+        /// </param>
+        /// <returns>
+        ///     </returns>
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             try
@@ -167,6 +171,23 @@ namespace BatRecordingManager
             }
         }
 
+        /// <summary>
+        ///     Converts the back.
+        /// </summary>
+        /// <param name="value">
+        ///     The value.
+        /// </param>
+        /// <param name="targetType">
+        ///     Type of the target.
+        /// </param>
+        /// <param name="parameter">
+        ///     The parameter.
+        /// </param>
+        /// <param name="culture">
+        ///     The culture.
+        /// </param>
+        /// <returns>
+        ///     </returns>
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             // Not implemented

@@ -1,15 +1,16 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
 
 namespace BatRecordingManager
 {
     /// <summary>
-    /// Interaction logic for HelpScreen.xaml
+    ///     Interaction logic for HelpScreen.xaml
     /// </summary>
     public partial class HelpScreen : Window
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="HelpScreen"/> class.
+        ///     Initializes a new instance of the <see cref="HelpScreen"/> class.
         /// </summary>
         public HelpScreen()
         {
@@ -18,7 +19,7 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        /// Fills the help screen.
+        ///     Fills the help screen.
         /// </summary>
         private void FillHelpScreen()
         {
@@ -214,7 +215,14 @@ Clicking the OK button will save the modified bat list to the Bat Reference File
 it into the program.  Clicking CANCEL will close the window and discard all changes to the file.
 
 ";
+            text = "";
             HelpText.Text = text;
+
+            if (File.Exists("Bat Recording Manager.html"))
+            {
+                string htmlText = File.ReadAllText("Bat Recording Manager.html");
+                htmlPanel.Text = htmlText;
+            }
         }
     }
 }

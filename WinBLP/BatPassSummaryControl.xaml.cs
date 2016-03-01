@@ -4,20 +4,22 @@ using System.Windows.Controls;
 namespace BatRecordingManager
 {
     /// <summary>
-    /// Interaction logic for BatPassSummaryControl.xaml
+    ///     Interaction logic for BatPassSummaryControl.xaml
     /// </summary>
     public partial class BatPassSummaryControl : UserControl
     {
         private BatStats _PassSummary;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="BatPassSummaryControl"/> class.
+        /// </summary>
         public BatPassSummaryControl()
         {
             InitializeComponent();
         }
 
         /// <summary>
-        /// Gets or sets the PassSummary property.  This dependency property
-        /// indicates ....
+        ///     Gets or sets the PassSummary property. This dependency property indicates ....
         /// </summary>
         public BatStats PassSummary
         {

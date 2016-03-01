@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -81,7 +82,7 @@ namespace BatRecordingManager
 
             InitializeComponent();
             this.DataContext = this;
-
+            RefreshData();
             //RecordingsListView.ItemsSource = displayedRecordingControls;
         }
 
@@ -96,7 +97,8 @@ namespace BatRecordingManager
         internal void RefreshData()
         {
             int old_selection;
-
+            recordingSessionControl.recordingSession = null;
+            RecordingsListControl.recordingsList.Clear();
             old_selection = RecordingSessionListView.SelectedIndex;
             recordingSessionList = DBAccess.GetRecordingSessionList();
             RecordingSessionListView.ItemsSource = recordingSessionList;
@@ -125,10 +127,11 @@ namespace BatRecordingManager
 
         private void AddEditRecordingSession(RecordingSessionForm recordingSessionForm)
         {
+            Mouse.OverrideCursor = Cursors.Wait;
             int selectedIndex = RecordingSessionListView.SelectedIndex;
 
             string error = "No Data Entered";
-
+            Mouse.OverrideCursor = null;
             if (!recordingSessionForm.ShowDialog() ?? false)
             {
                 if (recordingSessionForm.DialogResult ?? false)
@@ -139,15 +142,18 @@ namespace BatRecordingManager
                     }
                 }
             }
+            Mouse.OverrideCursor = Cursors.Wait;
             this.recordingSessionList = DBAccess.GetRecordingSessionList();
             if (selectedIndex >= 0 && selectedIndex <= this.RecordingSessionListView.Items.Count)
             {
                 RecordingSessionListView.SelectedIndex = selectedIndex;
             }
+            Mouse.OverrideCursor = null;
         }
 
         private void AddRecordingSessionButton_Click(object sender, RoutedEventArgs e)
         {
+            Mouse.OverrideCursor = Cursors.Wait;
             RecordingSessionForm recordingSessionForm = new RecordingSessionForm();
 
             recordingSessionForm.Clear();
@@ -156,7 +162,7 @@ namespace BatRecordingManager
             newSession.SessionStartTime = new TimeSpan(18, 0, 0);
             newSession.SessionEndTime = new TimeSpan(24, 0, 0);
             recordingSessionForm.SetRecordingSession(newSession);
-
+            Mouse.OverrideCursor = null;
             AddEditRecordingSession(recordingSessionForm);
         }
 
@@ -195,16 +201,19 @@ namespace BatRecordingManager
 
         private void DeleteRecordingSessionButton_Click(object sender, RoutedEventArgs e)
         {
+            Mouse.OverrideCursor = Cursors.Wait;
             if (RecordingSessionListView.SelectedItem != null)
             {
                 RecordingSession session = RecordingSessionListView.SelectedItem as RecordingSession;
                 DBAccess.DeleteSession(session);
                 recordingSessionList = DBAccess.GetRecordingSessionList();
             }
+            Mouse.OverrideCursor = null;
         }
 
         private void EditRecordingSessionButton_Click(object sender, RoutedEventArgs e)
         {
+            Mouse.OverrideCursor = Cursors.Wait;
             RecordingSessionForm form = new RecordingSessionForm();
             if (RecordingSessionListView.SelectedItem != null)
             {
@@ -215,6 +224,83 @@ namespace BatRecordingManager
                 form.Clear();
             }
             AddEditRecordingSession(form);
+            Mouse.OverrideCursor = null;
+        }
+
+        /// <summary>
+        ///     Handles the Click event of the ExportSessionDataButton control.
+        /// </summary>
+        /// <param name="sender">
+        ///     The source of the event.
+        /// </param>
+        /// <param name="e">
+        ///     The <see cref="RoutedEventArgs"/> instance containing the event data.
+        /// </param>
+        private void ExportSessionDataButton_Click(object sender, RoutedEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Wait;
+            if (RecordingSessionListView.SelectedItems.Count > 0)
+            {
+                foreach (var item in RecordingSessionListView.SelectedItems)
+                {
+                    RecordingSession session = item as RecordingSession;
+
+                    ObservableCollection<BatStats> statsForSession = DBAccess.GetStatsForSession(session);
+                    statsForSession = CondenseStatsList(statsForSession);
+                    String folder = @"C:\ExportedBatData\";
+
+                    if (!Directory.Exists(folder))
+                    {
+                        try
+                        {
+                            var info = Directory.CreateDirectory(folder);
+                            if (!info.Exists)
+                            {
+                                folder = @"C:\ExportedBatData\";
+                                Directory.CreateDirectory(folder);
+                            }
+                        }
+                        catch (Exception)
+                        {
+                            folder = @"C:\ExportedBatData\";
+                            Directory.CreateDirectory(folder);
+                        }
+                        if (!Directory.Exists(folder))
+                        {
+                            MessageBox.Show("Unable to create folder for export files: " + folder);
+                            Mouse.OverrideCursor = null;
+                            return;
+                        }
+                    }
+                    string file = session.SessionTag.Trim() + ".csv";
+                    if (File.Exists(folder + file))
+                    {
+                        if (File.Exists(folder + session.SessionTag.Trim() + ".bak"))
+                        {
+                            File.Delete(folder + session.SessionTag.Trim() + ".bak");
+                        }
+                        File.Move(folder + file, folder + session.SessionTag.Trim() + ".bak");
+                    }
+
+                    StreamWriter sw = File.AppendText(folder + file);
+                    sw.Write("Date,Place,Gridref,Comment,Observer,Species,Abundance=Passes,Additional Info" + Environment.NewLine);
+                    foreach (var stat in statsForSession)
+                    {
+                        String line = session.SessionDate.ToShortDateString();
+                        line += "," + session.Location;
+                        line += ",\"" + session.LocationGPSLatitude + "," + session.LocationGPSLongitude + "\"";
+                        line += "," + (session.SessionStartTime != null ? (session.SessionStartTime.Value.ToString() + " - " + (session.SessionEndTime != null ? session.SessionEndTime.Value.ToString() : "")) : "") + "; "
+                            + "\"" + session.Equipment + "; " + session.Microphone + "\"";
+                        line += "," + "\"" + session.Operator + "\"";
+                        line += "," + DBAccess.GetBatLatinName(stat.batCommonName);
+                        line += "," + stat.passes;
+                        line += "," + "\"" + session.SessionNotes.Replace("\n", "\t") + "\"" + Environment.NewLine;
+                        sw.Write(line);
+                    }
+                    sw.Close();
+                }
+            }
+            Mouse.OverrideCursor = null;
         }
 
         private void OnListViewItemFocused(object sender, RoutedEventArgs e)
@@ -240,6 +326,7 @@ namespace BatRecordingManager
             Mouse.OverrideCursor = Cursors.Wait;
             try
             {
+                if (RecordingSessionListView.SelectedItem == null) return;
                 recordingSessionControl.recordingSession = (RecordingSession)RecordingSessionListView.SelectedItem;
                 if (recordingSessionControl.recordingSession == null)
                 {
@@ -247,6 +334,9 @@ namespace BatRecordingManager
 
                     displayedRecordings.Clear();
                     RecordingsListControl.selectedSession = recordingSessionControl.recordingSession;
+                    ExportSessionDataButton.IsEnabled = false;
+                    EditRecordingSessionButton.IsEnabled = false;
+                    DeleteRecordingSessionButton.IsEnabled = false;
                 }
                 else
                 {
@@ -262,6 +352,9 @@ namespace BatRecordingManager
                     }
                     displayedRecordings = new ObservableCollection<Recording>(recordingSessionControl.recordingSession.Recordings);
                     RecordingsListControl.selectedSession = recordingSessionControl.recordingSession;
+                    ExportSessionDataButton.IsEnabled = true;
+                    EditRecordingSessionButton.IsEnabled = true;
+                    DeleteRecordingSessionButton.IsEnabled = true;
                 }
             }
             finally

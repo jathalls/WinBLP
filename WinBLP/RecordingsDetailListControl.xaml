@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:BatRecordingManager"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="400">
 
     <Grid>
         <Grid.RowDefinitions>
@@ -19,33 +19,47 @@
             <StackPanel Orientation="Horizontal" Background="{StaticResource BlueGradientBackground}">
                 <!-- A button bar allows manipulation of the recording list /-->
                 <Label
-                                Style="{StaticResource SimpleLabel}"
-                                Content="Recording:- " />
+                    Style="{StaticResource SimpleLabel}"
+                    Content="Recording:- " />
                 <Button
-                                x:Name="AddRecordingButton"
-                                Content="ADD"
-                                Width="50"
-                                    IsEnabled="False"
-                                Style="{StaticResource SimpleButton}" Click="AddRecordingButton_Click" />
+                    x:Name="AddRecordingButton"
+                    Content="ADD"
+                    Width="50"
+                    IsEnabled="False"
+                    ToolTip="Manually create a new recording item within the selected recording session"
+                    Style="{StaticResource SimpleButton}" Click="AddRecordingButton_Click" />
                 <Button
-                                x:Name="EditRecordingButton"
-                                Content="EDIT"
-                                Width="50"
-                                    IsEnabled="False"
-                                Style="{StaticResource SimpleButton}" Click="EditRecordingButton_Click" />
+                    x:Name="EditRecordingButton"
+                    Content="EDIT"
+                    Width="50"
+                    IsEnabled="False"
+                    ToolTip="Edit the details of the selected recording item"
+                    Style="{StaticResource SimpleButton}" Click="EditRecordingButton_Click" />
                 <Button
-                                x:Name="DeleteRecordingButton"
-                                Content="DEL"
-                                Width="50"
-                                    IsEnabled="False"
-                                Style="{StaticResource SimpleButton}" Click="DeleteRecordingButton_Click" />
+                    x:Name="DeleteRecordingButton"
+                    Content="DEL"
+                    Width="50"
+                    IsEnabled="False"
+                    ToolTip="Delete the selected recording from the database"
+                    Style="{StaticResource SimpleButton}" Click="DeleteRecordingButton_Click" />
+                <Button
+                    x:Name="OpenRecordingButton"
+                    Content="OPEN"
+                    Width="50"
+                    IsEnabled="False"
+                    ToolTip="Opens the selected recording with the default .wav application"
+                    Style="{StaticResource SimpleButton}" Click="OpenRecordingButton_Click" />
             </StackPanel>
         </Border>
 
         <ListBox x:Name="RecordingsListView" Grid.Row="1"
 
-            Style="{StaticResource SimpleListBox}" SelectionChanged="RecordingsListView_SelectionChanged"
-                     ScrollViewer.VerticalScrollBarVisibility="Visible">
+            Style="{StaticResource SimpleListBox}"
+            SelectionChanged="RecordingsListView_SelectionChanged"
+                 ScrollViewer.CanContentScroll="False"
+
+            ScrollViewer.VerticalScrollBarVisibility="Visible">
+
             <ListBox.ItemContainerStyle>
                 <Style TargetType="{x:Type ListBoxItem}">
 

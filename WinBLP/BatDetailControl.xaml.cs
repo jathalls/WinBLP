@@ -36,7 +36,7 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Event raised after the <see cref="Text"/> property value has changed.
+        ///     Event raised after the List property value has changed.
         /// </summary>
         public event EventHandler ListChanged
         {

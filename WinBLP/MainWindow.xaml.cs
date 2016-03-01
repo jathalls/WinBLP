@@ -1,5 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Windows;
+
+using System.Windows.Input;
 
 namespace BatRecordingManager
 {
@@ -16,7 +19,7 @@ namespace BatRecordingManager
         /// <summary>
         ///     The is saved
         /// </summary>
-        private bool isSaved = false;
+        //private bool isSaved = true;
 
         /// <summary>
         ///     The window title
@@ -28,12 +31,13 @@ namespace BatRecordingManager
         /// </summary>
         public MainWindow()
         {
-            Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            System.Windows.Application.Current.ShutdownMode = ShutdownMode.OnMainWindowClose;
             InitializeComponent();
 
             Build = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
             //windowTitle = "Bat Log File Processor " + Build;
-            this.Title = windowTitle + Build;
+            this.Title = windowTitle + " " + Build;
+
             this.InvalidateArrange();
 
             BatRecordingListDetailControl.sessionsAndRecordings.SessionAction += SessionsAndRecordings_SessionAction;
@@ -52,21 +56,43 @@ namespace BatRecordingManager
         private void miAbout_Click(object sender, RoutedEventArgs e)
         {
             AboutScreen about = new AboutScreen();
+            about.version.Content = "v " + Build;
             about.ShowDialog();
         }
 
+        /// <summary>
+        ///     Handles the Click event of the miBatReference control.
+        /// </summary>
+        /// <param name="sender">
+        ///     The source of the event.
+        /// </param>
+        /// <param name="e">
+        ///     The <see cref="RoutedEventArgs"/> instance containing the event data.
+        /// </param>
         private void miBatReference_Click(object sender, RoutedEventArgs e)
         {
+            Mouse.OverrideCursor = System.Windows.Input.Cursors.Wait;
             BatRecordingListDetailControl.Visibility = Visibility.Hidden;
             recordingSessionListControl.Visibility = Visibility.Hidden;
             importControl.Visibility = Visibility.Hidden;
             batListControl.Visibility = Visibility.Visible;
 
             this.InvalidateArrange();
+            Mouse.OverrideCursor = null;
         }
 
+        /// <summary>
+        ///     Handles the Click event of the miBatSearch control.
+        /// </summary>
+        /// <param name="sender">
+        ///     The source of the event.
+        /// </param>
+        /// <param name="e">
+        ///     The <see cref="RoutedEventArgs"/> instance containing the event data.
+        /// </param>
         private void miBatSearch_Click(object sender, RoutedEventArgs e)
         {
+            Mouse.OverrideCursor = Cursors.Wait;
             batListControl.Visibility = Visibility.Hidden;
             importControl.Visibility = Visibility.Hidden;
             recordingSessionListControl.Visibility = Visibility.Hidden;
@@ -76,10 +102,60 @@ namespace BatRecordingManager
 
             this.InvalidateArrange();
             this.UpdateLayout();
+            Mouse.OverrideCursor = null;
+        }
+
+        private void miCreateDatabase_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Forms.SaveFileDialog dialog = new System.Windows.Forms.SaveFileDialog();
+            dialog.InitialDirectory = DBAccess.GetWorkingDatabaseLocation();
+            dialog.FileName = "_BatReferenceDB.mdf";
+            dialog.DefaultExt = ".mdf";
+            var result = dialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK)
+            {
+                int index = 1;
+                while (File.Exists(dialog.FileName))
+                {
+                    dialog.FileName = dialog.FileName.Substring(0, dialog.FileName.Length - 4) + index.ToString() + ".mdf";
+                }
+                Mouse.OverrideCursor = Cursors.Wait;
+                try
+                {
+                    string err = DBAccess.CreateDatabase(dialog.FileName);
+                    if (!String.IsNullOrWhiteSpace(err))
+                    {
+                        MessageBox.Show(err, "Unable to create database");
+                    }
+                    else
+                    {
+                        err = DBAccess.SetDatabase(dialog.FileName);
+                        if (!String.IsNullOrWhiteSpace(err))
+                        {
+                            MessageBox.Show(err, "Unable to set new DataContext for selected Database");
+                        }
+
+                        recordingSessionListControl.RefreshData();
+                        BatRecordingListDetailControl.RefreshData();
+                        batListControl.RefreshData();
+                        miRecordingSearch_Click(sender, e);
+                    }
+                }
+                catch (Exception) { }
+                finally
+                {
+                    Mouse.OverrideCursor = null;
+                }
+            }
         }
 
         /// <summary>
-        ///     Handles the Click event of the miEditBatList control.
+        ///     Handles the Click event of the miDatabase control. Allows the user to select an
+        ///     alternative .mdf database file with the name BatReferenceDB but in an alternative
+        ///     location. Selection of a different filename will be rejected in case the database
+        ///     structure is different. The location of the selected file will be stired in the
+        ///     global static App.dbFileLocation variable whence it can be referenced by the
+        ///     DBAccess static functions.
         /// </summary>
         /// <param name="sender">
         ///     The source of the event.
@@ -87,18 +163,48 @@ namespace BatRecordingManager
         /// <param name="e">
         ///     The <see cref="RoutedEventArgs"/> instance containing the event data.
         /// </param>
-        private void miEditBatList_Click(object sender, RoutedEventArgs e)
+        private void miDatabase_Click(object sender, RoutedEventArgs e)
         {
-            /*
-            if(batSummary!= null)
+            string WorkingFolder = DBAccess.GetWorkingDatabaseLocation();
+            if (String.IsNullOrWhiteSpace(WorkingFolder) || !Directory.Exists(WorkingFolder))
             {
-                BatEditor batEditor = new BatEditor(batSummary.batReferenceDataContext);
-                var result=batEditor.ShowDialog();
-                if(result!=null && result.Value)
+                App.dbFileLocation = "";
+                WorkingFolder = DBAccess.GetWorkingDatabaseLocation();
+            }
+            using (System.Windows.Forms.OpenFileDialog dialog = new System.Windows.Forms.OpenFileDialog())
+            {
+                if (!String.IsNullOrWhiteSpace(WorkingFolder))
                 {
-                    //batSummary.RefreshBatList();
+                    dialog.InitialDirectory = WorkingFolder;
                 }
-            }*/
+                else
+                {
+                    WorkingFolder = Directory.GetCurrentDirectory();
+                    dialog.InitialDirectory = WorkingFolder;
+                }
+                dialog.Filter = "mdf files|*.mdf";
+
+                dialog.Multiselect = false;
+                dialog.Title = "Select An Alternative BatReferenceDB.mdf database file";
+                dialog.DefaultExt = ".mdf";
+
+                dialog.FileName = "*.mdf";
+                if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    if (!dialog.FileName.EndsWith("BatReferenceDB.mdf"))
+                    {
+                        System.Windows.MessageBox.Show(@"Only database file names ending with BatReferenceDB.mdf will have the correct structure.
+                            Please reselect");
+                    }
+                    else
+                    {
+                        DBAccess.SetDatabase(dialog.FileName);
+                        recordingSessionListControl.RefreshData();
+                        BatRecordingListDetailControl.RefreshData();
+                        miRecordingSearch_Click(sender, e);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -133,19 +239,29 @@ namespace BatRecordingManager
             help.ShowDialog();
         }
 
+        /// <summary>
+        ///     Handles the Click event of the miNewLogFile control.
+        /// </summary>
+        /// <param name="sender">
+        ///     The source of the event.
+        /// </param>
+        /// <param name="e">
+        ///     The <see cref="RoutedEventArgs"/> instance containing the event data.
+        /// </param>
         private void miNewLogFile_Click(object sender, RoutedEventArgs e)
         {
+            Mouse.OverrideCursor = Cursors.Wait;
             BatRecordingListDetailControl.Visibility = Visibility.Hidden;
             recordingSessionListControl.Visibility = Visibility.Hidden;
             batListControl.Visibility = Visibility.Hidden;
             importControl.Visibility = Visibility.Visible;
             this.InvalidateArrange();
             this.UpdateLayout();
+            Mouse.OverrideCursor = null;
         }
 
         /// <summary>
-        ///     Responds to selection File/OpenFiles Produces a file selection dialog and reads all
-        ///     the selected files. Uses the FileBrowser class to select and store the selected file names.
+        ///     Handles the Click event of the miRecordingSearch control.
         /// </summary>
         /// <param name="sender">
         ///     The source of the event.
@@ -153,65 +269,9 @@ namespace BatRecordingManager
         /// <param name="e">
         ///     The <see cref="RoutedEventArgs"/> instance containing the event data.
         /// </param>
-        private void miOpen_Click(object sender, RoutedEventArgs e)
-        {
-            if (!String.IsNullOrWhiteSpace(importControl.fileBrowser.SelectLogFiles()))
-            {
-                miProcess.IsEnabled = true;
-                miSortOrder.IsEnabled = true;
-                OutputLocationLabel.Content = importControl.ReadSelectedFiles();
-                if (String.IsNullOrWhiteSpace(OutputLocationLabel.Content as String))
-                {
-                    miSortOrder.IsEnabled = false;
-                    miProcess.IsEnabled = false;
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Allows the user to select all the text files within a single folder
-        /// </summary>
-        /// <param name="sender">
-        ///     The source of the event.
-        /// </param>
-        /// <param name="e">
-        ///     The <see cref="RoutedEventArgs"/> instance containing the event data.
-        /// </param>
-        private void miOpenFolder_Click(object sender, RoutedEventArgs e)
-        {
-            importControl.IsEnabled = true;
-            importControl.Visibility = Visibility.Visible;
-            importControl.OpenFolder();
-            miSortOrder.IsEnabled = true;
-            miProcess.IsEnabled = true;
-        }
-
-        /// <summary>
-        ///     Handles the Click event of the miProcess control.
-        /// </summary>
-        /// <param name="sender">
-        ///     The source of the event.
-        /// </param>
-        /// <param name="e">
-        ///     The <see cref="RoutedEventArgs"/> instance containing the event data.
-        /// </param>
-        private void miProcess_Click(object sender, RoutedEventArgs e)
-        {
-            //write the text to the output file
-            try
-            {
-                if (importControl.fileBrowser.TextFileNames.Count > 0)
-                {
-                    importControl.ProcessFiles();
-                    miSave.IsEnabled = true;
-                    isSaved = importControl.SaveOutputFile();
-                }
-            }
-            catch (Exception) { }
-        }
-
         private void miRecordingSearch_Click(object sender, RoutedEventArgs e)
         {
+            Mouse.OverrideCursor = Cursors.Wait;
             BatRecordingListDetailControl.Visibility = Visibility.Hidden;
             batListControl.Visibility = Visibility.Hidden;
             importControl.Visibility = Visibility.Hidden;
@@ -219,39 +279,26 @@ namespace BatRecordingManager
             recordingSessionListControl.RefreshData();
             this.InvalidateArrange();
             this.UpdateLayout();
+            Mouse.OverrideCursor = null;
+        }
+
+        private void miSetToDefaultDatabase_Click(object sender, RoutedEventArgs e)
+        {
+            DBAccess.SetDatabase(null);
+            recordingSessionListControl.RefreshData();
+            BatRecordingListDetailControl.RefreshData();
+            miRecordingSearch_Click(sender, e);
         }
 
         /// <summary>
-        ///     Handles the Click event of the miSave control.
+        ///     Handles the SessionAction event of the SessionsAndRecordings control.
         /// </summary>
         /// <param name="sender">
         ///     The source of the event.
         /// </param>
         /// <param name="e">
-        ///     The <see cref="RoutedEventArgs"/> instance containing the event data.
+        ///     The <see cref="SessionActionEventArgs"/> instance containing the event data.
         /// </param>
-        private void miSave_Click(object sender, RoutedEventArgs e)
-        {
-            if (!isSaved)
-            {
-                isSaved = importControl.SaveOutputFile();
-            }
-        }
-
-        /// <summary>
-        ///     Allows the user to change the order in which the selected files will be processed
-        /// </summary>
-        /// <param name="sender">
-        ///     The source of the event.
-        /// </param>
-        /// <param name="e">
-        ///     The <see cref="RoutedEventArgs"/> instance containing the event data.
-        /// </param>
-        private void miSortOrder_Click(object sender, RoutedEventArgs e)
-        {
-            importControl.SortFileOrder();
-        }
-
         private void SessionsAndRecordings_SessionAction(object sender, SessionActionEventArgs e)
         {
             miRecordingSearch_Click(this, new RoutedEventArgs());
@@ -270,10 +317,12 @@ namespace BatRecordingManager
         /// </param>
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            DBAccess.CloseDatabase();
+            /*
             if (!isSaved)
             {
                 isSaved = importControl.SaveOutputFile();
-            }
+            }*/
         }
     }
 }

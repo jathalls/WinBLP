@@ -86,6 +86,17 @@ namespace BatRecordingManager
                         }
                     }
                 }
+                else
+                {
+                    // we can't get a header file so we need to fill in some fundamental defaults
+                    // for the blank session.
+                    if (fileBrowser != null && !String.IsNullOrWhiteSpace(fileBrowser.WorkingFolder) && Directory.Exists(fileBrowser.WorkingFolder))
+                    {
+                        newSession.SessionDate = Directory.GetCreationTime(fileBrowser.WorkingFolder);
+                    }
+                    newSession.SessionStartTime = new TimeSpan(18, 0, 0);
+                    newSession.SessionEndTime = new TimeSpan(23, 0, 0);
+                }
             }
 
             return (newSession);
@@ -120,8 +131,8 @@ namespace BatRecordingManager
             session.Microphone = SessionManager.GetMicrophone(headerFile);
             session.Operator = SessionManager.GetOperator(headerFile);
             session.Location = SessionManager.GetLocation(headerFile);
-            decimal? Longitude = 0m; ;
-            decimal? Latitude = 52m;
+            decimal? Longitude = 0.0m;
+            decimal? Latitude = 52.0m;
             SessionManager.GetGPSCoOrdinates(headerFile, out Latitude, out Longitude);
             session.LocationGPSLongitude = Longitude;
             session.LocationGPSLatitude = Latitude;
@@ -239,7 +250,7 @@ namespace BatRecordingManager
         ///     </returns>
         private static string GetEquipment(string[] headerFile)
         {
-            ObservableCollection<String> knownEquipment = DBAccess.GetOperators();
+            ObservableCollection<String> knownEquipment = DBAccess.GetEquipmentList();
             // get a line in the text containing a known operator
             var matchingEquipment = headerFile.Where(line => knownEquipment.Any(txt => line.ToUpper().Contains(txt.ToUpper())));
             if (matchingEquipment != null && matchingEquipment.Count() > 0)
@@ -312,7 +323,7 @@ namespace BatRecordingManager
         ///     </returns>
         private static string GetMicrophone(string[] headerFile)
         {
-            ObservableCollection<String> knownMicrophones = DBAccess.GetOperators();
+            ObservableCollection<String> knownMicrophones = DBAccess.GetMicrophoneList();
             // get a line in the text containing a known operator
             var mm = from line in headerFile
                      join mic in knownMicrophones on line equals mic

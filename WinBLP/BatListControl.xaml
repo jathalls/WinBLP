@@ -20,7 +20,7 @@
             <ColumnDefinition Width="100*" />
         </Grid.ColumnDefinitions>
         <StackPanel Orientation="Vertical" Grid.Column="0">
-
+            <local:ButtonBarControl x:Name="BatListButtonBar"></local:ButtonBarControl>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="200" />
@@ -32,28 +32,30 @@
                 <TextBlock Text="Genus" Grid.Column="1" Margin="5,0,0,0" FontStyle="Italic" />
                 <TextBlock Text="Species" Grid.Column="2" Margin="5,0,0,0" FontStyle="Italic" />
             </Grid>
-        <ListView
-            x:Name="sortedBatListView"
-            ItemsSource="{Binding Path=SortedBatList}"
-            Style="{StaticResource SimpleListBox}"
-            Grid.Column="0" AlternationCount="-1">
-            <ListView.ItemTemplate>
-                <DataTemplate DataType="{x:Type blc:Bat}">
-                    <Grid Margin="5,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="200" />
-                            <ColumnDefinition Width="100*" />
-                            <ColumnDefinition Width="100*" />
-                        </Grid.ColumnDefinitions>
+            <ScrollViewer
+                Grid.Column="0">
+                <ListView
+                    x:Name="sortedBatListView"
+                    ItemsSource="{Binding Path=SortedBatList}"
+                    Style="{StaticResource SimpleListBox}"
+                    Grid.Column="0" AlternationCount="1">
+                    <ListView.ItemTemplate>
+                        <DataTemplate DataType="{x:Type blc:Bat}">
+                            <Grid Margin="5,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="200" />
+                                    <ColumnDefinition Width="100*" />
+                                    <ColumnDefinition Width="100*" />
+                                </Grid.ColumnDefinitions>
 
-                        <TextBlock Text="{Binding  Path=Name}" Grid.Column="0" />
-                        <TextBlock Text="{Binding Path=Batgenus}" Grid.Column="1" Margin="5,0,0,0" FontStyle="Italic" />
-                        <TextBlock Text="{Binding Path=BatSpecies}" Grid.Column="2" Margin="5,0,0,0" FontStyle="Italic" />
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-            <local:ButtonBarControl x:Name="BatListButtonBar"></local:ButtonBarControl>
+                                <TextBlock Text="{Binding  Path=Name}" Grid.Column="0" />
+                                <TextBlock Text="{Binding Path=Batgenus}" Grid.Column="1" Margin="5,0,0,0" FontStyle="Italic" />
+                                <TextBlock Text="{Binding Path=BatSpecies}" Grid.Column="2" Margin="5,0,0,0" FontStyle="Italic" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </ScrollViewer>
         </StackPanel>
 
         <local:BatDetailControl

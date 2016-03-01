@@ -15,11 +15,15 @@
         <GridSplitter Grid.Row="1" />
         <DataGrid
             x:Name="SessionsDataGrid"
-            AutoGenerateColumns="False" CanUserReorderColumns="False"
-            CanUserAddRows="False" CanUserDeleteRows="False"
+            AutoGenerateColumns="False"
+            CanUserReorderColumns="False"
+            CanUserAddRows="False"
+            CanUserDeleteRows="False"
             Background="{StaticResource WindowBackgroundBrush}"
 
-            Grid.Row="0" SelectionChanged="SessionsDataGrid_SelectionChanged" MouseDoubleClick="SessionsDataGrid_MouseDoubleClick">
+            Grid.Row="0"
+            SelectionChanged="SessionsDataGrid_SelectionChanged"
+            MouseDoubleClick="SessionsDataGrid_MouseDoubleClick">
 
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding SessionTag}" Header="Tag" />

@@ -14,12 +14,11 @@
                 Style="{StaticResource SimpleMenu}"
 				Width="150">
                 <MenuItem x:Name="MainMenuItem" Header="File">
-                    <MenuItem x:Name="miOpen" Header="Open Files" Click="miOpen_Click" />
-                    <MenuItem x:Name="miOpenFolder" Header="Open Folder" Click="miOpenFolder_Click" />
+                    <MenuItem x:Name="miCreateDatabase" Header="Create Database" Click="miCreateDatabase_Click" />
+                    <MenuItem x:Name="miDatabase" Header="Choose Database" Click="miDatabase_Click" />
+                    <MenuItem x:Name="miSetToDefaultDatabase" Header="Use Default Database" Click="miSetToDefaultDatabase_Click" />
+                    <Separator />
 
-                    <MenuItem x:Name="miSortOrder" Header="Modify File Order" IsEnabled="False" Click="miSortOrder_Click" />
-                    <MenuItem x:Name="miProcess" Header="Process" IsEnabled="False" Click="miProcess_Click" />
-                    <MenuItem x:Name="miSave" Header="Save" IsEnabled="False" Click="miSave_Click" />
                     <MenuItem x:Name="miExit" Header="Exit" Click="miExit_Click" />
                 </MenuItem>
                 <MenuItem x:Name="MainMenuView" Header="View">

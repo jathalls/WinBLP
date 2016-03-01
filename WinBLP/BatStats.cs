@@ -180,6 +180,7 @@ namespace BatRecordingManager
             }
         }
 
+        /*
         /// <summary>
         ///     Passeses this instance.
         /// </summary>
@@ -188,6 +189,6 @@ namespace BatRecordingManager
         internal int Passes()
         {
             return (passes);
-        }
+        }*/
     }
 }

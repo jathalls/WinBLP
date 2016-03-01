@@ -87,12 +87,6 @@
     <Compile Include="DBAccessTests.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WinBLP\BatRecordingManager.csproj">
-      <Project>{fe223a3f-3931-4dd8-b4ee-bf8b29f59d1a}</Project>
-      <Name>BatRecordingManager</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -31,7 +31,7 @@ namespace BatRecordingManager
         /// <param name="BatReferenceDataContext">
         ///     The bat reference data context.
         /// </param>
-        public BatEditor(BatReferenceDBLinqDataContext BatReferenceDataContext)
+        public BatEditor()
         {
             BatList = new ObservableCollection<Bat>();
 

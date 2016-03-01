@@ -391,6 +391,7 @@ namespace BatRecordingManager
             return (duration);
         }
 
+        /*
         private ObservableCollection<BatSegmentLink> IdentifyBatPasses(int passes, ObservableCollection<Bat> bats)
         {
             ObservableCollection<BatSegmentLink> passList = new ObservableCollection<BatSegmentLink>();
@@ -402,7 +403,7 @@ namespace BatRecordingManager
                 passList.Add(pass);
             }
             return (passList);
-        }
+        }*/
 
         /// <summary>
         ///     Determines whether [is manual file line] [the specified line].
@@ -596,6 +597,14 @@ namespace BatRecordingManager
                     OutputString = OutputString + gpsLocation[0] + ", " + gpsLocation[1];
                     recording.RecordingGPSLatitude = gpsLocation[0].ToString();
                     recording.RecordingGPSLongitude = gpsLocation[1].ToString();
+                    if (recording.RecordingSession != null)
+                    {
+                        if (recording.RecordingSession.LocationGPSLatitude == null || recording.RecordingSession.LocationGPSLatitude < 5.0m)
+                        {
+                            recording.RecordingSession.LocationGPSLatitude = gpsLocation[0];
+                            recording.RecordingSession.LocationGPSLongitude = gpsLocation[1];
+                        }
+                    }
                 }
                 gpsLocation = gpxHandler.GetLocation(fileEnd);
                 if (gpsLocation != null && gpsLocation.Count() == 2)
@@ -688,7 +697,17 @@ namespace BatRecordingManager
                 }
             }
 
-            DBAccess.UpdateRecording(recording, ListOfsegmentAndBatLists);
+            if (ListOfsegmentAndBatLists != null && ListOfsegmentAndBatLists.Count() > 0)
+            {
+                for (int i = ListOfsegmentAndBatLists.Count - 1; i >= 0; i--)
+                {
+                    if (String.IsNullOrWhiteSpace(ListOfsegmentAndBatLists[i].segment.Comment))
+                    {
+                        ListOfsegmentAndBatLists.RemoveAt(i);
+                    }
+                }
+                DBAccess.UpdateRecording(recording, ListOfsegmentAndBatLists);
+            }
 
             return (OutputString);
         }

@@ -32,27 +32,39 @@
                 x:Name="AddRecordingSessionButton"
                 Width="50" Height="25"
                 Content="ADD"
+                ToolTip="Manually define a new recording session"
                 Style="{StaticResource SimpleButton}" Click="AddRecordingSessionButton_Click" />
 
             <Button
                 x:Name="EditRecordingSessionButton"
                 Width="50" Height="25"
                 Content="EDIT"
+                IsEnabled="False"
+                ToolTip="Edit the details of the selected recording session"
                 Style="{StaticResource SimpleButton}" Click="EditRecordingSessionButton_Click" />
             <Button
                 x:Name="DeleteRecordingSessionButton"
                 Width="50" Height="25"
                 Content="DEL"
+                IsEnabled="False"
+                ToolTip="Delete the selected recording session from the database"
                 Style="{StaticResource SimpleButton}" Click="DeleteRecordingSessionButton_Click" />
+            <Button
+                x:Name="ExportSessionDataButton"
+                Width="50" Height="25"
+                Content="Export"
+                IsEnabled="False"
+                ToolTip="Export a summary of the selected recording session as a .csv file"
+                Style="{StaticResource SimpleButton}" Click="ExportSessionDataButton_Click" />
         </StackPanel>
         <Grid
             Background="{StaticResource WindowBackgroundBrush}"
             Grid.Row="1" Grid.Column="0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="30" />
+                <RowDefinition Height="3" />
                 <RowDefinition Height="597*" />
             </Grid.RowDefinitions>
-            <Grid Margin="5,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <!--       <Grid Margin="5,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="180*" />
                     <ColumnDefinition Width="240*" />
@@ -61,15 +73,28 @@
                 <Label Grid.Column="0" Content="Tag" />
                 <Label Grid.Column="1" Content="Location" />
                 <Label Grid.Column="2" Content="Date" />
-            </Grid>
-            <ScrollViewer Grid.Column="0" Grid.Row="1" Background="{StaticResource BlueGradientBackground}">
-                <ListView
-                    x:Name="RecordingSessionListView"
-                    Style="{StaticResource SimpleListBox}"
-                    Background="{StaticResource WindowBackgroundBrush}"
-                    SelectionChanged="RecordingSessionListView_SelectionChanged"
-                    HorizontalContentAlignment="Stretch">
-                    <ListView.ItemTemplate>
+            </Grid>-->
+            <!--     <ScrollViewer Grid.Column="0" Grid.Row="1" Background="{StaticResource BlueGradientBackground}"> -->
+            <DataGrid
+                x:Name="RecordingSessionListView"
+                RowBackground="{StaticResource WindowBackgroundBrush}"
+                Grid.Column="0"
+                Grid.Row="1"
+                Background="{StaticResource WindowBackgroundBrush}"
+                SelectionChanged="RecordingSessionListView_SelectionChanged"
+                HorizontalContentAlignment="Stretch"
+                AlternatingRowBackground="{StaticResource WindowBackgroundBrushLight}"
+
+                AutoGenerateColumns="False"
+                CanUserAddRows="False"
+                CanUserResizeRows="False" IsReadOnly="True" IsTextSearchEnabled="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Binding="{Binding SessionTag}" Header="Tag" />
+                    <DataGridTextColumn Binding="{Binding Location}" Header="Location" />
+                    <DataGridTextColumn Binding="{Binding SessionDate, Converter={StaticResource ShortDate_Converter}}" Header="Date" />
+                    <DataGridTextColumn Binding="{Binding SessionStartTime}" Header="Time" />
+                </DataGrid.Columns>
+                <!--                  <DataGrid.ItemTemplate>
                         <DataTemplate DataType="{x:Type local:RecordingSession}">
                             <Grid
                                 Margin="5,0,0,0"
@@ -88,9 +113,9 @@
                                            Margin="5,0" />
                             </Grid>
                         </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            </ScrollViewer>
+                    </DataGrid.ItemTemplate> -->
+            </DataGrid>
+            <!--      </ScrollViewer> -->
         </Grid>
         <Grid
             Grid.Row="0" Grid.Column="2" Grid.RowSpan="3">
@@ -103,7 +128,7 @@
 
             <ScrollViewer Grid.Row="0">
                 <StackPanel Orientation="Vertical">
-                    <local:RecordingSessionControl
+                    <local:RecordingSessionViewControl
                         x:Name="recordingSessionControl" />
                     <!-- Recording session control shows the session details /-->
 
@@ -114,7 +139,8 @@
 
             <local:RecordingsDetailListControl
                 Grid.Row="2"
-                    x:Name="RecordingsListControl" ScrollViewer.VerticalScrollBarVisibility="Disabled" />
+                x:Name="RecordingsListControl"
+                ScrollViewer.VerticalScrollBarVisibility="Disabled" />
         </Grid>
     </Grid>
 </UserControl>

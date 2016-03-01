@@ -96,12 +96,17 @@
                 <Button
                     x:Name="FolderBrowseButton"
                     Style="{StaticResource SimpleButton}"
-                    Content=". . ." FontWeight="ExtraBold" FontSize="14" Click="FolderBrowseButton_Click" />
+
+                    Content=". . ."
+                    FontWeight="ExtraBold"
+                    FontSize="14"
+                    Click="FolderBrowseButton_Click" />
             </StackPanel>
 
             <Label
                 Style="{StaticResource SimpleLabel}"
-                Grid.Row="3" Content="Recording Device:-" />
+                Grid.Row="3"
+                Content="Recording Device:-" />
             <ComboBox
                 Style="{StaticResource SimpleComboBox}"
                 x:Name="EquipmentComboBox"
@@ -144,17 +149,23 @@
             <Label
                 Style="{StaticResource SimpleLabel}"
                 Grid.Row="7" Content="GPS Co-ordinates:-" />
-            <StackPanel Orientation="Horizontal" Grid.Row="7" Grid.Column="1">
+
+            <StackPanel
+                Orientation="Horizontal"
+                Grid.Row="7"
+                Grid.Column="1">
                 <Label Content="Latitude:-" Style="{StaticResource SimpleLabel}" />
                 <TextBox
                     Background="{StaticResource WindowBackgroundBrush}"
                     x:Name="GPSLatitudeTextBox" Width="150"  Style="{StaticResource SimpleTextBox}"
-                    ToolTip="Give site latitude in decimal format e.g. 54.176354" />
+                    ToolTip="Give site latitude in decimal format e.g. 54.176354"
+                    MouseDoubleClick="GPSLatitudeTextBox_MouseDoubleClick" />
                 <Label Content="Longitude:-" Style="{StaticResource SimpleLabel}" />
                 <TextBox
                     Background="{StaticResource WindowBackgroundBrush}"
                     x:Name="GPSLongitudeTextBox" Width="150" Style="{StaticResource SimpleTextBox}"
-                    ToolTip="Give site longitude in decimal format e.g. -0.123456" />
+                    ToolTip="Give site longitude in decimal format e.g. -0.123456"
+                    MouseDoubleClick="GPSLatitudeTextBox_MouseDoubleClick" />
             </StackPanel>
 
             <Label

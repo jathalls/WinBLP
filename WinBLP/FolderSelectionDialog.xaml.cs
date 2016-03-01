@@ -42,6 +42,9 @@ namespace BatRecordingManager
 
         #endregion FolderList
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="FolderSelectionDialog"/> class.
+        /// </summary>
         public FolderSelectionDialog()
         {
             InitializeComponent();

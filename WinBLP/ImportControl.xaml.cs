@@ -69,6 +69,7 @@ namespace BatRecordingManager
         /// </summary>
         public void ProcessFiles()
         {
+            tbkOutputText.Text = "[LOG]\n";
             Dictionary<String, BatStats> TotalBatsFound = new Dictionary<string, BatStats>();
 
             // process the files one by one
@@ -149,6 +150,10 @@ namespace BatRecordingManager
     " + File.ReadAllText(file);
                                 dpMMultiWindowPanel.Children.Add(tb);
                             }
+                            else
+                            {
+                                tbkOutputText.Text = File.ReadAllText(file);
+                            }
                         }
                         catch (Exception ex)
                         {
@@ -169,8 +174,10 @@ namespace BatRecordingManager
             {
                 outputLocation = "";
             }
-
-            tbkOutputText.Text = "[LOG]\n";
+            if (String.IsNullOrWhiteSpace(tbkOutputText.Text))
+            {
+                tbkOutputText.Text = "[LOG]\n";
+            }
             return (outputLocation);
         }
 
@@ -221,6 +228,7 @@ namespace BatRecordingManager
             return (isSaved);
         }
 
+        /*
         /// <summary>
         ///     Opens the folder.
         /// </summary>
@@ -230,7 +238,7 @@ namespace BatRecordingManager
             {
                 ReadFolder();
             }
-        }
+        }*/
 
         internal void ReadFolder()
 
@@ -240,12 +248,25 @@ namespace BatRecordingManager
                 ReadSelectedFiles();
                 gpxHandler = new GpxHandler(fileBrowser.WorkingFolder);
                 sessionForFolder = GetNewRecordingSession(fileBrowser);
+                sessionForFolder.OriginalFilePath = fileBrowser.WorkingFolder;
+                if (sessionForFolder.LocationGPSLatitude == null || sessionForFolder.LocationGPSLatitude < 5.0m)
+                {
+                    if (gpxHandler != null)
+                    {
+                        var gpxLoc = gpxHandler.GetLocation(sessionForFolder.SessionDate);
+                        if (gpxLoc != null && gpxLoc.Count == 2)
+                        {
+                            sessionForFolder.LocationGPSLatitude = gpxLoc[0];
+                            sessionForFolder.LocationGPSLongitude = gpxLoc[1];
+                        }
+                    }
+                }
                 RecordingSessionForm sessionForm = new RecordingSessionForm();
                 sessionForm.SetRecordingSession(sessionForFolder);
                 if (sessionForm.ShowDialog() ?? false)
                 {
                     sessionForFolder = sessionForm.GetRecordingSession();
-                    DBAccess.UpdateRecordingSession(sessionForFolder);
+                    //DBAccess.UpdateRecordingSession(sessionForFolder);
                     CurrentSessionTag = sessionForFolder.SessionTag;
                     CurrentSessionId = DBAccess.GetRecordingSession(CurrentSessionTag).Id;
                 }
@@ -306,14 +327,36 @@ namespace BatRecordingManager
             return (newSession);
         }
 
+        /// <summary>
+        ///     Handles the Click event of the ImportFolderButton control. User selects a new
+        ///     folder, the Next button is enabled, and auto-magically clicked.
+        /// </summary>
+        /// <param name="sender">
+        ///     The source of the event.
+        /// </param>
+        /// <param name="e">
+        ///     The <see cref="RoutedEventArgs"/> instance containing the event data.
+        /// </param>
         private void ImportFolderButton_Click(object sender, RoutedEventArgs e)
         {
             fileBrowser = new FileBrowser();
             fileBrowser.SelectRootFolder();
             NextFolderButton.IsEnabled = true;
+
             NextFolderButton_Click(sender, e);
         }
 
+        /// <summary>
+        ///     Handles the Click event of the NextFolderButton control. Pops the next folder off
+        ///     the fileBrowser folder queue, has fileBrowser Process the folder, then calls
+        ///     ReadFolder() to load the files into the display. Enables buttons to allow further processing.
+        /// </summary>
+        /// <param name="sender">
+        ///     The source of the event.
+        /// </param>
+        /// <param name="e">
+        ///     The <see cref="RoutedEventArgs"/> instance containing the event data.
+        /// </param>
         private void NextFolderButton_Click(object sender, RoutedEventArgs e)
         {
             if (fileBrowser.wavFileFolders != null && fileBrowser.wavFileFolders.Count > 0)

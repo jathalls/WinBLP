@@ -14,6 +14,12 @@ namespace BatRecordingManager
     /// </summary>
     public static class DBAccess
     {
+        private static string DBFileName = "BatReferenceDB.mdf";
+
+        private static string DBLocation = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    @"Echolocation\WinBLP\");
+
         /// <summary>
         ///     Deletes the recording supplied as a parameter and all LabelledSegments related to
         ///     that recording.
@@ -37,6 +43,7 @@ namespace BatRecordingManager
                 try
                 {
                     BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
+
                     DBAccess.DeleteAllSegmentsInRecording(recording, dc);
                     var recordingToDelete = (from rec in dc.Recordings
                                              where rec.Id == recording.Id
@@ -140,6 +147,50 @@ namespace BatRecordingManager
             if (existingBat == null)
             {
                 return (InsertBat(bat));
+            }
+            else
+            {
+                MergeTags(existingBat, bat, dataContext);
+                existingBat.Notes = bat.Notes;
+                existingBat.Name = bat.Name;
+                existingBat.Batgenus = bat.Batgenus;
+                existingBat.BatSpecies = bat.BatSpecies;
+                existingBat.SortIndex = bat.SortIndex;
+                dataContext.SubmitChanges();
+            }
+
+            return (result);
+        }
+
+        /// <summary>
+        ///     Merges the bat. The supplied bat is either inserted into the database if it is not
+        ///     already there, or, if a bat with the same genus and species is present then the data
+        ///     in this bat is added to and merged with the data for the existing bat. Sort orders
+        ///     are taken from the new bat and duplicate tags or common names are removed, otherwise
+        ///     any tag or common name differing ins pelling or capitalization will be treated as a
+        ///     new item. Existing tags or common names which do not exist in the new bat will be
+        ///     removed. Notes from the new bat will replace notes in the existing bat. The bat
+        ///     'name' will be updated to reflect the common name with the lowest sort index.
+        ///     Returns a suitable error message if the process failed, or an empty string if the
+        ///     process was successful;
+        /// </summary>
+        /// <param name="bat">
+        ///     The bat.
+        /// </param>
+        /// <returns>
+        ///     </returns>
+        public static string MergeBat(Bat bat, BatReferenceDBLinqDataContext dataContext)
+        {
+            string result = DBAccess.ValidateBat(bat);
+            if (!String.IsNullOrWhiteSpace(result))
+            {
+                return (result); // bat is not suitable for merging or insertion
+            }
+
+            Bat existingBat = GetMatchingBat(bat, dataContext);
+            if (existingBat == null)
+            {
+                return (InsertBat(bat, dataContext));
             }
             else
             {
@@ -281,6 +332,70 @@ namespace BatRecordingManager
             return (ResequenceTags(newTag, dc));
         }
 
+        internal static void CloseDatabase()
+        {
+            if (!String.IsNullOrWhiteSpace(App.dbFileLocation) && !String.IsNullOrWhiteSpace(App.dbFileName))
+            {
+            }
+            BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
+
+            dc.Connection.Close();
+            dc.Connection.Dispose();
+            dc.Dispose();
+            dc = null;
+            App.dbFileLocation = "";
+            App.dbFileName = "";
+        }
+
+        /// <summary>
+        ///     Creates the database. Given a fully qualified file name, which must end with .mdf
+        ///     and SHOULD end with BatReferenceDB.mdf and will be modified to so do, creates an new
+        ///     instance of the bat reference database. It will be populated with default bat
+        ///     reference species but no other data.
+        /// </summary>
+        /// <param name="fileName">
+        ///     Name of the file.
+        /// </param>
+        /// <exception cref="NotImplementedException">
+        ///     </exception>
+        internal static string CreateDatabase(string fileName)
+        {
+            string err = "";
+            if (!fileName.EndsWith("BatReferenceDB.mdf"))
+            {
+                if (fileName.EndsWith(".mdf"))
+                {
+                    fileName = fileName.Substring(0, fileName.Length - 4);
+                    if (!fileName.EndsWith("BatReferenceDB"))
+                    {
+                        fileName = fileName + "BatReferenceDB";
+                    }
+                    fileName = fileName + ".mdf";
+                }
+            }
+            if (File.Exists(fileName))
+            {
+                return ("Cannot create - database named <" + fileName + "> already exists");
+            }
+
+            BatReferenceDBLinqDataContext batReferenceDataContext = new BatReferenceDBLinqDataContext(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + fileName + @";Integrated Security=False;Connect Timeout=30");
+            if (batReferenceDataContext == null)
+            {
+                return ("Unable to generate a data context for the new database");
+            }
+            if (batReferenceDataContext.DatabaseExists())
+            {
+                return ("Database with this name already exists:- " + fileName);
+            }
+            batReferenceDataContext.CreateDatabase();
+            DBAccess.InitializeDatabase(batReferenceDataContext);
+            batReferenceDataContext.Connection.Close();
+            batReferenceDataContext.Connection.Dispose();
+            batReferenceDataContext.Dispose();
+            batReferenceDataContext = null;
+            return (err);
+        }
+
         /// <summary>
         ///     Deletes the bat passed as a parameter, and re-indexxes the sort order
         /// </summary>
@@ -389,61 +504,38 @@ namespace BatRecordingManager
             ResequenceTags(tag, dc);
         }
 
-        internal static BatStatistics GetBatSessionStatistics(int BatId, int SessionId)
-        {
-            BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
-
-            return (GetBatSessionStatistics(BatId, SessionId, dc));
-        }
-
         /// <summary>
-        ///     Gets the bat session statistics.
+        ///     Gets the name of the bat latin for the given common name
         /// </summary>
-        /// <param name="BatId">
-        ///     The bat identifier.
-        /// </param>
-        /// <param name="SessionId">
-        ///     The session identifier.
-        /// </param>
-        /// <param name="dc">
-        ///     The dc.
+        /// <param name="batCommonName">
+        ///     Name of the bat common.
         /// </param>
         /// <returns>
         ///     </returns>
-        internal static BatStatistics GetBatSessionStatistics(int BatId, int SessionId, BatReferenceDBLinqDataContext dc)
+        internal static string GetBatLatinName(string batCommonName)
         {
-            BatStatistics thisBatStats = new BatStatistics();
+            string result = batCommonName;
 
-            thisBatStats.stats = new BatStats();
-            var relevantSegments = from bsl in dc.BatSegmentLinks
-                                   where bsl.BatID == BatId && bsl.LabelledSegment.Recording.RecordingSessionId == SessionId
-                                   select bsl.LabelledSegment;
-            if (relevantSegments != null && relevantSegments.Count() > 0)
+            if (batCommonName.ToUpper().Contains("NO") && batCommonName.ToUpper().Contains("BATS"))
             {
-                foreach (var seg in relevantSegments)
+                return (result);
+            }
+
+            BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
+            Bat bat = DBAccess.GetNamedBat(batCommonName, dc);
+            if (!String.IsNullOrWhiteSpace(bat.Batgenus))
+            {
+                if (String.IsNullOrWhiteSpace(bat.BatSpecies))
                 {
-                    thisBatStats.stats.Add(seg.EndOffset - seg.StartOffset);
+                    result = bat.Batgenus + " sp.";
+                }
+                else
+                {
+                    result = bat.Batgenus + " " + bat.BatSpecies;
                 }
             }
 
-            var relevantRecordings = (from seg in relevantSegments
-                                      select seg.Recording).Distinct();
-            thisBatStats.recordings = new ObservableCollection<Recording>(relevantRecordings);
-
-            var relevantSessions = (from sess in dc.RecordingSessions
-                                    where sess.Id == SessionId
-                                    select sess).Distinct();
-            thisBatStats.sessions = new ObservableCollection<RecordingSession>(relevantSessions);
-
-            Bat thisBat = (from bat in dc.Bats
-                           where bat.Id == BatId
-                           select bat).Single();
-
-            thisBatStats.Name = thisBat.Name;
-            thisBatStats.Genus = thisBat.Batgenus;
-            thisBatStats.Species = thisBat.BatSpecies;
-
-            return (thisBatStats);
+            return (result);
         }
 
         /// <summary>
@@ -514,11 +606,25 @@ namespace BatRecordingManager
         ///     </returns>
         internal static BatReferenceDBLinqDataContext GetDataContext()
         {
-            string DBFileName = "BatReferenceDB.mdf";
-
             String workingDatabaseLocation = DBAccess.GetWorkingDatabaseLocation();
+            String workingDatabaseFilename = DBAccess.GetWorkingDatabaseName(workingDatabaseLocation);
+            if (!File.Exists(workingDatabaseLocation + workingDatabaseFilename))
+            {
+                App.dbFileLocation = "";
+                workingDatabaseLocation = DBAccess.GetWorkingDatabaseLocation();
+                workingDatabaseFilename = DBAccess.GetWorkingDatabaseName(workingDatabaseLocation);
+            }
+            if (!Directory.Exists(workingDatabaseLocation))
+            {
+                workingDatabaseLocation = DBLocation;
+            }
+            if (!File.Exists(workingDatabaseLocation + workingDatabaseFilename))
+            {
+                workingDatabaseFilename = DBFileName;
+            }
 
-            BatReferenceDBLinqDataContext batReferenceDataContext = new BatReferenceDBLinqDataContext(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + workingDatabaseLocation + DBFileName + @";Integrated Security=False;Connect Timeout=30");
+            BatReferenceDBLinqDataContext batReferenceDataContext = new BatReferenceDBLinqDataContext(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=" + workingDatabaseLocation + workingDatabaseFilename + @";Integrated Security=False;Connect Timeout=30");
+
             if (batReferenceDataContext == null)
             {
                 return (new BatReferenceDBLinqDataContext());
@@ -724,15 +830,6 @@ namespace BatRecordingManager
             return (result);
         }
 
-        internal static ObservableCollection<LabelledSegment> GetSegmentsForRecording(int id)
-        {
-            BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
-            var segments = from seg in dc.LabelledSegments
-                           where seg.RecordingID == id
-                           select seg;
-            return (new ObservableCollection<LabelledSegment>(segments));
-        }
-
         /// <summary>
         ///     Gets the stats for recording. Given the ID of a specific recording produces a list
         ///     with an element for each bat type that was present in the recording and the number
@@ -864,14 +961,48 @@ namespace BatRecordingManager
         ///     </returns>
         internal static String GetWorkingDatabaseLocation()
         {
-            string workingDatabaseLocation = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                @"Echolocation\WinBLP\");
+            string workingDatabaseLocation = "";
+            if (!String.IsNullOrWhiteSpace(App.dbFileLocation) && Directory.Exists(App.dbFileLocation))
+            {
+                workingDatabaseLocation = App.dbFileLocation;
+            }
+            else
+            {
+                workingDatabaseLocation = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    @"Echolocation\WinBLP\");
+            }
             if (!Directory.Exists(workingDatabaseLocation))
             {
                 Directory.CreateDirectory(workingDatabaseLocation);
             }
+
             return (workingDatabaseLocation);
+        }
+
+        internal static String GetWorkingDatabaseName(string dbLocation)
+        {
+            string workingDatabaseName = "";
+            if (!String.IsNullOrWhiteSpace(App.dbFileName) && App.dbFileName.EndsWith("BatReferenceDB.mdf"))
+            {
+                if (File.Exists(dbLocation + App.dbFileName))
+                {
+                    workingDatabaseName = App.dbFileName;
+                }
+                else
+                {
+                    App.dbFileName = "";
+                    if (File.Exists(dbLocation + DBFileName))
+                    {
+                        workingDatabaseName = DBFileName;
+                    }
+                }
+            }
+            else
+            {
+                workingDatabaseName = DBFileName;
+            }
+            return (workingDatabaseName);
         }
 
         /// <summary>
@@ -882,7 +1013,9 @@ namespace BatRecordingManager
             try
             {
                 String workingDatabaseLocation = DBAccess.GetWorkingDatabaseLocation();
+
                 String dbShortName = "BatReferenceDB";
+
                 if (!File.Exists(workingDatabaseLocation + dbShortName + ".mdf"))
                 {
                     if (File.Exists(dbShortName + ".mdf"))
@@ -890,16 +1023,16 @@ namespace BatRecordingManager
                         File.Copy(dbShortName + ".mdf", workingDatabaseLocation + dbShortName + ".mdf");
                         if (!File.Exists(workingDatabaseLocation + dbShortName + ".ldf") && File.Exists(dbShortName + ".ldf"))
                         {
-                            File.Copy(dbShortName + ",ldf", workingDatabaseLocation + dbShortName + ".ldf");
+                            File.Copy(dbShortName + ".ldf", workingDatabaseLocation + dbShortName + ".ldf");
                         }
                     }
                 }
 
-                BatReferenceDBLinqDataContext batReferenceDataContext = DBAccess.GetDataContext();
+                //BatReferenceDBLinqDataContext batReferenceDataContext = DBAccess.GetDataContext();
 
                 if (File.Exists(workingDatabaseLocation + "EditableBatReferenceXMLFile.xml"))
                 {
-                    copyXMLDataToDatabase(workingDatabaseLocation + "EditableBatReferenceXMLFile.xml", batReferenceDataContext);
+                    copyXMLDataToDatabase(workingDatabaseLocation + "EditableBatReferenceXMLFile.xml");
                     if (File.Exists(workingDatabaseLocation + "EditableBatReferenceXMLFile.xml.bak"))
                     {
                         File.Delete(workingDatabaseLocation + "EditableBatReferenceXMLFile.xml.bak");
@@ -916,33 +1049,38 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Inserts the recording session provided into the database. An existing 'identical'
-        ///     record has either the same Id, or the same date and location, or same date and GPS
-        ///     co-ords. If there is a matching session then the existing session is updated to the
-        ///     new data, even if the new data is incomplete. If there is no existing session then
-        ///     the new session must be validated before being entered into the database. The
-        ///     function returns an informative error string if the update/ insertion fails, or a
-        ///     null/empty string if the process is successful.
+        ///     Initializes the database.
         /// </summary>
-        /// <param name="newSession">
-        ///     The new session.
-        /// </param>
-        /// <returns>
-        ///     </returns>
-        /// <exception cref="System.NotImplementedException">
-        ///     </exception>
-        internal static string InsertRecordingSession(RecordingSession newSession)
+        internal static void InitializeDatabase(BatReferenceDBLinqDataContext dc)
         {
-            String result = "";
             try
             {
-                DBAccess.UpdateRecordingSession(newSession);
+                //String workingDatabaseLocation = DBAccess.GetWorkingDatabaseLocation();
+
+                if (!File.Exists(DBLocation + "EditableBatReferenceXMLFile.xml") && File.Exists(
+                    DBLocation + "EditableBatReferenceXMLFile.xml.bak"))
+                {
+                    File.Copy(DBLocation + "EditableBatReferenceXMLFile.xml.bak", DBLocation + "EditableBatReferenceXMLFile.xml");
+                }
+
+                //BatReferenceDBLinqDataContext batReferenceDataContext = DBAccess.GetDataContext();
+
+                if (File.Exists(DBLocation + "EditableBatReferenceXMLFile.xml"))
+                {
+                    copyXMLDataToDatabase(DBLocation + "EditableBatReferenceXMLFile.xml", dc);
+                    if (File.Exists(DBLocation + "EditableBatReferenceXMLFile.xml.bak"))
+                    {
+                        File.Delete(DBLocation + "EditableBatReferenceXMLFile.xml.bak");
+                    }
+                    File.Move(DBLocation + "EditableBatReferenceXMLFile.xml", DBLocation + "EditableBatReferenceXMLFile.xml.bak");
+                }
+
+                DBAccess.ResequenceBats();
             }
             catch (Exception ex)
             {
-                result = ex.Message;
+                Debug.WriteLine(ex);
             }
-            return (result);
         }
 
         /// <summary>
@@ -952,8 +1090,8 @@ namespace BatRecordingManager
         /// <param name="bat">
         ///     The bat.
         /// </param>
-        /// <param name="v">
-        ///     The v.
+        /// <param name="distance">
+        ///     The distance.
         /// </param>
         /// <exception cref="System.NotImplementedException">
         ///     </exception>
@@ -1031,6 +1169,144 @@ namespace BatRecordingManager
             DBAccess.MoveTag(tag, -1);
         }
 
+        internal static BatReferenceDBLinqDataContext RevertToDefaultDatabase()
+        {
+            App.dbFileLocation = "";
+            App.dbFileName = "";
+            return (DBAccess.GetDataContext());
+        }
+
+        internal static string SetDatabase(string fileName)
+        {
+            string err = "";
+            try
+            {
+                DBAccess.CloseDatabase();
+                if (!String.IsNullOrWhiteSpace(fileName))
+                {
+                    if (File.Exists(fileName))
+                    {
+                        int index = fileName.LastIndexOf(@"\");
+                        App.dbFileLocation = fileName.Substring(0, index + 1);
+                        App.dbFileName = fileName.Substring(index + 1);
+                    }
+                    else
+                    {
+                        err = "Specified database file does not exist:-" + fileName;
+                    }
+                }
+                else
+                {
+                    App.dbFileLocation = "";
+                    App.dbFileName = "";
+                }
+                BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
+                if (dc == null)
+                {
+                    err = "Unable to re-open selected database";
+                }
+            }
+            catch (Exception ex) { err = ex.ToString(); }
+            return (err);
+        }
+
+        /*
+        internal static BatStatistics GetBatSessionStatistics(int BatId, int SessionId)
+        {
+            BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
+
+            return (GetBatSessionStatistics(BatId, SessionId, dc));
+        }*/
+        /*
+        /// <summary>
+        ///     Gets the bat session statistics.
+        /// </summary>
+        /// <param name="BatId">
+        ///     The bat identifier.
+        /// </param>
+        /// <param name="SessionId">
+        ///     The session identifier.
+        /// </param>
+        /// <param name="dc">
+        ///     The dc.
+        /// </param>
+        /// <returns>
+        ///     </returns>
+        internal static BatStatistics GetBatSessionStatistics(int BatId, int SessionId, BatReferenceDBLinqDataContext dc)
+        {
+            BatStatistics thisBatStats = new BatStatistics();
+
+            thisBatStats.stats = new BatStats();
+            var relevantSegments = from bsl in dc.BatSegmentLinks
+                                   where bsl.BatID == BatId && bsl.LabelledSegment.Recording.RecordingSessionId == SessionId
+                                   select bsl.LabelledSegment;
+            if (relevantSegments != null && relevantSegments.Count() > 0)
+            {
+                foreach (var seg in relevantSegments)
+                {
+                    thisBatStats.stats.Add(seg.EndOffset - seg.StartOffset);
+                }
+            }
+
+            var relevantRecordings = (from seg in relevantSegments
+                                      select seg.Recording).Distinct();
+            thisBatStats.recordings = new ObservableCollection<Recording>(relevantRecordings);
+
+            var relevantSessions = (from sess in dc.RecordingSessions
+                                    where sess.Id == SessionId
+                                    select sess).Distinct();
+            thisBatStats.sessions = new ObservableCollection<RecordingSession>(relevantSessions);
+
+            Bat thisBat = (from bat in dc.Bats
+                           where bat.Id == BatId
+                           select bat).Single();
+
+            thisBatStats.Name = thisBat.Name;
+            thisBatStats.Genus = thisBat.Batgenus;
+            thisBatStats.Species = thisBat.BatSpecies;
+
+            return (thisBatStats);
+        }*/
+        /*
+        internal static ObservableCollection<LabelledSegment> GetSegmentsForRecording(int id)
+        {
+            BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
+            var segments = from seg in dc.LabelledSegments
+                           where seg.RecordingID == id
+                           select seg;
+            return (new ObservableCollection<LabelledSegment>(segments));
+        }*/
+        /*
+        /// <summary>
+        ///     Inserts the recording session provided into the database. An existing 'identical'
+        ///     record has either the same Id, or the same date and location, or same date and GPS
+        ///     co-ords. If there is a matching session then the existing session is updated to the
+        ///     new data, even if the new data is incomplete. If there is no existing session then
+        ///     the new session must be validated before being entered into the database. The
+        ///     function returns an informative error string if the update/ insertion fails, or a
+        ///     null/empty string if the process is successful.
+        /// </summary>
+        /// <param name="newSession">
+        ///     The new session.
+        /// </param>
+        /// <returns>
+        ///     </returns>
+        /// <exception cref="System.NotImplementedException">
+        ///     </exception>
+        internal static string InsertRecordingSession(RecordingSession newSession)
+        {
+            String result = "";
+            try
+            {
+                DBAccess.UpdateRecordingSession(newSession);
+            }
+            catch (Exception ex)
+            {
+                result = ex.Message;
+            }
+            return (result);
+        }*/
+
         /// <summary>
         ///     Updates the bat.
         /// </summary>
@@ -1085,6 +1361,7 @@ namespace BatRecordingManager
             }
         }
 
+        /*
         /// <summary>
         ///     Updates the recording in the database with the supplied recording. This version does
         ///     not require a SegmentsAndBatsList and uses the LabelledSegments in the recording
@@ -1141,7 +1418,7 @@ namespace BatRecordingManager
             }
 
             return (err);
-        }
+        }*/
 
         /// <summary>
         ///     Updates the recording. Adds it to the database if not already present or modifies
@@ -1257,7 +1534,7 @@ namespace BatRecordingManager
                 existingSession.SessionEndTime = sessionForFolder.SessionEndTime;
                 existingSession.SessionNotes = sessionForFolder.SessionNotes;
                 existingSession.Temp = sessionForFolder.Temp;
-                existingSession.Operator = sessionForFolder.Operator;
+                existingSession.Operator = sessionForFolder.Operator.Truncate(50);
                 existingSession.LocationGPSLatitude = sessionForFolder.LocationGPSLatitude;
                 existingSession.LocationGPSLongitude = sessionForFolder.LocationGPSLongitude;
                 existingSession.OriginalFilePath = sessionForFolder.OriginalFilePath;
@@ -1265,6 +1542,7 @@ namespace BatRecordingManager
             dc.SubmitChanges();
         }
 
+        /*
         internal static void UpdateSegment(LabelledSegment segmentToEdit)
         {
             BatReferenceDBLinqDataContext dc = DBAccess.GetDataContext();
@@ -1286,7 +1564,7 @@ namespace BatRecordingManager
                     dc.SubmitChanges();
                 }
             }
-        }
+        }*/
 
         /// <summary>
         ///     Converts the XML bat.
@@ -1353,14 +1631,66 @@ namespace BatRecordingManager
         /// <param name="batReferenceDataContext">
         ///     The bat reference data context.
         /// </param>
-        private static void copyXMLDataToDatabase(string xmlFile, BatReferenceDBLinqDataContext batReferenceDataContext)
+        private static void copyXMLDataToDatabase(string xmlFile)
         {
-            var xmlBats = XElement.Load(xmlFile).Descendants("Bat");
-            short i = 0;
-            foreach (XElement bat in xmlBats)
+            try
             {
-                MergeXMLBatToDB(bat, batReferenceDataContext, i++);
+                var xmlBats = XElement.Load(xmlFile).Descendants("Bat");
+                if (xmlBats != null)
+                {
+                    foreach (XElement bat in xmlBats)
+                    {
+                        try
+                        {
+                            MergeXMLBatToDB(bat);
+                        }
+                        catch (Exception e1)
+                        {
+                            Debug.WriteLine("Error merging bat " + bat.Name + ":- " + e1.Message);
+                        }
+                    }
+                }
             }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error reading xml file " + xmlFile + ":- " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        ///     Copies the XML data to database.
+        /// </summary>
+        /// <param name="xmlFile">
+        ///     The XML file.
+        /// </param>
+        /// <param name="batReferenceDataContext">
+        ///     The bat reference data context.
+        /// </param>
+        private static void copyXMLDataToDatabase(string xmlFile, BatReferenceDBLinqDataContext dc)
+        {
+            try
+            {
+                var xmlBats = XElement.Load(xmlFile).Descendants("Bat");
+                if (xmlBats != null)
+                {
+                    foreach (XElement bat in xmlBats)
+                    {
+                        try
+                        {
+                            MergeXMLBatToDB(bat, dc);
+                        }
+                        catch (Exception e1)
+                        {
+                            Debug.WriteLine("Error merging bat " + bat.Name + ":- " + e1.Message);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Error reading xml file " + xmlFile + ":- " + ex.Message);
+            }
+            //short i = 0;
         }
 
         /// <summary>
@@ -1471,6 +1801,9 @@ namespace BatRecordingManager
         /// </summary>
         /// <param name="bat">
         ///     The bat.
+        /// </param>
+        /// <param name="dataContext">
+        ///     The data context.
         /// </param>
         /// <returns>
         ///     </returns>
@@ -1624,6 +1957,9 @@ namespace BatRecordingManager
         /// <param name="bat">
         ///     The bat.
         /// </param>
+        /// <param name="dataContext">
+        ///     The data context.
+        /// </param>
         /// <returns>
         ///     </returns>
         /// <exception cref="NotImplementedException">
@@ -1690,10 +2026,28 @@ namespace BatRecordingManager
         /// <param name="i">
         ///     The i.
         /// </param>
-        private static void MergeXMLBatToDB(XElement bat, BatReferenceDBLinqDataContext batReferenceDataContext, short i)
+        private static void MergeXMLBatToDB(XElement bat)
         {
             Bat batToMerge = ConvertXMLBat(bat);
             DBAccess.MergeBat(batToMerge);
+        }
+
+        /// <summary>
+        ///     Merges the XML bat to database.
+        /// </summary>
+        /// <param name="bat">
+        ///     The bat.
+        /// </param>
+        /// <param name="batReferenceDataContext">
+        ///     The bat reference data context.
+        /// </param>
+        /// <param name="i">
+        ///     The i.
+        /// </param>
+        private static void MergeXMLBatToDB(XElement bat, BatReferenceDBLinqDataContext dc)
+        {
+            Bat batToMerge = ConvertXMLBat(bat);
+            DBAccess.MergeBat(batToMerge, dc);
         }
 
         /// <summary>

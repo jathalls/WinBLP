@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 
 namespace BatRecordingManager
@@ -33,14 +34,17 @@ namespace BatRecordingManager
 
         #endregion SortedBatList
 
-        private BatSummary batSummary;
+        //private BatSummary batSummary;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="BatListControl"/> class.
+        /// </summary>
         public BatListControl()
         {
             InitializeComponent();
             this.DataContext = this;
 
-            batSummary = new BatSummary();
+            //batSummary = new BatSummary();
 
             batDetailControl.ListChanged += BatDetailControl_ListChanged;
             Button editButton = BatListButtonBar.AddCustomButton("EDIT", 1, "EditBatButton");
@@ -53,6 +57,13 @@ namespace BatRecordingManager
             BatListButtonBar.MoveDownButton.Click += MoveDownButton_Click;
             BatListButtonBar.MoveUpButton.Click += MoveUpButton_Click;
             SortedBatList = DBAccess.GetSortedBatList();
+        }
+
+        internal void RefreshData()
+        {
+            SortedBatList = DBAccess.GetSortedBatList();
+            var view = CollectionViewSource.GetDefaultView(sortedBatListView.ItemsSource);
+            if (view != null) view.Refresh();
         }
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
