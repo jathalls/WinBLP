@@ -163,8 +163,8 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Handles the Click event of the DelRecordButton control. Deletes the selected bat
-        ///     from the list of bats.
+        ///     Handles the Click event of the DelRecordButton control. Deletes the selected bat from
+        ///     the list of bats.
         /// </summary>
         /// <param name="sender">
         ///     The source of the event.
@@ -184,8 +184,8 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Invalids the bat. Throws a message box warning of an invalid bat descriptor using
-        ///     the provided string.
+        ///     Invalids the bat. Throws a message box warning of an invalid bat descriptor using the
+        ///     provided string.
         /// </summary>
         /// <param name="v">
         ///     The v.
@@ -216,7 +216,7 @@ namespace BatRecordingManager
             }
             var selectedBat = SelectedBat();
             selectedBat.Batgenus = GenusTextBlock.Text;
-            DBAccess.UpdateBat(selectedBat);
+            DBAccess.UpdateBat(selectedBat, null);
 
             //selectedBat.Descendants("BatGenus").FirstOrDefault().Value = GenusTextBlock.Text;
             RefreshBatNameListBox(true);
@@ -299,9 +299,9 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Handles the Click event of the OKButton control. Checks the validity of the
-        ///     currently selected bat - if not OK displays a message box and does nothing else. If
-        ///     OK, returns with a true result -
+        ///     Handles the Click event of the OKButton control. Checks the validity of the currently
+        ///     selected bat - if not OK displays a message box and does nothing else. If OK, returns
+        ///     with a true result -
         /// </summary>
         /// <param name="sender">
         ///     The source of the event.
@@ -371,14 +371,14 @@ namespace BatRecordingManager
         }
 
         /// <summary>
-        ///     Selecteds the bat. Returns the XElement from BatList for the bat corresponding to
-        ///     the XmlElement supplied as a parameter.
+        ///     Selecteds the bat. Returns the XElement from BatList for the bat corresponding to the
+        ///     XmlElement supplied as a parameter.
         /// </summary>
         /// <param name="selectedBatElement">
         ///     The selected bat element.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         private Bat SelectedBat(Bat selectedBatElement)
         {
             /*string batName = selectedBatElement.GetAttribute("Name");
@@ -394,7 +394,7 @@ namespace BatRecordingManager
         ///     bat selected in the BatNameListBox.
         /// </summary>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         private Bat SelectedBat()
         {
             Bat selectedBatElement = (Bat)BatNameListBox.SelectedItem;
@@ -419,14 +419,14 @@ namespace BatRecordingManager
             }
             var selectedBat = SelectedBat();
             selectedBat.BatSpecies = SpeciesTextBlock.Text;
-            DBAccess.UpdateBat(selectedBat);
+            DBAccess.UpdateBat(selectedBat, null);
             //selectedBat.Descendants("BatSpecies").FirstOrDefault().Value = SpeciesTextBlock.Text;
             RefreshBatNameListBox(true);
         }
 
         /// <summary>
-        ///     Handles the Click event of the TagAddButton control. Adds the text in the edit box
-        ///     as a new TagID
+        ///     Handles the Click event of the TagAddButton control. Adds the text in the edit box as
+        ///     a new TagID
         /// </summary>
         /// <param name="sender">
         ///     The source of the event.
@@ -462,7 +462,7 @@ namespace BatRecordingManager
                     newTag.BatTag1 = IDTagEditBox.Text;
                     newTag.SortIndex = 0;
                     selectedBat.BatTags.Add(newTag);
-                    DBAccess.UpdateBat(selectedBat);
+                    DBAccess.UpdateBat(selectedBat, null);
                 }
 
                 /*

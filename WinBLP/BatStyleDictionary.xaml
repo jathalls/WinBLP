@@ -47,4 +47,8 @@
     <local:RecordingPassSummaryConverter x:Key="recordingPassSummaryConverter" />
 
     <local:LabelledSegmentConverter x:Key="labelledSegmentConverter" />
+
+    <local:DoubleStringConverter x:Key="DoubleToStringConverter" />
+
+    <local:CallParametersConverter x:Key="CallParametersConverter" />
 </ResourceDictionary>

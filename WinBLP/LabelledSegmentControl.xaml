@@ -9,14 +9,19 @@
 
     <StackPanel
         Background="{StaticResource WindowBackgroundBrush}"
-        Orientation="Horizontal">
-        <Label x:Name="startTimeLabel"
-               Content="{Binding Path=startTime, Converter={StaticResource ConvertTimeSpan}}" VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <Label Content=" - " VerticalAlignment="Center" HorizontalAlignment="Left" />
-        <Label x:Name="endTimeLabel" Content="{Binding Path=endTime, Converter={StaticResource ConvertTimeSpan}}" VerticalAlignment="Center" />
-        <Label Content=" = " VerticalAlignment="Center" />
-        <Label x:Name="durationLabel" Content="{Binding Path=duration, Converter={StaticResource ConvertTimeSpan}}" VerticalAlignment="Center" />
-        <Label Content="    " VerticalAlignment="Center" />
-        <Label x:Name="commentLabel" Content="{Binding Path=comment}" VerticalAlignment="Center" />
+        Orientation="Vertical">
+        <StackPanel
+            Background="{StaticResource WindowBackgroundBrush}"
+            Orientation="Horizontal">
+            <Label x:Name="startTimeLabel"
+                   Content="{Binding Path=startTime, Converter={StaticResource ConvertTimeSpan}}" VerticalAlignment="Center" HorizontalAlignment="Left" />
+            <Label Content=" - " VerticalAlignment="Center" HorizontalAlignment="Left" />
+            <Label x:Name="endTimeLabel" Content="{Binding Path=endTime, Converter={StaticResource ConvertTimeSpan}}" VerticalAlignment="Center" />
+            <Label Content=" = " VerticalAlignment="Center" />
+            <Label x:Name="durationLabel" Content="{Binding Path=duration, Converter={StaticResource ConvertTimeSpan}}" VerticalAlignment="Center" />
+            <Label Content="    " VerticalAlignment="Center" />
+            <Label x:Name="commentLabel" Content="{Binding Path=comment}" VerticalAlignment="Center" />
+        </StackPanel>
+        <Label x:Name="callParametersLabel" Content="{Binding Path=labelledSegment, Converter={StaticResource CallParametersConverter}}" />
     </StackPanel>
 </UserControl>

@@ -37,6 +37,12 @@ namespace BatRecordingManager
             if (!String.IsNullOrWhiteSpace(TagTextBox.Text))
             {
                 TagText = TagTextBox.Text;
+                BatTag tag = DBAccess.GetTag(TagText);
+                if (tag != null)
+                {
+                    MessageBox.Show("Tag Already defined for " + tag.Bat.Name, "Tag <" + TagText + "> In Use");
+                    return;
+                }
                 this.DialogResult = true;
                 this.Close();
             }

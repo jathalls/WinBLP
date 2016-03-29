@@ -154,18 +154,22 @@
                 Orientation="Horizontal"
                 Grid.Row="7"
                 Grid.Column="1">
-                <Label Content="Latitude:-" Style="{StaticResource SimpleLabel}" />
+                <Label Content=" Latitude:-" Style="{StaticResource SimpleLabel}" />
                 <TextBox
                     Background="{StaticResource WindowBackgroundBrush}"
                     x:Name="GPSLatitudeTextBox" Width="150"  Style="{StaticResource SimpleTextBox}"
                     ToolTip="Give site latitude in decimal format e.g. 54.176354"
                     MouseDoubleClick="GPSLatitudeTextBox_MouseDoubleClick" />
-                <Label Content="Longitude:-" Style="{StaticResource SimpleLabel}" />
+                <Label Content=" Longitude:-" Style="{StaticResource SimpleLabel}" />
                 <TextBox
                     Background="{StaticResource WindowBackgroundBrush}"
                     x:Name="GPSLongitudeTextBox" Width="150" Style="{StaticResource SimpleTextBox}"
                     ToolTip="Give site longitude in decimal format e.g. -0.123456"
                     MouseDoubleClick="GPSLatitudeTextBox_MouseDoubleClick" />
+                <Button
+                    x:Name="GPSMapButton"
+                    Style="{StaticResource SimpleButton}"
+                    Content="Map" Click="GPSMapButton_Click" />
             </StackPanel>
 
             <Label

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BatRecordingManager"
         mc:Ignorable="d"
-        Title="EditBatForm" Height="300" Width="500">
+        Title="EditBatForm" Height="700" Width="500">
 
     <Grid ShowGridLines="True" Background="{StaticResource WindowBackgroundBrush}">
 
@@ -18,9 +18,10 @@
             <RowDefinition Height="25" />
             <RowDefinition Height="25" />
             <RowDefinition Height="25" />
-            <RowDefinition Height="75*" />
-            <RowDefinition Height="75*" />
-            <RowDefinition Height="30*" />
+            <RowDefinition Height="45*" />
+            <RowDefinition Height="80*" />
+            <RowDefinition Height="45*" />
+            <RowDefinition Height="30" />
         </Grid.RowDefinitions>
 
         <Label
@@ -42,7 +43,7 @@
             x:Name="CommonNameTextBox"
             Style="{StaticResource SimpleTextBox}"
             Text="{Binding Path=Name}"
-            Background="{StaticResource WindowBackgroundBrush}" />
+            Background="{StaticResource WindowBackgroundBrushLight}" />
 
         <Label
             Content="Genus"
@@ -54,20 +55,20 @@
             Grid.Column="1"
             Grid.Row="2"
             Style="{StaticResource SimpleTextBox}"
-            Background="{StaticResource WindowBackgroundBrush}"
+            Background="{StaticResource WindowBackgroundBrushLight}"
             Text="{Binding Path=Batgenus }" />
 
         <Label
             Content="Species"
             Grid.Row="3"
             Style="{StaticResource SimpleLabel}"
-            Grid.Column="0" Margin="0,0.2,2.8,24.4" Grid.RowSpan="2" />
+            Grid.Column="0" />
         <TextBox
             x:Name="BatSpeciesTextBlock"
             Grid.Column="1"
             Grid.Row="3"
             Style="{StaticResource SimpleTextBox}"
-            Background="{StaticResource WindowBackgroundBrush}"
+            Background="{StaticResource WindowBackgroundBrushLight}"
             Text="{Binding Path=BatSpecies }" IsManipulationEnabled="True">
         </TextBox>
 
@@ -75,23 +76,23 @@
             Content="Tags"
             Grid.Row="4"
             Style="{StaticResource SimpleLabel}"
-            Grid.Column="0" Margin="0,0.2,2.8,24.4" Grid.RowSpan="2" />
+            Grid.Column="0" />
         <StackPanel
             Orientation="Vertical"
 
             Grid.Row="4"
             Grid.Column="1">
             <StackPanel
-                Background="{StaticResource BlueGradientBackground}"
+                Background="{StaticResource ButtonBarBackground}"
                 Orientation="Horizontal">
                 <TextBox
                 x:Name="TagEditBox"
                     Style="{StaticResource SimpleTextBox}"
 
-                    Background="{StaticResource WindowBackgroundBrush}"
+                    Background="{StaticResource WindowBackgroundBrushLight}"
                 Text="{Binding ElementName=BatTagList.SelectedItem, Mode=OneWay}"
                 Width="200" HorizontalContentAlignment="Stretch"
-                    BorderThickness="2" />
+                    BorderThickness="2" BorderBrush="Black" />
                 <Button
                     x:Name="AddNewTagButton"
                     Style="{StaticResource SimpleButton}"
@@ -108,29 +109,92 @@
             <ListView
                 x:Name="BatTagList"
                 ItemsSource="{Binding Path=BatTags, Converter={StaticResource SortBatTags}}"
-                Height="45"
+                VerticalAlignment="Stretch"
+                VerticalContentAlignment="Stretch"
                 DisplayMemberPath="BatTag1"
                 Style="{StaticResource SimpleListBox}"
-                Background="{StaticResource BlueGradientBackground}" />
+                ToolTip="Type new tag in the text box and click 'Add' or Select a Tag and click 'Del'"
+                Background="{StaticResource WindowBackgroundBrush}" />
         </StackPanel>
+
+        <StackPanel
+            x:Name="CallsLabelFieldStackPanel"
+            Grid.Row="5"
+            Grid.Column="0"
+
+            Orientation="Vertical"
+            VerticalAlignment="Center">
+            <Label
+                Style="{StaticResource SimpleLabel}"
+                Content="Calls" />
+            <Label
+                Style="{StaticResource SimpleLabel}">
+                <StackPanel
+                    x:Name="NumberOfCallsStackPanel"
+                    Orientation="Horizontal">
+                    <TextBox
+                        x:Name="CallIndexTextBox"
+                        Style="{StaticResource SimpleTextBox}"
+                        IsReadOnly="True" />
+                    <Label
+                        Style="{StaticResource SimpleLabel}"
+                        Content=" of " />
+                    <TextBox
+                        x:Name="TotalCallsTextBox"
+                        Style="{StaticResource SimpleTextBox}"
+                        IsReadOnly="True" />
+                </StackPanel>
+            </Label>
+
+            <StackPanel
+                x:Name="PrevNextButtonBarStackPanel"
+                Orientation="Horizontal">
+                <Button
+                    x:Name="PrevCallButton"
+                    Style="{StaticResource SimpleButton}"
+                    Content="Prev" Click="PrevCallButton_Click" />
+                <Button
+                    x:Name="NextCallButton"
+                    Style="{StaticResource SimpleButton}"
+                    Content="Next" Click="NextCallButton_Click" />
+            </StackPanel>
+
+            <StackPanel
+                x:Name="AddDeleteButtonStackPanel"
+                Orientation="Horizontal">
+                <Button
+                    x:Name="AddCallButton"
+                    Style="{StaticResource SimpleButton}"
+                    Content="Add" Click="AddCallButton_Click" />
+                <Button
+                    x:Name="DeleteCallButton"
+                    Style="{StaticResource SimpleButton}"
+                    Content="Del" Click="DeleteCallButton_Click" />
+            </StackPanel>
+        </StackPanel>
+        <local:BatCallControl
+            x:Name="batCallControl"
+            Grid.Column="1"
+            Grid.Row="5" />
 
         <Label
             x:Name="notesLabel"
-            Grid.Row="5"
+            Grid.Row="6"
             Grid.Column="0"
             Style="{StaticResource SimpleLabel}"
             Content="Notes" />
         <TextBox
             x:Name="BatNotesTextBlock"
-            Grid.Row="5"
+            Grid.Row="6"
             Style="{StaticResource SimpleTextBox}"
-            Background="{StaticResource WindowBackgroundBrush}"
+            Text="{Binding Path=Notes}"
+            Background="{StaticResource WindowBackgroundBrushLight}"
             Grid.Column="1" TextWrapping="Wrap" />
 
         <StackPanel
             Orientation="Horizontal"
             Background="{StaticResource BlueGradientBackground}"
-            Grid.Row="6"
+            Grid.Row="7"
             Grid.Column="1">
             <Button
                 x:Name="EditBatFormOKButton"

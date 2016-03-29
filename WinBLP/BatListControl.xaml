@@ -20,50 +20,55 @@
             <ColumnDefinition Width="100*" />
         </Grid.ColumnDefinitions>
         <StackPanel Orientation="Vertical" Grid.Column="0">
-            <local:ButtonBarControl x:Name="BatListButtonBar"></local:ButtonBarControl>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="200" />
-                    <ColumnDefinition Width="100*" />
-                    <ColumnDefinition Width="100*" />
-                </Grid.ColumnDefinitions>
+            <StackPanel
+                Background="{StaticResource ButtonBarBackground}"
+                Orientation="Horizontal">
+                <Button
+                    x:Name="AddBatButton"
+                    Style="{StaticResource SimpleButton}"
+                    Content="Add" Click="AddBatButton_Click" />
+                <Button
+                    x:Name="EditBatButton"
+                    Style="{StaticResource SimpleButton}"
+                    Content="Edit" Click="EditBatButton_Click" />
+                <Button
+                    x:Name="DelBatButton"
+                    Style="{StaticResource SimpleButton}"
+                    Content="Del" Click="DelBatButton_Click" />
+            </StackPanel>
 
-                <TextBlock Text="Bat Name" Grid.Column="0" />
-                <TextBlock Text="Genus" Grid.Column="1" Margin="5,0,0,0" FontStyle="Italic" />
-                <TextBlock Text="Species" Grid.Column="2" Margin="5,0,0,0" FontStyle="Italic" />
-            </Grid>
             <ScrollViewer
                 Grid.Column="0">
-                <ListView
-                    x:Name="sortedBatListView"
-                    ItemsSource="{Binding Path=SortedBatList}"
-                    Style="{StaticResource SimpleListBox}"
-                    Grid.Column="0" AlternationCount="1">
-                    <ListView.ItemTemplate>
-                        <DataTemplate DataType="{x:Type blc:Bat}">
-                            <Grid Margin="5,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="200" />
-                                    <ColumnDefinition Width="100*" />
-                                    <ColumnDefinition Width="100*" />
-                                </Grid.ColumnDefinitions>
+                <DataGrid
+                    x:Name="BatsDataGrid"
+                    Grid.Row="1"
+                    Background="{StaticResource WindowBackgroundBrush}"
 
-                                <TextBlock Text="{Binding  Path=Name}" Grid.Column="0" />
-                                <TextBlock Text="{Binding Path=Batgenus}" Grid.Column="1" Margin="5,0,0,0" FontStyle="Italic" />
-                                <TextBlock Text="{Binding Path=BatSpecies}" Grid.Column="2" Margin="5,0,0,0" FontStyle="Italic" />
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                    AutoGenerateColumns="False"
+                    CanUserAddRows="False"
+                    CanUserDeleteRows="False"
+                    ItemsSource="{Binding Path=SortedBatList}"
+
+                    AlternatingRowBackground="{StaticResource WindowBackgroundBrushLight}"
+
+                    IsReadOnly="True" SelectionChanged="BatsDataGrid_SelectionChanged">
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding Path=Name}" Header="Name" />
+
+                        <DataGridTextColumn Binding="{Binding Path=., Converter={StaticResource ConvertLatinName}}" Header="Latin Name" FontStyle="Italic" />
+                    </DataGrid.Columns>
+                </DataGrid>
             </ScrollViewer>
         </StackPanel>
 
         <local:BatDetailControl
             x:Name="batDetailControl"
-            DataContext="{Binding ElementName=sortedBatListView}"
 
-            Grid.Column="1"
+            Grid.Column="2"
             Margin="5,0,5,0" BorderThickness="2" BorderBrush="#FF3127CB">
         </local:BatDetailControl>
+        <GridSplitter
+            Grid.Column="1" />
     </Grid>
 </UserControl>

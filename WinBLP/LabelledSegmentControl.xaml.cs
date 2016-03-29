@@ -35,6 +35,14 @@ namespace BatRecordingManager
                 endTime = value.EndOffset;
                 duration = endTime - startTime;
                 comment = value.Comment;
+                if (value.SegmentCalls != null && value.SegmentCalls.Count > 0)
+                {
+                    callParametersLabel.Visibility = Visibility.Hidden;
+                }
+                else
+                {
+                    callParametersLabel.Visibility = Visibility.Visible;
+                }
             }
         }
 
@@ -196,4 +204,50 @@ namespace BatRecordingManager
     }
 
     #endregion TimeSpanConverter (ValueConverter)
+
+    #region CallParametersConverter (ValueConverter)
+
+    public class CallParametersConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.
+                string summary = "";
+                LabelledSegment segment = value as LabelledSegment;
+                if (segment.SegmentCalls != null && segment.SegmentCalls.Count > 0)
+                {
+                    foreach (var call in segment.SegmentCalls)
+                    {
+                        if (!string.IsNullOrWhiteSpace(summary))
+                        {
+                            summary = summary + @"
+";
+                        }
+                        else
+                        {
+                            summary = "";
+                        }
+                        summary = summary + string.Format("{0,5:##0.0},{1,5:##0.0},{2,5:##0.0}kHz {3,5:##0.0},{4,5:##0.0}mS",
+                            call.Call.StartFrequency, call.Call.EndFrequency, call.Call.PeakFrequency,
+                            call.Call.PulseDuration, call.Call.PulseInterval);
+                    }
+                }
+                return (summary);
+            }
+            catch
+            {
+                return value;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            return null;
+        }
+    }
+
+    #endregion CallParametersConverter (ValueConverter)
 }

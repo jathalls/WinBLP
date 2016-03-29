@@ -78,6 +78,32 @@ co-ordinates for any but the first two recordings.
 DONE After creating a new database imported data shows all segments as 'Unknown' instead
 of picking up the correct Tags.
 
+NEW FEATURES
+Add Map button to Recording Form DONE
+
+DONE Add Picture Table to database with link table to bats BinaryData(.jpg)<-BatPicture->Bat
+DONE Add Sonagram table to database with link table to segment BinaryData(.jpg)<-SegmentData->LabelledSegment
+DONE Add Snippet table to database with link table to segment () BinaryData(.wav)<-SegmentData->LabelledSegment
+	(snippets look like segments but do not add to passes)
+	(actually a single blob table which can contain images or
+	.wav sound snippets and has a field to identify the appropriate
+	file extension to define the type.  Link tablse to Bats or segments)
+TODO Add GUI interface and handling for images, sonagrams and .wav snippets.
+
+Add call table with link tables to bats and to labelled segments
+		Call<-BatCall->Bat
+		Call<-SegmentCall->LabelledSegment
+		Call<-CallPicture->BinaryData(.jpg)
+TODO Add GUI and handling for call parameter details
+TODO Add input processing to recognise a string of the form:-
+		{start,end,peak,durn,interval} in the comment
+		where four commas are required and each parameter
+		is inn the form
+		##0.0+/-##0.0 or simply ##0.0.  the first three inkHz the
+		other two in ms.
+		(added in ProcessLabelledSegment by a call to DBAccess.InsertParamsFromComment())
+
+
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 searching for a match in a pair of lists (e.g. bat.CommonNames, existingBat.CommonNames):-
 
@@ -92,6 +118,30 @@ refreshing a list view or similar when the contents have changed
 ICollectionView view = CollectionViewSource.GetDefaultView(FolderListView.ItemsSource);
            if(view!=null) view.Refresh();
 
+
+
+====================================================================================
+For all Many-to-Many link tables:-
+Implementation
+
+Using the LINQ to SQL designer, we will create the LINQ to SQL entities that correspond to the tables. Once the DBML is created, we need to make an update. We need to add the DeleteOnNull attribute for each association in the UserRole entity. Since the designer doesn't support managing this attribute, we will have to manually update the DBML to make this change. To update the DBML directly, right-click on the DBML file, select Open with and select the XML Editor. Once you are in the DBML file, find the UserRole entity. We need to add the DeleteOnNull attribute for each association and set it to true.
+
+Hide   Copy Code
+<Table Name="dbo.UserRole" Member="UserRoles">
+  <Type Name="UserRole">
+    <Column Name="UserId" Type="System.Int32" 
+       DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+    <Column Name="RoleId" Type="System.Int32" 
+       DbType="Int NOT NULL" IsPrimaryKey="true" CanBeNull="false" />
+    <Association Name="Role_UserRole" Member="Role" 
+       ThisKey="RoleId" OtherKey="Id" Type="Role" 
+       IsForeignKey="true" DeleteOnNull="true" />
+    <Association Name="User_UserRole" Member="User" 
+       ThisKey="UserId" OtherKey="Id" Type="User" 
+       IsForeignKey="true" DeleteOnNull="true" />
+  </Type>
+
+Setting DeleteOnNull to true makes it possible to delete the object when the association is set to null. After updating and saving the DBML file, right-click the DBML file in Solution Explorer and select Run Custom Tool. This will recreate the UserRole entity with the updates.
 
 
 

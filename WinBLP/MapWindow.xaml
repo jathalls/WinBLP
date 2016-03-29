@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:BatRecordingManager"
         mc:Ignorable="d"
-        Title="MapWindow" Height="300" Width="300">
+        Title="MapWindow" Height="600" Width="600">
     <Grid>
         <local:MapControl
             Grid.Row="0"

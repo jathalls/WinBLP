@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Data;
+using Microsoft.Maps.MapControl.WPF;
 
 namespace BatRecordingManager
 {
@@ -20,7 +21,7 @@ namespace BatRecordingManager
         ///     The time.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         public static string FormattedTimeSpan(TimeSpan time)
         {
             string result = "";
@@ -49,7 +50,7 @@ namespace BatRecordingManager
         ///     The session.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         public static String ToFormattedString(this RecordingSession session)
         {
             String result = "";
@@ -75,7 +76,7 @@ namespace BatRecordingManager
         ///     The value.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         internal static TimeSpan ConvertDoubleToTimeSpan(double? value)
         {
             if (value == null) return new TimeSpan();
@@ -94,9 +95,9 @@ namespace BatRecordingManager
         ///     The segment.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         /// <exception cref="System.NotImplementedException">
-        ///     </exception>
+        /// </exception>
         internal static string FormattedSegmentLine(LabelledSegment segment)
         {
             if (segment == null) return ("");
@@ -104,6 +105,37 @@ namespace BatRecordingManager
                 Tools.FormattedTimeSpan(segment.EndOffset) + " = " +
                 Tools.FormattedTimeSpan(segment.EndOffset - segment.StartOffset) + " " +
                 segment.Comment;
+            var calls = DBAccess.GetCallParametersForSegment(segment.Id);
+            if (calls != null && calls.Count() > 0)
+            {
+                foreach (var call in calls)
+                {
+                    result = result + "\n    " + "sf=" + FormattedValuePair(call.StartFrequency, call.StartFrequencyVariation) +
+                        ", ef=" + FormattedValuePair(call.EndFrequency, call.EndFrequencyVariation) +
+                        ", pf=" + FormattedValuePair(call.PeakFrequency, call.PeakFrequencyVariation) +
+                        ", durn=" + FormattedValuePair(call.PulseDuration, call.PulseDurationVariation) +
+                        ", int=" + FormattedValuePair(call.PulseInterval, call.PulseIntervalVariation);
+                    if (!String.IsNullOrWhiteSpace(call.CallType)) result = result + ", type=" + call.CallType;
+                    if (!String.IsNullOrWhiteSpace(call.CallFunction)) result = result + ", fnctn=" + call.CallFunction;
+                    if (!String.IsNullOrWhiteSpace(call.CallNotes)) result = result + "\n    " + call.CallNotes;
+                }
+            }
+            return (result);
+        }
+
+        internal static string FormattedValuePair(double? value, double? variation)
+        {
+            string result = "";
+            if (value == null || value <= 0.0d)
+            {
+                return ("");
+            }
+            result = string.Format("{0:##0.0}", value);
+            if (variation != null && variation >= 0.0)
+            {
+                result = result + "+/-" + string.Format("{0:##0.0}", variation);
+            }
+
             return (result);
         }
 
@@ -180,9 +212,9 @@ namespace BatRecordingManager
         ///     The value.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         /// <exception cref="System.NotImplementedException">
-        ///     </exception>
+        /// </exception>
         internal static TimeSpan TimeParse(string value)
         {
             TimeSpan ts = new TimeSpan();
@@ -231,12 +263,94 @@ namespace BatRecordingManager
 
             return (ts);
         }
+
+        /// <summary>
+        ///     Valids the coordinates as GPS lat and long in text format and returns those
+        ///     coordinates as a Location or null if they are not valid
+        /// </summary>
+        /// <param name="latit">
+        ///     The latitude
+        /// </param>
+        /// <param name="longit">
+        ///     The longitude
+        /// </param>
+        /// <returns>
+        /// </returns>
+        internal static Location ValidCoordinates(string latit, string longit)
+        {
+            Location result = null;
+            if (!String.IsNullOrWhiteSpace(latit) && !String.IsNullOrWhiteSpace(longit))
+            {
+                double dLat = 200;
+                double dlong = 200;
+                double.TryParse(latit, out dLat);
+                double.TryParse(longit, out dlong);
+                result = ValidCoordinates(new Location(dLat, dlong));
+            }
+
+            return (result);
+        }
+
+        /// <summary>
+        ///     Valids the coordinates in the location as valid GPS coordinates and returns the valid
+        ///     Location or null if they are not valid.
+        /// </summary>
+        /// <param name="location">
+        ///     The last selected location.
+        /// </param>
+        /// <returns>
+        /// </returns>
+        internal static Location ValidCoordinates(Location location)
+        {
+            Location result = null;
+            if (location != null)
+            {
+                if (Math.Abs(location.Latitude) <= 90.0d && Math.Abs(location.Longitude) <= 180.0d)
+                {
+                    result = location;
+                }
+            }
+            return (result);
+        }
     }
+
+    #region DoubleStringConverter (ValueConverter)
+
+    public class DoubleStringConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            try
+            {
+                // Here's where you put the code do handle the value conversion.
+                string str = "";
+                str = String.Format("{0,5:N1}", value);
+
+                return str;
+            }
+            catch
+            {
+                return value;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            // Not implemented
+            double d = -1.0d;
+            double.TryParse((string)value, out d);
+            if (d < 0) return (null);
+
+            return (d);
+        }
+    }
+
+    #endregion DoubleStringConverter (ValueConverter)
 
     #region TimeSpanDateConverter (ValueConverter)
 
     /// <summary>
-    ///     </summary>
+    /// </summary>
     public class TimeSpanDateConverter : IValueConverter
     {
         /// <summary>
@@ -255,7 +369,7 @@ namespace BatRecordingManager
         ///     The culture.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             try
@@ -287,7 +401,7 @@ namespace BatRecordingManager
         ///     The culture.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             TimeSpan result = new TimeSpan(((value as DateTime?) ?? DateTime.Now).Ticks);
@@ -300,7 +414,7 @@ namespace BatRecordingManager
     #region SegmentToTextConverter (ValueConverter)
 
     /// <summary>
-    ///     </summary>
+    /// </summary>
     public class SegmentToTextConverter : IValueConverter
     {
         /// <summary>
@@ -319,7 +433,7 @@ namespace BatRecordingManager
         ///     The culture.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             try
@@ -352,7 +466,7 @@ namespace BatRecordingManager
         ///     The culture.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             String text = value as String;
@@ -368,7 +482,7 @@ namespace BatRecordingManager
     #region ShortDateConverter (ValueConverter)
 
     /// <summary>
-    ///     </summary>
+    /// </summary>
     public class ShortDateConverter : IValueConverter
     {
         /// <summary>
@@ -387,7 +501,7 @@ namespace BatRecordingManager
         ///     The culture.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             try
@@ -418,7 +532,7 @@ namespace BatRecordingManager
         ///     The culture.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             string text = value as String;

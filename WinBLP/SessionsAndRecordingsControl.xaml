@@ -23,7 +23,7 @@
 
             Grid.Row="0"
             SelectionChanged="SessionsDataGrid_SelectionChanged"
-            MouseDoubleClick="SessionsDataGrid_MouseDoubleClick">
+            MouseDoubleClick="SessionsDataGrid_MouseDoubleClick" IsReadOnly="True">
 
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding SessionTag}" Header="Tag" />
@@ -40,7 +40,7 @@
             CanUserAddRows="False"
             CanUserDeleteRows="False"
             Background="{StaticResource WindowBackgroundBrush}"
-            Grid.Row="2" MouseDoubleClick="RecordingsDataGrid_MouseDoubleClick">
+            Grid.Row="2" MouseDoubleClick="RecordingsDataGrid_MouseDoubleClick" IsReadOnly="True">
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding RecordingName}" Header="File" />
                 <DataGridTextColumn Binding="{Binding RecordingStartTime}" Header="Start" />

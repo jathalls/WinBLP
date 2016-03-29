@@ -41,7 +41,7 @@
             CanUserAddRows="False"
             CanUserDeleteRows="False"
             ItemsSource="{Binding}"
-            GotFocus="BatStatsDataGrid_GotFocus" AlternatingRowBackground="{StaticResource WindowBackgroundBrushLight}" SelectionChanged="BatStatsDataGrid_SelectionChanged">
+            GotFocus="BatStatsDataGrid_GotFocus" AlternatingRowBackground="{StaticResource WindowBackgroundBrushLight}" SelectionChanged="BatStatsDataGrid_SelectionChanged" IsReadOnly="True">
 
             <DataGrid.Columns>
                 <DataGridTextColumn Binding="{Binding Path=Name}" Header="Name" />

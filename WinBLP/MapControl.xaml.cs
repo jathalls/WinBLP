@@ -21,7 +21,7 @@ namespace BatRecordingManager
     /// </summary>
     public partial class MapControl : UserControl
     {
-        private Tuple<decimal, decimal> _coordinates;
+        private Location _coordinates;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="MapControl"/> class.
@@ -30,6 +30,7 @@ namespace BatRecordingManager
         {
             InitializeComponent();
             mapControl.Focus();
+            lastInsertedPinLocation = null;
         }
 
         /// <summary>
@@ -38,7 +39,7 @@ namespace BatRecordingManager
         /// <value>
         ///     The coordinates.
         /// </value>
-        public Tuple<decimal, decimal> coordinates
+        public Location coordinates
         {
             get
             {
@@ -47,9 +48,11 @@ namespace BatRecordingManager
             set
             {
                 _coordinates = value;
-                mapControl.Center = new Microsoft.Maps.MapControl.WPF.Location((double)value.Item1, (double)value.Item2);
+                mapControl.Center = value;
             }
         }
+
+        public Location lastInsertedPinLocation { get; set; }
 
         /// <summary>
         ///     Adds the push pin.
@@ -60,11 +63,31 @@ namespace BatRecordingManager
         /// <param name="text">
         ///     The text.
         /// </param>
-        public void AddPushPin(Tuple<double, double> PinCoordinates, String text)
+        public void AddPushPin(Location PinCoordinates, String text)
         {
             Pushpin pin = new Pushpin();
-            pin.Location = new Location(PinCoordinates.Item1, PinCoordinates.Item2);
+            pin.Location = PinCoordinates;
             pin.Content = text;
+            mapControl.Children.Add(pin);
+        }
+
+        public void AddPushPin(Location location)
+        {
+            Pushpin pin = new Pushpin();
+            pin.Location = location;
+            mapControl.Children.Add(pin);
+        }
+
+        private void mapControl_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+            mapControl.Children.Clear();
+            Point mousePosition = e.GetPosition(this);
+            Location pinLocation = mapControl.ViewportPointToLocation(mousePosition);
+
+            Pushpin pin = new Pushpin();
+            pin.Location = pinLocation;
+            lastInsertedPinLocation = pinLocation;
             mapControl.Children.Add(pin);
         }
     }

@@ -5,25 +5,27 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:BatRecordingManager"
              mc:Ignorable="d"
-             d:DesignHeight="300" d:DesignWidth="500">
+             d:DesignHeight="600" d:DesignWidth="500">
 
     <Grid ShowGridLines="True"
           Background="{StaticResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="35" />
+            <RowDefinition Height="4" />
             <RowDefinition Height="27" />
             <RowDefinition Height="27" />
-            <RowDefinition Height="144*" />
-            <RowDefinition Height="72*" />
+            <RowDefinition Height="80*" />
+            <RowDefinition Height="280" />
+            <RowDefinition Height="80*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="100*" />
+            <ColumnDefinition Width="150*" />
             <ColumnDefinition Width="400*" />
         </Grid.ColumnDefinitions>
 
         <Label
             x:Name="BatCommonNameLabel"
             Grid.Column="0"
+            Background="{StaticResource WindowBackgroundBrush}"
             Grid.Row="1" Style="{StaticResource SimpleLabel}"
             Content="Common Name" />
         <Label
@@ -38,16 +40,54 @@
             Grid.Row="3" Style="{StaticResource SimpleLabel}"
             Content="Tags" />
         <Label
+            x:Name="BatCallLabel"
+            Grid.Column="0"
+            Grid.Row="4"
+            Style="{StaticResource SimpleLabel}">
+            <StackPanel
+                Orientation="Vertical">
+                <Label
+                    Style="{StaticResource SimpleLabel}"
+                    Content="Call" />
+                <StackPanel
+
+                    Orientation="Horizontal">
+                    <TextBox
+                        x:Name="CallIndexTextBox"
+                        Style="{StaticResource SimpleTextBox}"
+                        Text="0" />
+                    <Label
+                        Style="{StaticResource SimpleLabel}"
+                        Content=" of " />
+                    <TextBox
+                        x:Name="CallCountTextBox"
+                        Style="{StaticResource SimpleTextBox}"
+                        Text="0" />
+                </StackPanel>
+                <StackPanel
+                    Orientation="Horizontal">
+                    <Button
+                        x:Name="PrevCallButton"
+                        Style="{StaticResource SimpleButton}"
+                        Content="Prev" Click="PrevCallButton_Click" />
+                    <Button
+                        x:Name="NextCallButton"
+                        Style="{StaticResource SimpleButton}"
+                        Content="Next" Click="NextCallButton_Click" />
+                </StackPanel>
+            </StackPanel>
+        </Label>
+        <Label
             x:Name="BatNotesLabel"
             Grid.Column="0"
-            Grid.Row="4" Style="{StaticResource SimpleLabel}"
+            Grid.Row="5" Style="{StaticResource SimpleLabel}"
             Content="Notes" />
 
         <TextBlock
             x:Name="CommonNameTextBlock"
             Grid.Column="1"
             Grid.Row="1"
-            Text="{Binding Path=SelectedItem.Name }"
+
             Margin="6,4,0,4.8"
             VerticalAlignment="Center" />
         <TextBlock
@@ -55,30 +95,50 @@
             Grid.Column="1"
             Grid.Row="2"
 
-            Text="{Binding Path=SelectedItem, Converter={StaticResource ConvertLatinName} }" VerticalAlignment="Center" Margin="3,4.2,0,4.6" FontStyle="Italic" />
+             VerticalAlignment="Center" Margin="3,4.2,0,4.6" FontStyle="Italic" />
         <StackPanel Orientation="Vertical"
                     Grid.Row="3"
                     Grid.Column="1" Margin="0,0.4,0,0" Grid.RowSpan="2">
 
-            <local:ButtonBarControl
-                x:Name="BatTagButtonBar" />
+            <StackPanel
+                Orientation="Horizontal"
+                Background="{StaticResource ButtonBarBackground}">
+                <Button
+                    x:Name="AddTagButton"
+                    Style="{StaticResource SimpleButton}"
+                    Content="Add" Click="AddTagButton_Click" />
+                <Button
+                    x:Name="EditTagButton"
+                    Style="{StaticResource SimpleButton}"
+                    Content="Edit" Click="EditTagButton_Click" />
+                <Button
+                    x:Name="DelTagButton"
+                    Style="{StaticResource SimpleButton}"
+                    Content="Del" Click="DelTagButton_Click" />
+            </StackPanel>
             <ListView
             x:Name="BatTagsListView"
             Grid.Column="1"
             Grid.Row="3"
                 Style="{StaticResource SimpleListBox}"
-            ItemsSource="{Binding Path=SelectedItem.BatTags, Converter={StaticResource SortBatTags}}"
 
             DisplayMemberPath="BatTag1" Margin="4,0,0,0">
             </ListView>
         </StackPanel>
+        <local:BatCallControl
+            x:Name="batCallControl"
+            Grid.Row="4"
+            Grid.Column="1" />
         <TextBox
             x:Name="batNotesTextBox"
-            Grid.Row="4"
+            Grid.Row="5"
             Style="{StaticResource SimpleTextBox}"
             Background="{StaticResource WindowBackgroundBrush}"
             Grid.Column="1"
-            Text="{Binding Path=SelectedItem.Notes}" TextWrapping="Wrap"
+
+            TextWrapping="Wrap"
+            ScrollViewer.CanContentScroll="True"
+            VerticalScrollBarVisibility="Auto"
             ></TextBox>
     </Grid>
 </UserControl>

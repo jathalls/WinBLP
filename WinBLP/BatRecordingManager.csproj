@@ -92,6 +92,7 @@
     <Reference Include="Microsoft.Maps.MapControl.WPF">
       <HintPath>C:\Program Files (x86)\Bing Maps WPF Control\V1\Libraries\Microsoft.Maps.MapControl.WPF.dll</HintPath>
     </Reference>
+    <Reference Include="ReachFramework" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Linq" />
@@ -130,6 +131,12 @@
     </ApplicationDefinition>
     <Compile Include="AboutScreen.xaml.cs">
       <DependentUpon>AboutScreen.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="BatCallControl.xaml.cs">
+      <DependentUpon>BatCallControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="BatCallForm.xaml.cs">
+      <DependentUpon>BatCallForm.xaml</DependentUpon>
     </Compile>
     <Compile Include="BatDetailControl.xaml.cs">
       <DependentUpon>BatDetailControl.xaml</DependentUpon>
@@ -173,9 +180,6 @@
       <DependentUpon>FolderSelectionDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="GpxHandler.cs" />
-    <Compile Include="HelpScreen.xaml.cs">
-      <DependentUpon>HelpScreen.xaml</DependentUpon>
-    </Compile>
     <Compile Include="LabelledSegmentControl.xaml.cs">
       <DependentUpon>LabelledSegmentControl.xaml</DependentUpon>
     </Compile>
@@ -219,11 +223,20 @@
     <Compile Include="ImportControl.xaml.cs">
       <DependentUpon>ImportControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TagMatcher.cs" />
     <Compile Include="TimePicker.xaml.cs">
       <DependentUpon>TimePicker.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tools.cs" />
     <Page Include="AboutScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="BatCallControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="BatCallForm.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -264,10 +277,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="FolderSelectionDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="HelpScreen.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -368,6 +377,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <None Include="Bat Recording Manager.chm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="BatReferenceDBLinq.dbml.layout">
       <DependentUpon>BatReferenceDBLinq.dbml</DependentUpon>
     </None>
@@ -431,9 +443,6 @@
     <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Bat Recording Manager.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="BatReferenceDB.mdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

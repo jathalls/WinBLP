@@ -9,8 +9,8 @@ using System.Text.RegularExpressions;
 namespace BatRecordingManager
 {
     /// <summary>
-    ///     Class to hold details of a specific LabelledSegment, and a List of Bats that were
-    ///     present during this segment.
+    ///     Class to hold details of a specific LabelledSegment, and a List of Bats that were present
+    ///     during this segment.
     /// </summary>
     public class SegmentAndBatList
     {
@@ -85,13 +85,14 @@ namespace BatRecordingManager
         ///     The comment.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         public static bool IsLabelFileLine(string line, out string startStr, out string endStr, out string comment)
         {
             startStr = "";
             endStr = "";
             comment = "";
             string regexLabelFileLine = "\\A\\s*(\\d*\\.?\\d*)\\\"?\\s+-?\\s*(\\d*\\.?\\d*)\\\"?\\s*(.*)";
+            // e.g. (groups in brackets) <start> (nnn.nnn)" - (nnn.nnn)" (other text)
             Match match = Regex.Match(line, regexLabelFileLine);
             if (match.Success)
             {
@@ -125,9 +126,10 @@ namespace BatRecordingManager
         ///     of a start offset, end offset, duration and comment string and generates a new
         ///     Labelled segment instance and BatSegmentLink instances for each bat represented in
         ///     the Labelled segment. The instances are merged into a single instance of
-        ///     CombinedSegmentAndBatPasses to be returned. If the line to be processed is not in
-        ///     the correct format then an instance containing an empty LabelledSegment instance and
-        ///     an empty List of ExtendedBatPasses.
+        ///     CombinedSegmentAndBatPasses to be returned. If the line to be processed is not in the
+        ///     correct format then an instance containing an empty LabelledSegment instance and an
+        ///     empty List of ExtendedBatPasses. The comment section is checked for the presence of a
+        ///     call parameter string and if present new Call is created and populated.
         /// </summary>
         /// <param name="processedLine">
         ///     The processed line.
@@ -136,14 +138,15 @@ namespace BatRecordingManager
         ///     The bats.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         /// <exception cref="System.NotImplementedException">
-        ///     </exception>
+        /// </exception>
         public static SegmentAndBatList ProcessLabelledSegment(string processedLine, ObservableCollection<Bat> bats)
         {
             LabelledSegment segment = new LabelledSegment();
             SegmentAndBatList result = new SegmentAndBatList();
             var match = Regex.Match(processedLine, "([0-9\\.\\']+)[\\\"]?\\s-?\\s*([0-9\\.\\']+)[\\\"]?\\s=\\s([0-9\\.\']+)[\\\"]?\\s(.+)");
+            //e.g. (123'12.3)" - (123'12.3)" = (123'12.3)" (other text)
             if (match.Success)
             {
                 //int passes = 1;
@@ -151,6 +154,7 @@ namespace BatRecordingManager
                 if (match.Groups.Count > 3)
                 {
                     segment.Comment = match.Groups[4].Value;
+
                     TimeSpan ts = Tools.TimeParse(match.Groups[2].Value);
                     segment.EndOffset = ts;
                     ts = Tools.TimeParse(match.Groups[1].Value);
@@ -215,7 +219,7 @@ namespace BatRecordingManager
         ///     The current recording session identifier.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         public String ProcessFile(BatSummary batSummary, string fileName, GpxHandler gpxHandler, int CurrentRecordingSessionId)
         {
             mBatSummary = batSummary;
@@ -237,7 +241,7 @@ namespace BatRecordingManager
         ///     The bats.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         public string ProcessManualFileLine(Match match, out ObservableCollection<Bat> bats)
         {
             string comment = "";
@@ -269,7 +273,7 @@ namespace BatRecordingManager
         ///     The string time.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         private static TimeSpan GetTimeOffset(String strTime)
         {
             int Minutes = 0;
@@ -338,7 +342,7 @@ namespace BatRecordingManager
         ///     The file end.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         private TimeSpan GetFileDuration(string fileName, out string wavfile, out DateTime fileStart, out DateTime fileEnd)
         {
             DateTime CreationTime;
@@ -412,7 +416,7 @@ namespace BatRecordingManager
         ///     The line.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         private Match IsManualFileLine(string line)
         {
             //string regexLabelFileLine = @"\A((\d*'?\s*\d*\.?\d*)|START)\s*-\s*((\d*'?\s*\d*\.?\d*)|END)\s*.*";
@@ -446,7 +450,7 @@ namespace BatRecordingManager
         ///     The bats.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         private string ProcessLabelFileLine(string line, string startStr, string endStr, string comment, out ObservableCollection<Bat> bats)
         {
             string result = "";
@@ -485,7 +489,7 @@ namespace BatRecordingManager
         ///     The new duration.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         private string ProcessLabelLine(string line, string startStr, string endStr, string comment, out TimeSpan NewDuration)
         {
             NewDuration = new TimeSpan(0L);
@@ -559,7 +563,7 @@ namespace BatRecordingManager
         ///     The current recording session identifier.
         /// </param>
         /// <returns>
-        ///     </returns>
+        /// </returns>
         private string ProcessLabelOrManualFile(string fileName, GpxHandler gpxHandler, int CurrentRecordingSessionId)
         {
             ObservableCollection<SegmentAndBatList> ListOfsegmentAndBatLists = new ObservableCollection<SegmentAndBatList>();

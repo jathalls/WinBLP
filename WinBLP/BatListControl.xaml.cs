@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -47,26 +48,18 @@ namespace BatRecordingManager
             //batSummary = new BatSummary();
 
             batDetailControl.ListChanged += BatDetailControl_ListChanged;
-            Button editButton = BatListButtonBar.AddCustomButton("EDIT", 1, "EditBatButton");
-            if (editButton != null)
-            {
-                editButton.Click += EditButton_Click;
-            }
-            BatListButtonBar.AddButton.Click += AddButton_Click;
-            BatListButtonBar.DeleteButton.Click += DeleteButton_Click;
-            BatListButtonBar.MoveDownButton.Click += MoveDownButton_Click;
-            BatListButtonBar.MoveUpButton.Click += MoveUpButton_Click;
+
             SortedBatList = DBAccess.GetSortedBatList();
         }
 
         internal void RefreshData()
         {
             SortedBatList = DBAccess.GetSortedBatList();
-            var view = CollectionViewSource.GetDefaultView(sortedBatListView.ItemsSource);
-            if (view != null) view.Refresh();
+            /*          var view = CollectionViewSource.GetDefaultView(sortedBatListView.ItemsSource);
+                      if (view != null) view.Refresh();*/
         }
 
-        private void AddButton_Click(object sender, RoutedEventArgs e)
+        private void AddBatButton_Click(object sender, RoutedEventArgs e)
         {
             EditBatForm batEditingForm = new EditBatForm();
             batEditingForm.newBat = new Bat();
@@ -84,9 +77,9 @@ namespace BatRecordingManager
 
             int tagIndex = bdc.BatTagsListView.SelectedIndex;
 
-            int index = sortedBatListView.SelectedIndex;
+            int index = BatsDataGrid.SelectedIndex;
             SortedBatList = DBAccess.GetSortedBatList();
-            sortedBatListView.SelectedIndex = index;
+            BatsDataGrid.SelectedIndex = index;
             bdc.BatTagsListView.SelectedIndex = tagIndex;
         }
 
@@ -94,53 +87,47 @@ namespace BatRecordingManager
         {
         }
 
-        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        private void BatsDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sortedBatListView.SelectedItem != null)
+            DataGrid bsdg = sender as DataGrid;
+            if (e.AddedItems == null || e.AddedItems.Count <= 0) return;
+            Bat selected = e.AddedItems[0] as Bat;
+            if (e.RemovedItems != null && e.RemovedItems.Count > 0)
             {
-                Bat selectedBat = sortedBatListView.SelectedItem as Bat;
-                int index = sortedBatListView.SelectedIndex;
+                Bat previous = e.RemovedItems[0] as Bat;
+                if (previous == selected) return;
+            }
+            // therefore we have a selected item which is different from the previously selected item
+            batDetailControl.selectedBat = selected;
+        }
+
+        private void DelBatButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (BatsDataGrid.SelectedItem != null)
+            {
+                Bat selectedBat = BatsDataGrid.SelectedItem as Bat;
+                int index = BatsDataGrid.SelectedIndex;
                 DBAccess.DeleteBat(selectedBat);
                 SortedBatList = DBAccess.GetSortedBatList();
-                sortedBatListView.SelectedIndex = index < SortedBatList.Count() ? index : SortedBatList.Count() - 1;
+                BatsDataGrid.SelectedIndex = index < SortedBatList.Count() ? index : SortedBatList.Count() - 1;
             }
         }
 
-        private void EditButton_Click(object sender, RoutedEventArgs e)
+        private void EditBatButton_Click(object sender, RoutedEventArgs e)
         {
             EditBatForm batEditingForm = new EditBatForm();
-            if (sortedBatListView.SelectedItem == null) return;
-            batEditingForm.newBat = sortedBatListView.SelectedItem as Bat;
+            if (BatsDataGrid.SelectedItem == null) return;
+            batEditingForm.newBat = BatsDataGrid.SelectedItem as Bat;
             batEditingForm.ShowDialog();
-            if (batEditingForm.DialogResult != null && batEditingForm.DialogResult.Value)
+            if (batEditingForm.DialogResult ?? false)
             {
+                int index = BatsDataGrid.SelectedIndex;
                 DBAccess.MergeBat(batEditingForm.newBat);
                 SortedBatList = DBAccess.GetSortedBatList();
-            }
-        }
-
-        private void MoveDownButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (sortedBatListView.SelectedItem != null)
-            {
-                int originalLocation = sortedBatListView.SelectedIndex;
-                DBAccess.MoveBat(sortedBatListView.SelectedItem as Bat, 1);
-                SortedBatList = DBAccess.GetSortedBatList();
-                sortedBatListView.SelectedIndex = originalLocation < SortedBatList.Count - 1
-                    ? sortedBatListView.SelectedIndex + 1 : SortedBatList.Count - 1;
-            }
-        }
-
-        private void MoveUpButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (sortedBatListView.SelectedItem != null)
-            {
-                int originalLocation = sortedBatListView.SelectedIndex;
-                DBAccess.MoveBat(sortedBatListView.SelectedItem as Bat, -1);
-                SortedBatList = DBAccess.GetSortedBatList();
-                this.InvalidateArrange();
-                this.UpdateLayout();
-                sortedBatListView.SelectedIndex = originalLocation > 0 ? originalLocation - 1 : 0;
+                if (index > 0 && index < SortedBatList.Count)
+                {
+                    BatsDataGrid.SelectedIndex = index;
+                }
             }
         }
     }

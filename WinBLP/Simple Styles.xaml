@@ -670,6 +670,7 @@
         <Setter Property="KeyboardNavigation.TabNavigation" Value="None" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="AllowDrop" Value="true" />
+        <Setter Property="Background" Value="{DynamicResource WindowBackgroundBrushLight}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type TextBox}">

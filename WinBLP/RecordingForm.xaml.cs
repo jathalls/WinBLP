@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Maps.MapControl.WPF;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -382,6 +383,28 @@ namespace BatRecordingManager
                 index = recording.LabelledSegments.Count - 1;
             }
             LabelledSegmentsListView.SelectedIndex = index;
+        }
+
+        private void MapButton_Click(object sender, RoutedEventArgs e)
+        {
+            MapWindow map = new MapWindow(true);
+            Location location = Tools.ValidCoordinates(GPSLatitudeTextBox.Text, GPSLongitudeTextBox.Text);
+            if (location != null)
+            {
+                map.Coordinates = location;
+            }
+            if (map.ShowDialog() ?? false)
+            {
+                if (map.DialogResult ?? false)
+                {
+                    location = Tools.ValidCoordinates(map.lastSelectedLocation);
+                    if (location != null)
+                    {
+                        GPSLatitudeTextBox.Text = location.Latitude.ToString();
+                        GPSLongitudeTextBox.Text = location.Longitude.ToString();
+                    }
+                }
+            }
         }
 
         /// <summary>

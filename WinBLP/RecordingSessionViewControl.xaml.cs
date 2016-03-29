@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Maps.MapControl.WPF;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -98,15 +99,20 @@ namespace BatRecordingManager
 
         private void GPSLatitudeTextBox_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            Tuple<decimal, decimal> coordinates;
-            decimal lat = 0.0m;
-            decimal longit = 200.0m;
-            if (!decimal.TryParse(GPSLatitudeTextBox.Text, out lat)) return;
-            if (!decimal.TryParse(GPSLongitudeTextBox.Text, out longit)) return;
-            if (lat < 5.0m || longit > 180.0m) return;
-            coordinates = new Tuple<decimal, decimal>(lat, longit);
+            GPSMapButton_Click(sender, new RoutedEventArgs());
+        }
 
-            MapWindow mapWindow = new MapWindow();
+        private void GPSMapButton_Click(object sender, RoutedEventArgs e)
+        {
+            Location coordinates;
+            double lat = 200.0d;
+            double longit = 200.0d;
+            if (!double.TryParse(GPSLatitudeTextBox.Text, out lat)) return;
+            if (!double.TryParse(GPSLongitudeTextBox.Text, out longit)) return;
+            if (Math.Abs(lat) > 90.0d || Math.Abs(longit) > 180.0d) return;
+            coordinates = new Location(lat, longit);
+
+            MapWindow mapWindow = new MapWindow(false);
             mapWindow.mapControl.coordinates = coordinates;
             mapWindow.Show();
             if (recordingSession != null && recordingSession.Recordings != null && recordingSession.Recordings.Count > 0)
@@ -115,15 +121,15 @@ namespace BatRecordingManager
                 foreach (var rec in recordingSession.Recordings)
                 {
                     i++;
-                    double latitude = 100;
+                    double latitude = 200;
                     double longitude = 200;
                     if (Double.TryParse(rec.RecordingGPSLatitude, out latitude))
                     {
                         if (Double.TryParse(rec.RecordingGPSLongitude, out longitude))
                         {
-                            if (latitude <= 90.0 && latitude >= -90.0 && longitude <= 180.0 && longitude >= -180.0)
+                            if (Math.Abs(latitude) <= 90.0d && Math.Abs(longitude) <= 180.0d)
                             {
-                                mapWindow.mapControl.AddPushPin(new Tuple<double, double>(latitude, longitude), i.ToString());
+                                mapWindow.mapControl.AddPushPin(new Location(latitude, longitude), i.ToString());
                             }
                         }
                     }

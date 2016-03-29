@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Maps.MapControl.WPF;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -204,15 +205,15 @@ namespace BatRecordingManager
 
         private void GPSLatitudeTextBox_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            Tuple<decimal, decimal> coordinates;
-            decimal lat = 100.0m;
-            decimal longit = 200.0m;
-            if (!decimal.TryParse(GPSLatitudeTextBox.Text, out lat)) return;
-            if (!decimal.TryParse(GPSLongitudeTextBox.Text, out longit)) return;
-            if (!(lat <= 90.0m && lat >= -90.0m && longit <= 180.0m && longit >= -180.0m)) return;
-            coordinates = new Tuple<decimal, decimal>(lat, longit);
+            Location coordinates;
+            double lat = 200.0d;
+            double longit = 200.0d;
+            if (!double.TryParse(GPSLatitudeTextBox.Text, out lat)) return;
+            if (!double.TryParse(GPSLongitudeTextBox.Text, out longit)) return;
+            if (Math.Abs(lat) > 90.0 || Math.Abs(longit) > 180.0d) return;
+            coordinates = new Location(lat, longit);
 
-            MapWindow mapWindow = new MapWindow();
+            MapWindow mapWindow = new MapWindow(false);
             mapWindow.mapControl.coordinates = coordinates;
             mapWindow.Show();
             if (recordingSession != null && recordingSession.Recordings != null && recordingSession.Recordings.Count > 0)
@@ -229,10 +230,49 @@ namespace BatRecordingManager
                         {
                             if (latitude <= 90.0 && latitude >= -90.0 && longitude <= 180.0 && longitude >= -180.0)
                             {
-                                mapWindow.mapControl.AddPushPin(new Tuple<double, double>(latitude, longitude), i.ToString());
+                                mapWindow.mapControl.AddPushPin(new Location(latitude, longitude), i.ToString());
                             }
                         }
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Handles the Click event of the GPSMapButton control. Displays the map form and sets
+        ///     the GPS co-ordinates to the last location pinned with a double click
+        /// </summary>
+        /// <param name="sender">
+        ///     The source of the event.
+        /// </param>
+        /// <param name="e">
+        ///     The <see cref="RoutedEventArgs"/> instance containing the event data.
+        /// </param>
+        private void GPSMapButton_Click(object sender, RoutedEventArgs e)
+        {
+            MapWindow mapWindow = new MapWindow(true);
+            if (!String.IsNullOrWhiteSpace(GPSLatitudeTextBox.Text) && !String.IsNullOrWhiteSpace(GPSLongitudeTextBox.Text))
+            {
+                double lat = 200;
+                double longit = 200;
+                double.TryParse(GPSLatitudeTextBox.Text, out lat);
+                double.TryParse(GPSLongitudeTextBox.Text, out longit);
+                if (Math.Abs(lat) <= 90.0d && Math.Abs(longit) <= 180.0d)
+                {
+                    Location oldLocation = new Location(lat, longit);
+
+                    mapWindow.mapControl.mapControl.Center = oldLocation;
+                    mapWindow.mapControl.AddPushPin(oldLocation);
+                }
+            }
+            mapWindow.Title = mapWindow.Title + " Double-Click to Set new location";
+            if (!mapWindow.ShowDialog() ?? false)
+            {
+                Location lastSelecetdLocation = mapWindow.mapControl.lastInsertedPinLocation;
+                if (lastSelecetdLocation != null)
+                {
+                    GPSLatitudeTextBox.Text = lastSelecetdLocation.Latitude.ToString();
+                    GPSLongitudeTextBox.Text = lastSelecetdLocation.Longitude.ToString();
                 }
             }
         }

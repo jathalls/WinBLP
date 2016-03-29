@@ -67,29 +67,37 @@
                     <ColumnDefinition Width="150" />
                     <ColumnDefinition Width="150" />
                     <ColumnDefinition Width="150" />
+                    <ColumnDefinition Width="4" />
+                    <ColumnDefinition Width="23*" />
                 </Grid.ColumnDefinitions>
                 <Label
                     Grid.Column="0"
                     Style="{StaticResource SimpleLabel}"
-                    Content="GPS Co-ordinates:- " />
+                    Content="GPS Co-ordinates:- " Grid.ColumnSpan="2" Margin="0,0,149.4,-0.2" />
                 <Label
                     Grid.Column="1"
                     Style="{StaticResource SimpleLabel}"
-                    Content="Latitude" HorizontalAlignment="Right" />
+                    Content="Latitude" HorizontalAlignment="Right" Grid.ColumnSpan="2" Margin="0,0,148.8,-0.2" />
                 <TextBox
                     Grid.Column="2"
                     x:Name="GPSLatitudeTextBox"
                     Text=""
-                    Style="{StaticResource SimpleTextBox}" />
+                    Style="{StaticResource SimpleTextBox}" Grid.ColumnSpan="2" Margin="1.6,0,147.2,-0.2" />
                 <Label
                     Grid.Column="3"
                     Style="{StaticResource SimpleLabel}"
-                    Content="Longitude " HorizontalAlignment="Right" />
+                    Content="Longitude " HorizontalAlignment="Right" Grid.ColumnSpan="2" Margin="0,0,147.6,-0.2" />
                 <TextBox
                     Grid.Column="4"
                     x:Name="GPSLongitudeTextBox"
                     Text=""
-                    Style="{StaticResource SimpleTextBox}" />
+                    Style="{StaticResource SimpleTextBox}" Grid.ColumnSpan="2" Margin="2.8,0,27.582,-0.2" />
+                <Button
+                    x:Name="MapButton"
+                    Content="Map"
+                    Grid.Column="6"
+                    HorizontalAlignment="Left"
+                    Style="{StaticResource SimpleButton}" Click="MapButton_Click" />
             </Grid>
 
             <Grid

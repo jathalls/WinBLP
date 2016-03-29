@@ -235,8 +235,14 @@ namespace BatRecordingManager
         /// </param>
         private void miHelp_Click(object sender, RoutedEventArgs e)
         {
+            string helpfile = @"Bat Recording Manager.chm";
+            if (File.Exists(helpfile))
+            {
+                System.Windows.Forms.Help.ShowHelp(null, helpfile);
+            }
+            /*
             HelpScreen help = new HelpScreen();
-            help.ShowDialog();
+            help.ShowDialog();*/
         }
 
         /// <summary>
